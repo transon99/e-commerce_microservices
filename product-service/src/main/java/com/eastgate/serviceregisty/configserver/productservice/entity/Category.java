@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
-@Data
 @Entity
 @Table(name = "categories")
 @NoArgsConstructor
