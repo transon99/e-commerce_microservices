@@ -1,20 +1,23 @@
 package com.eastgate.serviceregisty.configserver.productservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
+import java.util.UUID;
+
+@EqualsAndHashCode(callSuper = true)
 @Entity
+@Data
 @Table(name = "products")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Product extends AbstractMappedEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @UuidGenerator
+    @Column(name = "id", unique = true, nullable = false, updatable = false)
+    private String id;
 
     @Column(name = "product_title")
     private String title;

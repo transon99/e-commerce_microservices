@@ -2,14 +2,15 @@ package com.eastgate.serviceregisty.configserver.productservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Set;
+import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
+@Data
 @Table(name = "categories")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,9 +18,8 @@ import java.util.Set;
 @Builder
 public class Category extends AbstractMappedEntity{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", unique = true, nullable = false, updatable = false)
-    private Long id;
+    @UuidGenerator
+    private String id;
 
     @Column(name = "category_title")
     private String title;

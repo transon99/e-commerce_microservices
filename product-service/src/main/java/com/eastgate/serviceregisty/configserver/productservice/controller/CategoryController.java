@@ -1,18 +1,16 @@
 package com.eastgate.serviceregisty.configserver.productservice.controller;
 
 import com.eastgate.serviceregisty.configserver.productservice.dto.request.CategoryRequest;
-import com.eastgate.serviceregisty.configserver.productservice.dto.response.CategoryResponse;
+import com.eastgate.serviceregisty.configserver.productservice.dto.response.CategoryDTO;
+import com.eastgate.serviceregisty.configserver.productservice.dto.response.ResponseMessage;
 import com.eastgate.serviceregisty.configserver.productservice.service.CategoryService;
+import com.eastgate.serviceregisty.configserver.productservice.service.CategoryServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/v1/category")
 @RestController
@@ -23,18 +21,22 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-
     @PostMapping
-    public ResponseEntity<Void> save(@RequestBody @Validated CategoryRequest categoryRequest) {
-        categoryService.save(categoryRequest);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<ResponseMessage> createCategory(@RequestBody @Validated CategoryRequest categoryRequest) {
+        categoryService.createCategory(categoryRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ResponseMessage("OK",
+                        "create a category successfully !!",
+                        categoryService.createCategory(categoryRequest)));
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<CategoryResponse> findById(@PathVariable("id") Long id) {
-//        CategoryResponse category = categoryService.findById(id);
-//        return ResponseEntity.ok(category);
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseMessage> findById(@PathVariable("id") Long id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ResponseMessage("OK",
+                        "get category successfully !!",
+                        categoryService.findById(id)));
+    }
 
 //    @DeleteMapping("/{id}")
 //    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {

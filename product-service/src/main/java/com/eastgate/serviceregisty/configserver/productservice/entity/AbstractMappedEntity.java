@@ -1,28 +1,41 @@
 package com.eastgate.serviceregisty.configserver.productservice.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 
-import java.time.Instant;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Date;
+
 @MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-abstract public class AbstractMappedEntity {
-    @CreatedDate
-    @JsonFormat(shape = Shape.STRING)
-    @Column(name = "created_at")
-    private Instant createdAt;
+abstract public class AbstractMappedEntity implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    @LastModifiedDate
-    @JsonFormat(shape = Shape.STRING)
+    @LastModifiedBy
+    @Column(name = "updated_by")
+    private String updatedBy;
+
+    @UpdateTimestamp(source = SourceType.DB)
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    private Date updatedDate;
+
+    @CreatedBy
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @CreationTimestamp(source = SourceType.DB)
+    @Column(name = "created_at")
+    private Date createdAt;
 }
