@@ -5,23 +5,23 @@
 //import org.springframework.http.ResponseEntity;
 //
 //public class ResponseUtils {
-//    public static ResponseEntity checkStatusCodeAndResponse(CategoryDTO citizenResponseDTO) {
-//        if (citizenResponseDTO != null && citizenResponseDTO.getResponseStatusCode() != null) {
-//            switch (citizenResponseDTO.getResponseStatusCode()) {
+//    public static ResponseEntity checkStatusCodeAndResponse(CategoryDTO ResponseDTO) {
+//        if (ResponseDTO != null && ResponseDTO.getResponseStatusCode() != null) {
+//            switch (ResponseDTO.getResponseStatusCode()) {
 //                case INTERNAL_SERVER_ERROR:
-//                    return new ResponseEntity(citizenResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+//                    return new ResponseEntity(ResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
 //                case UNAUTHORIZED:
-//                    return new ResponseEntity(citizenResponseDTO, HttpStatus.UNAUTHORIZED);
+//                    return new ResponseEntity(ResponseDTO, HttpStatus.UNAUTHORIZED);
 //                case NOT_FOUND:
-//                    return new ResponseEntity(citizenResponseDTO, HttpStatus.NOT_FOUND);
+//                    return new ResponseEntity(ResponseDTO, HttpStatus.NOT_FOUND);
 //                case BAD_REQUEST:
-//                    return new ResponseEntity(citizenResponseDTO, HttpStatus.BAD_REQUEST);
+//                    return new ResponseEntity(ResponseDTO, HttpStatus.BAD_REQUEST);
 //                case UNPROCESSABLE_ENTITY:
-//                    return new ResponseEntity(citizenResponseDTO, HttpStatus.UNPROCESSABLE_ENTITY);
+//                    return new ResponseEntity(ResponseDTO, HttpStatus.UNPROCESSABLE_ENTITY);
 //                case LOCKED:
-//                    return new ResponseEntity(citizenResponseDTO, HttpStatus.LOCKED);
+//                    return new ResponseEntity(ResponseDTO, HttpStatus.LOCKED);
 //                default:
-//                    return new ResponseEntity(citizenResponseDTO, HttpStatus.OK);
+//                    return new ResponseEntity(ResponseDTO, HttpStatus.OK);
 //            }
 //        }
 //

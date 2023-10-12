@@ -1,8 +1,8 @@
 package com.eastgate.productservice.controller;
 
 import com.eastgate.productservice.dto.request.CategoryRequest;
-import com.eastgate.productservice.dto.response.ResponseMessage;
 import com.eastgate.productservice.service.CategoryService;
+import com.eastgate.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,45 +22,28 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> createCategory(@RequestBody @Validated CategoryRequest categoryRequest) {
-        categoryService.createCategory(categoryRequest);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseMessage("OK",
-                        "create a category successfully !!",
-                        categoryService.createCategory(categoryRequest)));
+    public ResponseEntity createCategory(@RequestBody @Validated CategoryRequest categoryRequest) {
+        return Utils.checkStatusCodeAndResponse(categoryService.createCategory(categoryRequest));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseMessage> findById(@PathVariable(name = "id") String id) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseMessage("OK",
-                        "get category successfully !!",
-                        categoryService.findCategoryById(id)));
+    public ResponseEntity findById(@PathVariable(name = "id") String id) {
+        return Utils.checkStatusCodeAndResponse(categoryService.findCategoryById(id));
     }
 
     @GetMapping()
-    public ResponseEntity<ResponseMessage> findAll() {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseMessage("OK",
-                        "get category successfully !!",
-                        categoryService.findAllCategories()));
+    public ResponseEntity findAll() {
+        return Utils.checkStatusCodeAndResponse(categoryService.findAllCategories());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseMessage("OK",
-                        "delete category successfully !!",
-                        categoryService.deleteCategoryById(id)));
+    public ResponseEntity delete(@PathVariable(name = "id") String id) {
+        return Utils.checkStatusCodeAndResponse(categoryService.deleteCategoryById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMessage> update(@RequestBody Map<String, Object> fields , @PathVariable(name = "id") String id) {
-        categoryService.updateCategory(fields, id);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseMessage("OK",
-                        "update category successfully !!",
-                        categoryService.updateCategory(fields,id)));
+    public ResponseEntity update(@RequestBody Map<String, Object> fields, @PathVariable(name = "id") String id) {
+        return Utils.checkStatusCodeAndResponse(categoryService.updateCategory(fields, id));
     }
 
 }

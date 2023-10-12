@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class ProductDto extends AbstractDto<String> {
 
     @Size(max = 255)

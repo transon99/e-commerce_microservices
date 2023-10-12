@@ -1,6 +1,5 @@
-package com.eastgate.productservice.dto.response;
+package com.eastgate.response;
 
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

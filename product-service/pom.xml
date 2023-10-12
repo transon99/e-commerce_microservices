@@ -28,7 +28,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.eastgate.e-commerce</groupId>
+            <groupId>com.eastgate.ecommerce</groupId>
             <artifactId>e-commerce-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
