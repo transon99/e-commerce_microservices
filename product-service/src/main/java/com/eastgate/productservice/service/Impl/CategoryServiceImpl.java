@@ -1,4 +1,4 @@
-package com.eastgate.productservice.service;
+package com.eastgate.productservice.service.Impl;
 
 import com.eastgate.productservice.exceptions.MissingInputException;
 import com.eastgate.productservice.exceptions.NotFoundException;
@@ -7,12 +7,15 @@ import com.eastgate.productservice.repository.CategoryRepository;
 import com.eastgate.productservice.dto.request.CategoryRequest;
 import com.eastgate.productservice.dto.response.CategoryDTO;
 import com.eastgate.productservice.entity.Category;
+import com.eastgate.productservice.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,27 +33,28 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toDto(categoryRepository.save(entity));
     }
 
-    public CategoryDTO findById(String id) {
+    public List<CategoryDTO> findAllCategories() {
+        List<Category> categoryDTOS = categoryRepository.findAll();
+        if(CollectionUtils.isEmpty(categoryDTOS)){
+            throw new NotFoundException("Can't find any products");
+        }
+        return categoryMapper.toDto(categoryRepository.findAll());
+    }
+
+    public CategoryDTO findCategoryById(String id) {
         if (id == null)
             throw new MissingInputException("Missing input id");
         return categoryMapper.toDto(categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find category with id " + id)));
     }
 
-    public String deleteById(String id) {
+    public String deleteCategoryById(String id) {
         if (id == null)
             throw new MissingInputException("Missing input id");
 
         categoryRepository.deleteById(id);
         return id;
     }
-
-
-//    public Page<CategoryResponse> findByCondition(CategoryResponse categoryResponse, Pageable pageable) {
-//        Page<Category> entityPage = categoryRepository.findAll(pageable);
-//        List<Category> entities = entityPage.getContent();
-//        return new PageImpl<>(categoryMapper.entityToResponse(entities), pageable, entityPage.getTotalElements());
-//    }
 
     public CategoryDTO updateCategory(Map<String, Object> fields, String id) {
         Category currentCategory = categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Can't find category with id" + id));

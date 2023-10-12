@@ -13,4 +13,5 @@ public class ResponseMessage {
     private String status;
     private String message;
     private Object data;
+    private PagingData pagingData;
 }

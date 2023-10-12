@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RequestMapping("/api/v1/category")
+@RequestMapping("/api/v1/categories")
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -35,7 +35,15 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseMessage("OK",
                         "get category successfully !!",
-                        categoryService.findById(id)));
+                        categoryService.findCategoryById(id)));
+    }
+
+    @GetMapping()
+    public ResponseEntity<ResponseMessage> findAll() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ResponseMessage("OK",
+                        "get category successfully !!",
+                        categoryService.findAllCategories()));
     }
 
     @DeleteMapping("/{id}")
@@ -43,7 +51,7 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseMessage("OK",
                         "delete category successfully !!",
-                        categoryService.deleteById(id)));
+                        categoryService.deleteCategoryById(id)));
     }
 
     @PutMapping("/{id}")

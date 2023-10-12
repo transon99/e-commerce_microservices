@@ -8,11 +8,10 @@ import lombok.*;
 
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class CategoryRequest extends AbstractDto<Long> {
+public class CategoryRequest {
 
     @Size(max = 255)
     private String name;

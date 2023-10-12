@@ -18,7 +18,7 @@ public class Product extends AbstractMappedEntity {
     private String id;
 
     @Column(name = "product_title")
-    private String title;
+    private String name;
 
     @Column(name = "description")
     private String description;
