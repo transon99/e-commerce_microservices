@@ -16,7 +16,6 @@ import java.util.Map;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-//@Api("category")
 public class CategoryController {
 
     private final CategoryService categoryService;
