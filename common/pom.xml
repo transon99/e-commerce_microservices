@@ -8,7 +8,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.eastgate.ecommerce</groupId>
+    <groupId>com.sondev.ecommerce</groupId>
     <artifactId>e-commerce-common</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>

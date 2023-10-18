@@ -13,7 +13,7 @@ eureka:
 spring:
   datasource:
     #    url: jdbc:mysql://mysql-springboot-container:3306/e-commerce-microservice
-    url: jdbc:mysql://localhost:3306/e-commerce-microservice
+    url: jdbc:mysql://localhost:3306/product-service
     username: root
     password: Dfer2205me
     driver-class-name: com.mysql.cj.jdbc.Driver
