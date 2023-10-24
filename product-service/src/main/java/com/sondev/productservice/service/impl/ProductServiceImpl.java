@@ -1,17 +1,18 @@
-package com.sondev.userservice.service.Impl;
+package com.sondev.productservice.service.impl;
 
 import com.sondev.common.constants.ResponseStatusCode;
-import com.sondev.userservice.dto.request.ProductRequest;
-import com.sondev.userservice.entity.Category;
-import com.sondev.userservice.entity.Product;
-import com.sondev.userservice.exceptions.MissingInputException;
-import com.sondev.userservice.exceptions.NotFoundException;
-import com.sondev.userservice.mapper.ProductMapper;
-import com.sondev.userservice.repository.ProductRepository;
-import com.sondev.userservice.service.ProductService;
+import com.sondev.productservice.dto.request.ProductRequest;
+import com.sondev.productservice.entity.Category;
+import com.sondev.productservice.entity.Product;
+import com.sondev.productservice.exceptions.MissingInputException;
+import com.sondev.productservice.exceptions.NotFoundException;
+import com.sondev.productservice.mapper.ProductMapper;
+import com.sondev.productservice.repository.ProductRepository;
+import com.sondev.productservice.service.ProductService;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.response.ResponseDTO;
 import com.sondev.common.utils.PaginationUtils;
+import com.sondev.common.utils.Utils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,6 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import static com.sondev.common.utils.Utils.getResponseSuccess;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,13 +38,15 @@ public class ProductServiceImpl implements ProductService {
 
     public ResponseDTO createProduct(ProductRequest productRequest) {
         Product entity = productMapper.reqToEntity(productRequest);
-        return getResponseSuccess(productMapper.toDto(productRepository.save(entity)),"Successfully!!!");
+        return Utils.getResponseSuccess(productMapper.toDto(productRepository.save(entity)),"Successfully!!!");
     }
 
     public ResponseDTO findProductById(String id) {
-        if (id == null)
+        if (id == null){
+            log.error("Missing input id");
             throw new MissingInputException("Missing input id");
-        return getResponseSuccess(productMapper.toDto(productRepository.findById(id)
+        }
+        return Utils.getResponseSuccess(productMapper.toDto(productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find product with id " + id))),"Successfully!!!");
     }
 
@@ -83,14 +84,14 @@ public class ProductServiceImpl implements ProductService {
             ReflectionUtils.setField(field, currentProduct, value);
         });
 
-        return getResponseSuccess(productMapper.toDto(productRepository.save(currentProduct)),"Successfully!!!");
+        return Utils.getResponseSuccess(productMapper.toDto(productRepository.save(currentProduct)),"Successfully!!!");
     }
 
     public ResponseDTO deleteProductById(String id) {
         if (id == null)
             throw new MissingInputException("Missing input id");
         productRepository.deleteById(id);
-        return getResponseSuccess(id,"Successfully!!!");
+        return Utils.getResponseSuccess(id,"Successfully!!!");
     }
 
 }

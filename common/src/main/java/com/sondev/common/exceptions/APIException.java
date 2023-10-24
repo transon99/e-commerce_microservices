@@ -1,4 +1,4 @@
-package com.sondev.userservice.exceptions;
+package com.sondev.common.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

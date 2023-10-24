@@ -1,4 +1,4 @@
-package com.sondev.userservice.exceptions;
+package com.sondev.common.exceptions;
 
 public class NotFoundException extends RuntimeException{
     public NotFoundException(String message){

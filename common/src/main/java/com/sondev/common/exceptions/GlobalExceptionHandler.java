@@ -1,5 +1,5 @@
-package com.sondev.userservice.exceptions;
-import com.sondev.userservice.dto.response.ErrorResponse;
+package com.sondev.common.exceptions;
+import com.sondev.common.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

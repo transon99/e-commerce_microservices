@@ -1,13 +1,14 @@
-package com.sondev.userservice.service.Impl;
+package com.sondev.productservice.service.impl;
 
-import com.sondev.userservice.dto.request.CategoryRequest;
-import com.sondev.userservice.entity.Category;
-import com.sondev.userservice.exceptions.MissingInputException;
-import com.sondev.userservice.exceptions.NotFoundException;
-import com.sondev.userservice.mapper.CategoryMapper;
-import com.sondev.userservice.repository.CategoryRepository;
-import com.sondev.userservice.service.CategoryService;
+import com.sondev.productservice.dto.request.CategoryRequest;
+import com.sondev.productservice.entity.Category;
+import com.sondev.productservice.exceptions.MissingInputException;
+import com.sondev.productservice.exceptions.NotFoundException;
+import com.sondev.productservice.mapper.CategoryMapper;
+import com.sondev.productservice.repository.CategoryRepository;
+import com.sondev.productservice.service.CategoryService;
 import com.sondev.common.response.ResponseDTO;
+import com.sondev.common.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -17,8 +18,6 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-
-import static com.sondev.common.utils.Utils.getResponseSuccess;
 
 @Slf4j
 @Service
@@ -31,7 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     public ResponseDTO createCategory(CategoryRequest categoryRequest) {
         Category entity = categoryMapper.reqToEntity(categoryRequest);
-        return getResponseSuccess(categoryMapper.toDto(categoryRepository.save(entity)), "Successfully!!!");
+        return Utils.getResponseSuccess(categoryMapper.toDto(categoryRepository.save(entity)), "Successfully!!!");
     }
 
     public ResponseDTO findAllCategories() {
@@ -39,13 +38,13 @@ public class CategoryServiceImpl implements CategoryService {
         if (CollectionUtils.isEmpty(categoryDTOS)) {
             throw new NotFoundException("Can't find any products");
         }
-        return getResponseSuccess(categoryMapper.toDto(categoryRepository.findAll()), "Successfully!!!");
+        return Utils.getResponseSuccess(categoryMapper.toDto(categoryRepository.findAll()), "Successfully!!!");
     }
 
     public ResponseDTO findCategoryById(String id) {
         if (id == null)
             throw new MissingInputException("Missing input id");
-        return getResponseSuccess(categoryMapper.toDto(categoryRepository.findById(id)
+        return Utils.getResponseSuccess(categoryMapper.toDto(categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find category with id " + id))),"Successfully!!!");
     }
 
@@ -54,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new MissingInputException("Missing input id");
 
         categoryRepository.deleteById(id);
-        return getResponseSuccess(id,"Successfully!!!");
+        return Utils.getResponseSuccess(id,"Successfully!!!");
     }
 
     public ResponseDTO updateCategory(Map<String, Object> fields, String id) {
@@ -70,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
             ReflectionUtils.setField(field, currentCategory, value);
         });
 
-        return getResponseSuccess(categoryMapper.toDto(categoryRepository.save(currentCategory)),"Successfully!!!");
+        return Utils.getResponseSuccess(categoryMapper.toDto(categoryRepository.save(currentCategory)),"Successfully!!!");
     }
 
 }

@@ -1,7 +1,7 @@
 package com.sondev.productservice.controller;
 
 import com.sondev.productservice.dto.request.ProductRequest;
-import com.sondev.productservice.service.Impl.ProductServiceImpl;
+import com.sondev.productservice.service.impl.ProductServiceImpl;
 import com.sondev.common.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +22,7 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity createProduct(@RequestBody @Validated ProductRequest productRequest) {
+        log.info("*** ProductDto, controller; create product *");
         return Utils.checkStatusCodeAndResponse(productService.createProduct(productRequest));
     }
 

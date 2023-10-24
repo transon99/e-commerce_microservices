@@ -1,4 +1,4 @@
-package com.sondev.userservice.exceptions;
+package com.sondev.common.exceptions;
 
 public class MissingInputException extends RuntimeException{
     public MissingInputException(String message){

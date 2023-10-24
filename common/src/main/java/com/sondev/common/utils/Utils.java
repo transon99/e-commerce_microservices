@@ -36,20 +36,4 @@ public class Utils {
                 .responseStatusCode(ResponseStatusCode.OK)
                 .build();
     }
-
-    public static ResponseDTO getResponseNotFound(Object data, String content) {
-        return ResponseDTO.builder()
-                .data(data)
-                .message(content)
-                .responseStatusCode(ResponseStatusCode.NOT_FOUND)
-                .build();
-    }
-
-    public static ResponseDTO getResponseBadRequest(Object data, String msg) {
-        return ResponseDTO.builder()
-                .data(data)
-                .message(msg)
-                .responseStatusCode(ResponseStatusCode.BAD_REQUEST)
-                .build();
-    }
 }

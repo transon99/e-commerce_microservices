@@ -1,6 +1,5 @@
-package com.sondev.userservice.dto.response;
+package com.sondev.common.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
