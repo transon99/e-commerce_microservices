@@ -21,7 +21,8 @@
 		<module>user-service</module>
 		<module>service-registry</module>
 		<module>api-gateway</module>
-        <module>common</module>
+		<module>order-service</module>
+		<module>common</module>
     </modules>
 
 	<properties>

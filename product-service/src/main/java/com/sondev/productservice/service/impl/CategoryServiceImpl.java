@@ -34,8 +34,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     public ResponseDTO findAllCategories() {
-        List<Category> categoryDTOS = categoryRepository.findAll();
-        if (CollectionUtils.isEmpty(categoryDTOS)) {
+        List<Category> categories = categoryRepository.findAll();
+        if (CollectionUtils.isEmpty(categories)) {
             throw new NotFoundException("Can't find any products");
         }
         return Utils.getResponseSuccess(categoryMapper.toDto(categoryRepository.findAll()), "Successfully!!!");
