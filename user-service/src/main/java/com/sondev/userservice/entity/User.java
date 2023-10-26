@@ -59,6 +59,7 @@ public class User extends AbstractMappedEntity{
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    private Boolean locked = false;
+
+    private Boolean enabled = false;
 }
