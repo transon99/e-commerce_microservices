@@ -44,8 +44,8 @@ public class User extends AbstractMappedEntity implements UserDetails {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 
     @Column(name = "user_name")
     private String userName;
@@ -62,11 +62,11 @@ public class User extends AbstractMappedEntity implements UserDetails {
     private Set<Address> addresses;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.USER;
+    private Role role;
 
-//    private Boolean locked = false;
-//
-//    private Boolean enabled = false;
+    private Boolean locked;
+
+    private Boolean enabled;
 
     public User(String firstName, String lastName, String userName, String email, String password, Role role) {
         this.firstName = firstName;
@@ -100,6 +100,11 @@ public class User extends AbstractMappedEntity implements UserDetails {
         return true;
     }
 
+//    @Override
+//    public boolean isAccountNonLocked() {
+//        return !locked;
+//    }
+
     @Override
     public boolean isAccountNonLocked() {
         return true;
@@ -109,6 +114,11 @@ public class User extends AbstractMappedEntity implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
+
+//    @Override
+//    public boolean isEnabled() {
+//        return enabled;
+//    }
 
     @Override
     public boolean isEnabled() {

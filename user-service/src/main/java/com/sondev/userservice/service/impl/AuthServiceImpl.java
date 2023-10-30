@@ -7,6 +7,7 @@ import com.sondev.userservice.dto.request.LoginRequest;
 import com.sondev.userservice.dto.request.RegisterRequest;
 import com.sondev.userservice.dto.response.LoginDto;
 import com.sondev.userservice.entity.Address;
+import com.sondev.userservice.entity.Role;
 import com.sondev.userservice.entity.User;
 import com.sondev.userservice.mapper.AddressMapper;
 import com.sondev.userservice.mapper.UserMapper;
@@ -16,6 +17,7 @@ import com.sondev.userservice.security.jwt.JwtService;
 import com.sondev.userservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -72,14 +74,18 @@ public class AuthServiceImpl implements AuthService {
         Address address;
         Optional<User> currentUser = userRepository.findByUserName(registerRequest.getUserName());
         if (currentUser.isEmpty()) {
-            User user = new User();
-            user = userMapper.reqToEntity(registerRequest);
+            User user = userMapper.reqToEntity(registerRequest);
             if (registerRequest.getAddressRequest() != null) {
                 address = addressRepository.save(addressMapper.reqToEntity(registerRequest.getAddressRequest()));
                 user.setAddresses(Set.of(address));
             } else {
                 user.setAddresses(new HashSet<>());
             }
+            if(StringUtils.isEmpty(registerRequest.getRole())){
+                user.setRole(Role.USER);
+            }
+            user.setEnabled(true);
+            user.setLocked(true);
             user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
             userSave = userRepository.save(user);
         } else {
