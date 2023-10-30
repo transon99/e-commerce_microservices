@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -40,7 +41,6 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-
     @Override
     public ResponseDTO login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -50,12 +50,12 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
-
         String jwtToken = jwtService.generateToken(authentication);
         CustomUserDetail userDetail = (CustomUserDetail) authentication.getPrincipal();
 
-        if (userDetail.getEnabled())
+        if (userDetail.getEnabled()) {
             throw new APIException("User is not enable!!");
+        }
         return Utils.getResponseSuccess(LoginDto.builder()
                 .accessToken(jwtToken)
                 .status("OK")
@@ -70,12 +70,18 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public ResponseDTO register(RegisterRequest registerRequest) {
         User userSave;
-        Optional<User> currentUser = userRepository.findByUserNameOrEmail(registerRequest.getUserName(),
-                registerRequest.getEmail());
-        if (currentUser.isPresent()) {
-            Address address = addressRepository.save(addressMapper.reqToEntity(registerRequest.getAddressRequest()));
+        Address address;
+        Optional<User> currentUser = userRepository.findByUserName(registerRequest.getUserName());
+        if (currentUser.isEmpty()) {
             User user = userMapper.reqToEntity(registerRequest);
-            user.setAddresses(Set.of(address));
+            if (registerRequest.getAddressRequest() != null) {
+                address = addressRepository.save(addressMapper.reqToEntity(registerRequest.getAddressRequest()));
+                user.setAddresses(Set.of(address));
+            } else {
+                user.setAddresses(new HashSet<>());
+            }
+            user.setEnabled(Boolean.FALSE);
+            user.setLocked(Boolean.FALSE);
             userSave = userRepository.save(user);
         } else {
             log.error("*** String, service; register user already exists *");

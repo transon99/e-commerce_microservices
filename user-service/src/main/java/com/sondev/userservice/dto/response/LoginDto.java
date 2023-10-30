@@ -1,5 +1,6 @@
 package com.sondev.userservice.dto.response;
 
+import com.sondev.userservice.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,5 +19,5 @@ public class LoginDto {
     private String status;
     private String type;
     private String fullName;
-    private SimpleGrantedAuthority role;
+    private Role role;
 }

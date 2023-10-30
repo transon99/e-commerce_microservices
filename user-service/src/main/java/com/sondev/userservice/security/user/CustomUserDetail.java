@@ -1,5 +1,6 @@
 package com.sondev.userservice.security.user;
 
+import com.sondev.userservice.entity.Role;
 import com.sondev.userservice.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -23,7 +25,7 @@ public class CustomUserDetail implements UserDetails {
     private String email;
     private Boolean locked;
     private Boolean enabled;
-    private SimpleGrantedAuthority role;
+    private Role role;
 
     public CustomUserDetail(User user) {
         this.userName = user.getUserName();
@@ -33,12 +35,14 @@ public class CustomUserDetail implements UserDetails {
         this.locked = user.getLocked();
         this.enabled = user.getEnabled();
         this.email = user.getEmail();
-        this.role = new SimpleGrantedAuthority(user.getRole().name());
+        this.role = user.getRole();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(this.role);
+        SimpleGrantedAuthority authority =
+                new SimpleGrantedAuthority(role.name());
+        return Collections.singletonList(authority);
     }
 
     @Override
@@ -58,7 +62,7 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !locked;
     }
 
     @Override
@@ -68,7 +72,7 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 
 }
