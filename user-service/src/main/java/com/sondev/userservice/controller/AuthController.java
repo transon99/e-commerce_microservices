@@ -25,7 +25,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Validated RegisterRequest registerRequest) {
-        log.info("*** UserDto List, controller; login *");
+        log.info("*** UserDto List, controller; register *");
         return Utils.checkStatusCodeAndResponse(authService.register(registerRequest));
     }
 

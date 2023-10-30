@@ -13,19 +13,17 @@ import com.sondev.userservice.mapper.UserMapper;
 import com.sondev.userservice.repository.AddressRepository;
 import com.sondev.userservice.repository.UserRepository;
 import com.sondev.userservice.security.jwt.JwtService;
-import com.sondev.userservice.security.user.CustomUserDetail;
 import com.sondev.userservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public ResponseDTO login(LoginRequest loginRequest) {
@@ -51,11 +50,11 @@ public class AuthServiceImpl implements AuthService {
         );
 
         String jwtToken = jwtService.generateToken(authentication);
-        CustomUserDetail userDetail = (CustomUserDetail) authentication.getPrincipal();
+        User userDetail = (User) authentication.getPrincipal();
 
-        if (userDetail.getEnabled()) {
-            throw new APIException("User is not enable!!");
-        }
+//        if (userDetail.getEnabled()) {
+//            throw new APIException("User is not enable!!");
+//        }
         return Utils.getResponseSuccess(LoginDto.builder()
                 .accessToken(jwtToken)
                 .status("OK")
@@ -73,15 +72,15 @@ public class AuthServiceImpl implements AuthService {
         Address address;
         Optional<User> currentUser = userRepository.findByUserName(registerRequest.getUserName());
         if (currentUser.isEmpty()) {
-            User user = userMapper.reqToEntity(registerRequest);
+            User user = new User();
+            user = userMapper.reqToEntity(registerRequest);
             if (registerRequest.getAddressRequest() != null) {
                 address = addressRepository.save(addressMapper.reqToEntity(registerRequest.getAddressRequest()));
                 user.setAddresses(Set.of(address));
             } else {
                 user.setAddresses(new HashSet<>());
             }
-            user.setEnabled(Boolean.FALSE);
-            user.setLocked(Boolean.FALSE);
+            user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
             userSave = userRepository.save(user);
         } else {
             log.error("*** String, service; register user already exists *");

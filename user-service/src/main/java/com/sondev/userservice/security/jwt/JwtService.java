@@ -1,7 +1,7 @@
 package com.sondev.userservice.security.jwt;
 
 import com.sondev.common.exceptions.APIException;
-import com.sondev.userservice.security.user.CustomUserDetail;
+import com.sondev.userservice.entity.User;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -26,7 +26,7 @@ public class JwtService {
     private Long TOKEN_EXPIRED;
 
     public String generateToken(Authentication authentication){
-        CustomUserDetail userPrincipal  = (CustomUserDetail) authentication.getPrincipal();
+        User userPrincipal  = (User) authentication.getPrincipal();
         return Jwts.builder()
                 .setSubject(userPrincipal .getUsername())
                 .setIssuedAt(new Date())
