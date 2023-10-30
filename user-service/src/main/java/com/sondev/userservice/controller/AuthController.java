@@ -2,6 +2,7 @@ package com.sondev.userservice.controller;
 
 import com.sondev.common.utils.Utils;
 import com.sondev.userservice.dto.request.LoginRequest;
+import com.sondev.userservice.dto.request.RegisterRequest;
 import com.sondev.userservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +24,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Validated LoginRequest loginRequest) {
+    public ResponseEntity register(@RequestBody @Validated RegisterRequest registerRequest) {
         log.info("*** UserDto List, controller; login *");
-        return Utils.checkStatusCodeAndResponse(authService.login(loginRequest));
+        return Utils.checkStatusCodeAndResponse(authService.register(registerRequest));
     }
 
     @GetMapping("/hello")
