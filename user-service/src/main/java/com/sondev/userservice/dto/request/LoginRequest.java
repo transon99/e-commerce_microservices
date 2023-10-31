@@ -2,16 +2,15 @@ package com.sondev.userservice.dto.request;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Builder
 public class LoginRequest {
-
-    @Size(max = 255)
-    private String userNameOrEmail;
-    @Size(max = 255)
+    private String userName;
     private String password;
 }

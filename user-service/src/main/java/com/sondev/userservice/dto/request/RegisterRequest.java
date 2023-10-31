@@ -21,9 +21,9 @@ public class RegisterRequest {
 
     private AddressRequest addressRequest;
 
-    @Size(max = 255)
     private String userName;
 
-    @Size(max = 255)
     private String password;
+
+    private String role;
 }

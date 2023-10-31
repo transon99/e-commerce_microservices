@@ -19,7 +19,7 @@ public class Product extends AbstractMappedEntity {
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
-
+  
     @Column(name = "product_name", nullable = false, columnDefinition = "char(255)")
     private String name;
 
