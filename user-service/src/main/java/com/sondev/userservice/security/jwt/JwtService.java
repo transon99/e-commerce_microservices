@@ -29,6 +29,7 @@ public class JwtService {
         User userPrincipal  = (User) authentication.getPrincipal();
         return Jwts.builder()
                 .setSubject(userPrincipal .getUsername())
+                .claim("roles", userPrincipal.getRole())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + TOKEN_EXPIRED))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)

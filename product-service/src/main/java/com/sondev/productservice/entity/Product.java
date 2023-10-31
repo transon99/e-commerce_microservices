@@ -17,7 +17,7 @@ public class Product extends AbstractMappedEntity {
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
 
-    @Column(name = "product_title")
+    @Column(name = "product_name")
     private String name;
 
     @Column(name = "description")
