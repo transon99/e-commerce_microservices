@@ -8,21 +8,19 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.util.List;
-
 @Data
 @Builder
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "cart")
-public class Cart extends AbstractMappedEntity {
+@Document(collection = "cartItem")
+public class CartItem extends AbstractMappedEntity {
 
     @MongoId(FieldType.OBJECT_ID)
     private String id;
 
-    @Field(name = "user_id")
-    private String userId;
+    @Field(name = "quantity")
+    private Integer quantity;
 
-    @Field(name = "cart_items")
-    private List<String> cartItems;
+    @Field(name = "product_id")
+    private String productId;
 
 }

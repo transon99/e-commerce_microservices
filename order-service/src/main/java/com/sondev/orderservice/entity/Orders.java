@@ -36,8 +36,8 @@ public class Orders extends AbstractMappedEntity {
     private Integer status;
 
     @Field(name = "user_id")
-    private Double userId;
+    private String userId;
 
-    @Field(name = "order_detail_ids")
-    private List<String> orderDetailIds;
+    @Field(name = "cart_ids")
+    private List<String> cartIds;
 }

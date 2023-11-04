@@ -1,6 +1,7 @@
 package com.sondev.orderservice.controller;
 
 import com.sondev.common.utils.Utils;
+import com.sondev.orderservice.dto.request.AddToCartRequest;
 import com.sondev.orderservice.dto.request.CartRequest;
 import com.sondev.orderservice.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +26,7 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping
-    public ResponseEntity createCategory(@RequestBody @Validated CartRequest cartRequest) {
+    public ResponseEntity createCart(@RequestBody @Validated CartRequest cartRequest) {
         return Utils.checkStatusCodeAndResponse(cartService.createCart(cartRequest));
     }
 
@@ -41,6 +43,11 @@ public class CartController {
     @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable(name = "id") String id) {
         return Utils.checkStatusCodeAndResponse(cartService.deleteCartById(id));
+    }
+
+    @PostMapping("/add-to-cart")
+    public ResponseEntity addToCart(@RequestBody AddToCartRequest addToCartRequest,@RequestHeader("Authorization") String token ) {
+        return Utils.checkStatusCodeAndResponse(cartService.addToCart(addToCartRequest, token));
     }
 
 //    @PutMapping("/{id}")

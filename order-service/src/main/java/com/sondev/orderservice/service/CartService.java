@@ -1,6 +1,7 @@
 package com.sondev.orderservice.service;
 
 import com.sondev.common.response.ResponseDTO;
+import com.sondev.orderservice.dto.request.AddToCartRequest;
 import com.sondev.orderservice.dto.request.CartRequest;
 
 public interface CartService {
@@ -14,5 +15,7 @@ public interface CartService {
 //    ResponseDTO updateCategory(Map<String, Object> fields, String id);
 
     ResponseDTO deleteCartById(String id);
+
+    ResponseDTO addToCart(AddToCartRequest addToCartRequest, String token);
 
 }
