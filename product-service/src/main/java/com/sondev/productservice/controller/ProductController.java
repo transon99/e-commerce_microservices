@@ -1,6 +1,7 @@
 package com.sondev.productservice.controller;
 
 import com.sondev.productservice.dto.request.ProductRequest;
+import com.sondev.productservice.dto.response.ProductDto;
 import com.sondev.productservice.service.impl.ProductServiceImpl;
 import com.sondev.common.utils.Utils;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,8 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity findById(@PathVariable(name = "id") String id) {
-        return Utils.checkStatusCodeAndResponse(productService.findProductById(id));
+    public ResponseEntity<ProductDto> findById(@PathVariable(name = "id") String id) {
+        return ResponseEntity.ok().body(productService.findProductById(id));
     }
 
     @GetMapping()

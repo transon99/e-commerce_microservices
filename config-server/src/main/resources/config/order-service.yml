@@ -10,12 +10,11 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 
 #connect to database
-spring:
   data:
     mongodb:
       authentication-database: admin
       username: admin
-      password: password
+      password: admin
       database: order-service
       port: 27017
       host: localhost

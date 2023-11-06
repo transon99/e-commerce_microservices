@@ -2,10 +2,11 @@ package com.sondev.orderservice.service.impl;
 
 import com.sondev.common.exceptions.MissingInputException;
 import com.sondev.common.exceptions.NotFoundException;
-import com.sondev.common.response.ResponseDTO;
 import com.sondev.common.utils.Utils;
 import com.sondev.orderservice.dto.request.AddToCartRequest;
 import com.sondev.orderservice.dto.request.CartRequest;
+import com.sondev.orderservice.dto.response.CartDto;
+import com.sondev.orderservice.dto.response.ProductDto;
 import com.sondev.orderservice.entity.Cart;
 import com.sondev.orderservice.feignclient.ProductClient;
 import com.sondev.orderservice.mapper.CartMapper;
@@ -29,41 +30,39 @@ public class CartServiceImpl implements CartService {
     private final ProductClient productClient;
 
     @Override
-    public ResponseDTO createCart(CartRequest cartRequest) {
+    public String createCart(CartRequest cartRequest) {
         Cart cartEntity = cartMapper.reqToEntity(cartRequest);
-        return Utils.getResponseSuccess(cartMapper.toDto(cartRepository.save(cartEntity)), "Successfully!!!");
+        return cartMapper.toDto(cartRepository.save(cartEntity)).getId();
     }
 
     @Override
-    public ResponseDTO findAllCarts() {
+    public List<CartDto> findAllCarts() {
         List<Cart> carts = cartRepository.findAll();
         if (CollectionUtils.isEmpty(carts)) {
             throw new NotFoundException("Can't find any cart");
         }
-        return Utils.getResponseSuccess(cartMapper.toDto(cartRepository.findAll()), "Successfully!!!");
+        return cartMapper.toDto(cartRepository.findAll());
     }
 
     @Override
-    public ResponseDTO findCartById(String id) {
+    public CartDto findCartById(String id) {
         if (id == null)
             throw new MissingInputException("Missing input id");
-        return Utils.getResponseSuccess(cartMapper.toDto(cartRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Can't find cart with id " + id))),"Successfully!!!");
+        return cartMapper.toDto(cartRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Can't find cart with id " + id)));
     }
 
     @Override
-    public ResponseDTO deleteCartById(String id) {
+    public String deleteCartById(String id) {
         if (id == null)
             throw new MissingInputException("Missing input id");
-
         cartRepository.deleteById(id);
-        return Utils.getResponseSuccess(id,"Successfully!!!");
+        return id;
     }
 
     @Override
-    public ResponseDTO addToCart(AddToCartRequest addToCartRequest, String token) {
-        ResponseEntity product = productClient.findById(addToCartRequest.getProductId(), token);
-        return null;
+    public ProductDto addToCart(AddToCartRequest addToCartRequest, String token) {
+        return productClient.findById(token,addToCartRequest.getProductId()).getBody();
     }
 
 }
