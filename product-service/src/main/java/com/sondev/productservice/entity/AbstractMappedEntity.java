@@ -13,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @MappedSuperclass
@@ -25,11 +26,11 @@ abstract public class AbstractMappedEntity implements Serializable {
 
     @LastModifiedBy
     @Column(name = "updated_by")
-    private String updatedBy;
+    private String lastModifiedBy;
 
     @UpdateTimestamp(source = SourceType.DB)
     @Column(name = "updated_at")
-    private Date updatedDate;
+    private LocalDateTime lastModifiedAt;
 
     @CreatedBy
     @Column(name = "created_by")
@@ -37,5 +38,5 @@ abstract public class AbstractMappedEntity implements Serializable {
 
     @CreationTimestamp(source = SourceType.DB)
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 }

@@ -1,8 +1,11 @@
 package com.sondev.orderservice.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.gson.Gson;
+import com.sondev.common.exceptions.APIException;
 import com.sondev.common.exceptions.MissingInputException;
 import com.sondev.common.exceptions.NotFoundException;
-import com.sondev.common.utils.Utils;
+import com.sondev.common.response.ResponseMessage;
 import com.sondev.orderservice.dto.request.AddToCartRequest;
 import com.sondev.orderservice.dto.request.CartRequest;
 import com.sondev.orderservice.dto.response.CartDto;
@@ -15,10 +18,11 @@ import com.sondev.orderservice.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -62,7 +66,16 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public ProductDto addToCart(AddToCartRequest addToCartRequest, String token) {
-        return productClient.findById(token,addToCartRequest.getProductId()).getBody();
+        ResponseMessage responseMessage =  productClient.findById(token,addToCartRequest.getProductId()).getBody();
+        Gson gson = new Gson();
+        String responseEntityBodyInString = Objects.requireNonNull(responseMessage.getData().toString());
+        ProductDto productDto;
+        try {
+            productDto = gson.fromJson(responseEntityBodyInString, ProductDto.class);
+        } catch (Exception e) {
+            throw new APIException( "Can not get response from data cloud service");
+        }
+        return productDto;
     }
 
 }

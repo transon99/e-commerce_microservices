@@ -1,14 +1,12 @@
 package com.sondev.authservice.service.impl;
 
-import com.sondev.common.exceptions.APIException;
-import com.sondev.common.response.ResponseDTO;
-import com.sondev.common.utils.Utils;
 import com.sondev.authservice.dto.request.LoginRequest;
 import com.sondev.authservice.dto.request.RegisterRequest;
 import com.sondev.authservice.dto.response.LoginDto;
 import com.sondev.authservice.entity.Address;
 import com.sondev.authservice.entity.Role;
 import com.sondev.authservice.entity.User;
+import com.sondev.authservice.exceptions.UserAlreadyExistException;
 import com.sondev.authservice.mapper.AddressMapper;
 import com.sondev.authservice.mapper.UserMapper;
 import com.sondev.authservice.repository.AddressRepository;
@@ -21,10 +19,12 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -90,7 +90,7 @@ public class AuthServiceImpl implements AuthService {
             userSave = userRepository.save(user);
         } else {
             log.error("*** String, service; register user already exists *");
-            throw new APIException("user already exists");
+            throw new UserAlreadyExistException("user already exists");
         }
 
         return userSave.getId();

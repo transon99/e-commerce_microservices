@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -15,11 +16,11 @@ import java.util.Date;
 public class AbstractMappedEntity{
     @LastModifiedBy
     @Field(name = "updated_by")
-    private String updatedBy;
+    private String lastModifiedBy;
 
     @LastModifiedDate
     @Field(name = "updated_at")
-    private Date updatedDate;
+    private LocalDateTime lastModifiedAt;
 
     @CreatedBy
     @Field(name = "created_by")
@@ -27,5 +28,5 @@ public class AbstractMappedEntity{
 
     @CreatedDate
     @Field(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 }

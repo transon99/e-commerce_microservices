@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class AbstractDto<E> {
 
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     private LocalDateTime lastModifiedAt;
 

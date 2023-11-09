@@ -36,21 +36,6 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean validateJwtToken(String authToken){
-        try {
-            Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parse(authToken);
-            return true;
-        } catch (MalformedJwtException e) {
-            throw new APIException("Invalid JWT token 1232");
-        } catch (ExpiredJwtException e) {
-            throw new APIException("JWT token is expired");
-        } catch (UnsupportedJwtException e) {
-            throw new APIException("JWT token is unsupported");
-        } catch (IllegalArgumentException e) {
-            throw new APIException("JWT claims string is empty");
-        }
-    }
-
     public boolean validateToken(String token){
         try{
             Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parse(token);
@@ -78,7 +63,6 @@ public class JwtService {
 
     public String getTokenFromRequest(HttpServletRequest request){
         String header = request.getHeader("Authorization");
-
         if (header != null && header.startsWith("Bearer ")){
             return header.substring(7);
         }
