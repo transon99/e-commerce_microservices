@@ -1,26 +1,31 @@
-package com.sondev.orderservice.service.impl;
+package com.sondev.cartservice.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.sondev.cartservice.dto.request.AddToCartRequest;
+import com.sondev.cartservice.dto.request.CartRequest;
+import com.sondev.cartservice.dto.response.CartDto;
+import com.sondev.cartservice.dto.response.ProductDto;
+import com.sondev.cartservice.entity.Cart;
+import com.sondev.cartservice.entity.CartItem;
+import com.sondev.cartservice.feignclient.ProductClient;
+import com.sondev.cartservice.mapper.CartMapper;
+import com.sondev.cartservice.repository.CartRepository;
+import com.sondev.cartservice.service.CartService;
 import com.sondev.common.exceptions.APIException;
 import com.sondev.common.exceptions.MissingInputException;
 import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.ResponseMessage;
-import com.sondev.orderservice.dto.request.AddToCartRequest;
-import com.sondev.orderservice.dto.request.CartRequest;
-import com.sondev.orderservice.dto.response.CartDto;
-import com.sondev.orderservice.dto.response.ProductDto;
-import com.sondev.orderservice.entity.Cart;
-import com.sondev.orderservice.feignclient.ProductClient;
-import com.sondev.orderservice.mapper.CartMapper;
-import com.sondev.orderservice.repository.CartRepository;
-import com.sondev.orderservice.service.CartService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,6 +34,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
 
+    final ObjectMapper mapper = new ObjectMapper();
     private final CartMapper cartMapper;
     private final CartRepository cartRepository;
     private final ProductClient productClient;
@@ -50,32 +56,35 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartDto findCartById(String id) {
-        if (id == null)
+        if (id == null) {
             throw new MissingInputException("Missing input id");
+        }
         return cartMapper.toDto(cartRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find cart with id " + id)));
     }
 
     @Override
     public String deleteCartById(String id) {
-        if (id == null)
+        if (id == null) {
             throw new MissingInputException("Missing input id");
+        }
         cartRepository.deleteById(id);
         return id;
     }
 
     @Override
     public ProductDto addToCart(AddToCartRequest addToCartRequest, String token) {
-        ResponseMessage responseMessage =  productClient.findById(token,addToCartRequest.getProductId()).getBody();
-        Gson gson = new Gson();
-        String responseEntityBodyInString = Objects.requireNonNull(responseMessage.getData().toString());
-        ProductDto productDto;
-        try {
-            productDto = gson.fromJson(responseEntityBodyInString, ProductDto.class);
-        } catch (Exception e) {
-            throw new APIException( "Can not get response from data cloud service");
+        ResponseMessage productResponse = productClient.findById(token, addToCartRequest.getProductId()).getBody();
+        assert productResponse != null;
+        if (productResponse.getData() != null){
+            ProductDto productDto = mapper.convertValue(productResponse.getData(), ProductDto.class);
+            CartItem cartItem = CartItem.builder()
+                    .quantity(addToCartRequest.getQuantity())
+                    .productId(productDto.getId())
+                    .build();
         }
-        return productDto;
+
+        return null;
     }
 
 }

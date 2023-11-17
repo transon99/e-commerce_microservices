@@ -23,7 +23,8 @@
 		<module>api-gateway</module>
 		<module>order-service</module>
 		<module>common</module>
-    </modules>
+		<module>cart-service</module>
+	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

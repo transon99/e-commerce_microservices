@@ -14,19 +14,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductDto extends AbstractDto<String> {
 
-    @Size(max = 255)
     private String id;
-    @Size(max = 255)
     private String title;
-    @Size(max = 255)
     private String description;
-    @Size(max = 255)
     private String imageUrl;
-    @Size(max = 255)
     private String sku;
     private Double priceUnit;
-    @Max(Integer.MAX_VALUE)
     private Integer quantity;
-    private Category category;
 
 }

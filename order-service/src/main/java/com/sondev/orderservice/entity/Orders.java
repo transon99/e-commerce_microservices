@@ -1,43 +1,43 @@
 package com.sondev.orderservice.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.mapping.FieldType;
-import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.List;
 
 @Data
 @Builder
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "orders")
 public class Orders extends AbstractMappedEntity {
-    @MongoId(FieldType.OBJECT_ID)
+    @Id
+    @UuidGenerator
+    @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
 
-    @Field(name = "first_name")
+    @Column(name = "first_name", nullable = false, columnDefinition = "char(255)")
     private String firstName;
 
-    @Field(name = "last_name")
+    @Column(name = "last_name", nullable = false, columnDefinition = "char(255)")
     private String lastName;
 
-    @Field(name = "email")
+    @Column(name = "email", nullable = false, columnDefinition = "char(255)")
     @Email(message = "*Input must be in Email format!**")
     private String email;
 
-    @Field(name = "phone_number")
+    @Column(name = "phone_number", nullable = false, columnDefinition = "char(255)")
     private String phoneNumber;
 
-    @Field(name = "status")
+    @Column(name = "status")
     private Integer status;
 
-    @Field(name = "user_id")
+    @Column(name = "user_id")
     private String userId;
 
-    @Field(name = "cart_ids")
-    private List<String> cartIds;
+    @Column(name = "cart_ids")
+    private String cartId;
 }

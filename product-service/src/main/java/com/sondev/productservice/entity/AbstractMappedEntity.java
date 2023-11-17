@@ -10,6 +10,7 @@ import org.hibernate.annotations.SourceType;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -30,6 +31,7 @@ abstract public class AbstractMappedEntity implements Serializable {
 
     @UpdateTimestamp(source = SourceType.DB)
     @Column(name = "updated_at")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime lastModifiedAt;
 
     @CreatedBy
@@ -37,6 +39,7 @@ abstract public class AbstractMappedEntity implements Serializable {
     private String createdBy;
 
     @CreationTimestamp(source = SourceType.DB)
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 }
