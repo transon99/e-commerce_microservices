@@ -1,13 +1,17 @@
 package com.sondev.cartservice.dto.response;
 
+import com.sondev.cartservice.dto.AbstractDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDto {
+@EqualsAndHashCode(callSuper = true)
+public class ProductDto extends AbstractDto<String> {
 
     private String id;
     private String title;
@@ -18,9 +22,9 @@ public class ProductDto {
     private Integer quantity;
     private String createdAt;
 
-    private String lastModifiedAt;
-
-    private String createdBy;
-
-    private String lastModifiedBy;
+//    private String lastModifiedAt;
+//
+//    private String createdBy;
+//
+//    private String lastModifiedBy;
 }

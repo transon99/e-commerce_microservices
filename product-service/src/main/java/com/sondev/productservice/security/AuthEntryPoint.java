@@ -1,4 +1,4 @@
-package com.sondev.productservice.security.jwt;
+package com.sondev.productservice.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sondev.common.response.ErrorResponse;

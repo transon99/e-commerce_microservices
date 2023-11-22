@@ -1,9 +1,6 @@
 package com.sondev.cartservice.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sondev.cartservice.dto.request.AddToCartRequest;
 import com.sondev.cartservice.dto.request.CartRequest;
 import com.sondev.cartservice.dto.response.CartDto;
@@ -12,31 +9,32 @@ import com.sondev.cartservice.entity.Cart;
 import com.sondev.cartservice.entity.CartItem;
 import com.sondev.cartservice.feignclient.ProductClient;
 import com.sondev.cartservice.mapper.CartMapper;
+import com.sondev.cartservice.repository.CartItemRepository;
 import com.sondev.cartservice.repository.CartRepository;
 import com.sondev.cartservice.service.CartService;
-import com.sondev.common.exceptions.APIException;
 import com.sondev.common.exceptions.MissingInputException;
 import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.ResponseMessage;
-
+import com.sondev.common.utils.JwtUtils;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
 
-    final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private final CartMapper cartMapper;
     private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+
     private final ProductClient productClient;
 
     @Override
@@ -73,18 +71,41 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public ProductDto addToCart(AddToCartRequest addToCartRequest, String token) {
-        ResponseMessage productResponse = productClient.findById(token, addToCartRequest.getProductId()).getBody();
-        assert productResponse != null;
-        if (productResponse.getData() != null){
-            ProductDto productDto = mapper.convertValue(productResponse.getData(), ProductDto.class);
-            CartItem cartItem = CartItem.builder()
-                    .quantity(addToCartRequest.getQuantity())
-                    .productId(productDto.getId())
-                    .build();
-        }
+    public String addToCart(AddToCartRequest addToCartRequest, String token) {
+        Claims claims = JwtUtils.parseClaims(token);
+        String userId = (String) claims.get("userId");
+        Optional<Cart> currentCart = cartRepository.findByUserId(userId);
+        CartItem cartItem = CartItem.builder()
+                .userId(userId)
+                .quantity(addToCartRequest.getQuantity())
+                .productId(addToCartRequest.getProductId())
+                .build();
+        CartItem cartItemSave = cartItemRepository.save(cartItem);
 
-        return null;
+        currentCart.ifPresentOrElse(
+                cart -> {
+                    cart.getCartItems().add(cartItemSave.getId());
+                    cartRepository.save(cart);
+                    log.info("add product to cart");
+                },
+                () -> {
+                    Cart newCart = Cart.builder()
+                            .cartItems(List.of(cartItemSave.getId()))
+                            .userId(userId)
+                            .build();
+                    cartRepository.save(newCart);
+                });
+
+        //        ResponseMessage productResponse = productClient.findById(token, addToCartRequest.getProductId()).getBody();
+        //        assert productResponse != null;
+        //        if (productResponse.getData() != null){
+        //            ProductDto productDto = objectMapper.convertValue(productResponse.getData(), ProductDto.class);
+        //            CartItem cartItem = CartItem.builder()
+        //                    .quantity(addToCartRequest.getQuantity())
+        //                    .productId(productDto.getId())
+        //                    .build();
+
+        return "Add product with id" + addToCartRequest.getProductId() + "to cart successful !!!";
     }
 
 }

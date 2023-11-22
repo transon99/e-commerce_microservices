@@ -25,7 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -51,14 +53,21 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
-        String jwtToken = jwtService.generateToken(authentication);
         User userDetail = (User) authentication.getPrincipal();
+
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("roles", userDetail.getRole());
+        extraClaims.put("userId", userDetail.getId());
+
+        String accessToken = jwtService.generateAccessToken(userDetail, extraClaims );
+        String refreshToken = jwtService.generateRefreshToken(userDetail);
 
 //        if (userDetail.getEnabled()) {
 //            throw new APIException("User is not enable!!");
 //        }
         return LoginDto.builder()
-                .accessToken(jwtToken)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .status("OK")
                 .fullName(userDetail.getFirstName() + " " + userDetail.getLastName())
                 .type("Bearer")

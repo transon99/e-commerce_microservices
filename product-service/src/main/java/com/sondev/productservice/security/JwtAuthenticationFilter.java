@@ -1,4 +1,4 @@
-package com.sondev.productservice.security.jwt;
+package com.sondev.productservice.security;
 
 import com.sondev.common.utils.JwtUtils;
 import io.jsonwebtoken.Claims;

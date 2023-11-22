@@ -21,6 +21,6 @@ public interface CartService {
 
     String deleteCartById(String id);
 
-    ProductDto addToCart(AddToCartRequest addToCartRequest, String token);
+    String addToCart(AddToCartRequest addToCartRequest, String token);
 
 }

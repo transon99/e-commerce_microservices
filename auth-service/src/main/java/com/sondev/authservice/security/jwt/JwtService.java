@@ -16,28 +16,48 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class JwtService {
+
     @Value("${application.security.jwt.secret-key}")
     private String SECRET_KEY;
 
-    @Value("${application.security.jwt.refresh-token.expiration}")
+    @Value("${application.security.jwt.expiration}")
     private Long TOKEN_EXPIRED;
 
-    public String generateToken(Authentication authentication){
-        User userPrincipal  = (User) authentication.getPrincipal();
-        return Jwts.builder()
-                .setSubject(userPrincipal .getUsername())
-                .claim("roles", userPrincipal.getRole())
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private Long REFRESH_TOKEN_EXPIRED;
+
+    private String buildToken(
+            User userDetail,
+            Map<String, Object> extraClaims,
+            long expiration
+    ) {
+        return Jwts
+                .builder()
+                .setSubject(userDetail.getUsername())
+                .setClaims(extraClaims)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + TOKEN_EXPIRED))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .setExpiration(new Date((new Date()).getTime() + expiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS384)
                 .compact();
     }
 
-    public boolean validateToken(String token){
-        try{
+    public String generateAccessToken(User userDetail,
+                                      Map<String, Object> extraClaims
+    ) {
+        return buildToken(userDetail, extraClaims, TOKEN_EXPIRED);
+    }
+
+    public String generateRefreshToken(User userDetail) {
+        return buildToken(userDetail, new HashMap<>(), REFRESH_TOKEN_EXPIRED);
+    }
+
+    public boolean validateToken(String token) {
+        try {
             Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parse(token);
             return true;
         } catch (MalformedJwtException ex) {
@@ -57,15 +77,16 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String getUserNameFromToken(String token){
+    public String getUserNameFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(token).getBody().getSubject();
     }
 
-    public String getTokenFromRequest(HttpServletRequest request){
+    public String getTokenFromRequest(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")){
+        if (header != null && header.startsWith("Bearer ")) {
             return header.substring(7);
         }
         return null;
     }
+
 }
