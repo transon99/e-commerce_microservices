@@ -1,8 +1,9 @@
 package com.sondev.authservice.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sondev.authservice.dto.request.LoginRequest;
 import com.sondev.authservice.dto.request.RegisterRequest;
-import com.sondev.authservice.dto.response.LoginDto;
+import com.sondev.authservice.dto.response.AuthDto;
 import com.sondev.authservice.entity.Address;
 import com.sondev.authservice.entity.Role;
 import com.sondev.authservice.entity.User;
@@ -13,23 +14,22 @@ import com.sondev.authservice.repository.AddressRepository;
 import com.sondev.authservice.repository.UserRepository;
 import com.sondev.authservice.security.jwt.JwtService;
 import com.sondev.authservice.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public LoginDto login(LoginRequest loginRequest) {
+    public AuthDto login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUserName(),
@@ -65,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
 //        if (userDetail.getEnabled()) {
 //            throw new APIException("User is not enable!!");
 //        }
-        return LoginDto.builder()
+        return AuthDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .status("OK")
@@ -103,6 +103,33 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return userSave.getId();
+    }
+
+    @Override
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String token = jwtService.getTokenFromRequest(request);
+        if (token != null && jwtService.validateToken(token)) {
+            String userName = jwtService.getUserNameFromToken(token);
+            if (userName != null) {
+                User user = userRepository.findByUserName(userName).orElseThrow();
+                User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                if (jwtService.validateToken(token) ){
+                    Map<String, Object> extraClaims = new HashMap<>();
+                    extraClaims.put("roles", user.getRole());
+                    extraClaims.put("userId", user.getId());
+                    String accessToken = jwtService.generateAccessToken(user,extraClaims);
+                    AuthDto authDto = AuthDto.builder()
+                            .accessToken(accessToken)
+                            .refreshToken(token)
+                            .status("OK")
+                            .fullName(user.getFirstName() + " " + user.getLastName())
+                            .type("Bearer")
+                            .role(user.getRole())
+                            .build();
+                    new ObjectMapper().writeValue(response.getOutputStream(), authDto);
+                }
+            }
+        }
     }
 
 }

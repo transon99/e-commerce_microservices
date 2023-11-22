@@ -1,18 +1,21 @@
 package com.sondev.authservice.controller;
 
-import com.sondev.authservice.dto.response.LoginDto;
-//import com.sondev.authservice.exceptions.UserAlreadyExistException;
-import com.sondev.common.response.ResponseDTO;
-import com.sondev.common.response.ResponseMessage;
-import com.sondev.common.utils.Utils;
 import com.sondev.authservice.dto.request.LoginRequest;
 import com.sondev.authservice.dto.request.RegisterRequest;
 import com.sondev.authservice.service.AuthService;
+import com.sondev.common.response.ResponseMessage;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
 
 @RequestMapping("api/v1/auth")
 @RestController
@@ -31,5 +34,13 @@ public class AuthController {
     public ResponseEntity<ResponseMessage> register(@RequestBody @Validated RegisterRequest registerRequest) {
         log.info("*** UserDto List, controller; register *");
         return ResponseEntity.ok().body(new ResponseMessage("200", "Login successful !!!",authService.register(registerRequest)));
+    }
+
+    @PostMapping("/refresh-token")
+    public void refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
+        authService.refreshToken(request, response);
     }
 }

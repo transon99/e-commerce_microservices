@@ -38,10 +38,10 @@ public class JwtService {
     ) {
         return Jwts
                 .builder()
-                .setSubject(userDetail.getUsername())
                 .setClaims(extraClaims)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + expiration))
+                .setSubject(userDetail.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS384)
                 .compact();
     }
