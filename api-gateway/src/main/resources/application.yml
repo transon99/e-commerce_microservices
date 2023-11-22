@@ -14,8 +14,15 @@ spring:
           filters:
             - AuthenticationFilter
 
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/carts/**
+          filters:
+            - AuthenticationFilter
+
         - id: user-service
-          uri: lb://USER-SERVICE
+          uri: lb://AUTH-SERVICE
           predicates:
             - Path=/api/v1/auth/**
 eureka:

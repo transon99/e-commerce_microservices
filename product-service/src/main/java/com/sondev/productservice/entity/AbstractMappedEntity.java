@@ -10,9 +10,11 @@ import org.hibernate.annotations.SourceType;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @MappedSuperclass
@@ -25,17 +27,19 @@ abstract public class AbstractMappedEntity implements Serializable {
 
     @LastModifiedBy
     @Column(name = "updated_by")
-    private String updatedBy;
+    private String lastModifiedBy;
 
     @UpdateTimestamp(source = SourceType.DB)
     @Column(name = "updated_at")
-    private Date updatedDate;
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    private LocalDateTime lastModifiedAt;
 
     @CreatedBy
     @Column(name = "created_by")
     private String createdBy;
 
     @CreationTimestamp(source = SourceType.DB)
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 }

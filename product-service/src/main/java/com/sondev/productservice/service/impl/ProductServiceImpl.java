@@ -2,6 +2,7 @@ package com.sondev.productservice.service.impl;
 
 import com.sondev.common.constants.ResponseStatusCode;
 import com.sondev.productservice.dto.request.ProductRequest;
+import com.sondev.productservice.dto.response.ProductDto;
 import com.sondev.productservice.entity.Category;
 import com.sondev.productservice.entity.Product;
 import com.sondev.productservice.exceptions.MissingInputException;
@@ -41,13 +42,13 @@ public class ProductServiceImpl implements ProductService {
         return Utils.getResponseSuccess(productMapper.toDto(productRepository.save(entity)),"Successfully!!!");
     }
 
-    public ResponseDTO findProductById(String id) {
+    public ProductDto findProductById(String id) {
         if (id == null){
             log.error("Missing input id");
             throw new MissingInputException("Missing input id");
         }
-        return Utils.getResponseSuccess(productMapper.toDto(productRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Can't find product with id " + id))),"Successfully!!!");
+        return productMapper.toDto(productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Can't find product with id " + id)));
     }
 
     public ResponseDTO getProducts(String searchText, Integer offset, Integer pageSize, String sortStr) {

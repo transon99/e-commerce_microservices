@@ -1,31 +1,45 @@
 package com.sondev.orderservice.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.io.Serial;
+import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@MappedSuperclass
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 public class AbstractMappedEntity{
-    @LastModifiedBy
-    @Field(name = "updated_by")
-    private String updatedBy;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    @LastModifiedDate
-    @Field(name = "updated_at")
-    private Date updatedDate;
+    @LastModifiedBy
+    @Column(name = "updated_by")
+    private String lastModifiedBy;
+
+    @UpdateTimestamp(source = SourceType.DB)
+    @Column(name = "updated_at")
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    private LocalDateTime lastModifiedAt;
 
     @CreatedBy
-    @Field(name = "created_by")
+    @Column(name = "created_by")
     private String createdBy;
 
-    @CreatedDate
-    @Field(name = "created_at")
-    private Date createdAt;
+    @CreationTimestamp(source = SourceType.DB)
+    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }

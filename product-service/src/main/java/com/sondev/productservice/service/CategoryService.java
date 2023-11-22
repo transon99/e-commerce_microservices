@@ -2,6 +2,7 @@ package com.sondev.productservice.service;
 
 import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.common.response.ResponseDTO;
+import com.sondev.productservice.dto.response.ProductDto;
 
 import java.util.Map;
 
