@@ -1,5 +1,6 @@
 package com.sondev.orderservice.controller;
 
+import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.Utils;
 import com.sondev.orderservice.dto.request.OrderRequest;
 import com.sondev.orderservice.service.OrderService;
@@ -28,34 +29,45 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity createOrder(@RequestBody @Validated OrderRequest orderRequest) {
+    public ResponseEntity<ResponseMessage> createOrder(@RequestBody @Validated OrderRequest orderRequest) {
         log.info("*** OrderDto, controller; create order *");
-        return Utils.checkStatusCodeAndResponse(orderService.createOrder(orderRequest));
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Create order successful !!",
+                orderService.createOrder(orderRequest)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity findById(@PathVariable(name = "id") String id) {
-        return Utils.checkStatusCodeAndResponse(orderService.findOrderById(id));
+    public ResponseEntity<ResponseMessage> findById(@PathVariable(name = "id") String id) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Find order successful !!",
+                orderService.findOrderById(id)));
     }
 
     @GetMapping()
-    public ResponseEntity getOrders(@RequestParam String searchText,
-                                      @RequestParam Integer offset,
-                                      @RequestParam Integer pageSize,
-                                      @RequestParam String sortStr) {
-        return Utils.checkStatusCodeAndResponse(orderService.getOrders(searchText, offset, pageSize, sortStr));
+    public ResponseEntity<ResponseMessage> getOrders(@RequestParam String searchText,
+                                    @RequestParam Integer offset,
+                                    @RequestParam Integer pageSize,
+                                    @RequestParam String sortStr) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "get orders successful !!", orderService.getOrders(searchText, offset, pageSize, sortStr)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable(name = "id") String id) {
-        return Utils.checkStatusCodeAndResponse(orderService.deleteOrderById(id));
+    public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Delete order successful !!", orderService.deleteOrderById(id)));
     }
 
-
     @PutMapping("/{id}")
-    public ResponseEntity update(@RequestBody @Validated Map<String, Object> fields,
+    public ResponseEntity<ResponseMessage> update(@RequestBody @Validated Map<String, Object> fields,
                                  @PathVariable(name = "id") String id) {
-        return Utils.checkStatusCodeAndResponse(orderService.updateOrder(fields, id));
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Update order successful !!", orderService.updateOrder(fields, id)));
     }
 
 }

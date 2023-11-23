@@ -1,5 +1,6 @@
 package com.sondev.productservice.controller;
 
+import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.productservice.service.CategoryService;
 import com.sondev.common.utils.Utils;
@@ -20,28 +21,47 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity createCategory(@RequestBody @Validated CategoryRequest categoryRequest) {
-        return Utils.checkStatusCodeAndResponse(categoryService.createCategory(categoryRequest));
+    public ResponseEntity<ResponseMessage> createCategory(@RequestBody @Validated CategoryRequest categoryRequest) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Create category successful !!",
+                categoryService.createCategory(categoryRequest)));
+
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity findById(@PathVariable(name = "id") String id) {
-        return Utils.checkStatusCodeAndResponse(categoryService.findCategoryById(id));
+    public ResponseEntity<ResponseMessage> findById(@PathVariable(name = "id") String id) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Find category successful !!",
+                categoryService.findCategoryById(id)));
     }
 
     @GetMapping()
-    public ResponseEntity findAll() {
-        return Utils.checkStatusCodeAndResponse(categoryService.findAllCategories());
+    public ResponseEntity<ResponseMessage> getCategories(@RequestParam String searchText,
+                                                         @RequestParam Integer offset,
+                                                         @RequestParam Integer pageSize,
+                                                         @RequestParam String sortStr) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Find category successful !!",
+                categoryService.getCategories(searchText, offset, pageSize, sortStr)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable(name = "id") String id) {
-        return Utils.checkStatusCodeAndResponse(categoryService.deleteCategoryById(id));
+    public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Delete category successful !!",
+                categoryService.deleteCategoryById(id)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity update(@RequestBody Map<String, Object> fields, @PathVariable(name = "id") String id) {
-        return Utils.checkStatusCodeAndResponse(categoryService.updateCategory(fields, id));
+    public ResponseEntity<ResponseMessage> update(@RequestBody Map<String, Object> fields, @PathVariable(name = "id") String id) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Update category successful !!",
+                categoryService.updateCategory(fields, id)));
     }
 
 }

@@ -1,20 +1,20 @@
 package com.sondev.productservice.service;
 
+import com.sondev.common.response.PagingData;
 import com.sondev.productservice.dto.request.CategoryRequest;
-import com.sondev.common.response.ResponseDTO;
-import com.sondev.productservice.dto.response.ProductDto;
+import com.sondev.productservice.dto.response.CategoryDTO;
 
 import java.util.Map;
 
 public interface CategoryService {
 
-    ResponseDTO createCategory(CategoryRequest categoryRequest);
+    String createCategory(CategoryRequest categoryRequest);
 
-    ResponseDTO findAllCategories();
+    PagingData getCategories(String searchText, Integer offset, Integer pageSize, String sortStr);
 
-    ResponseDTO findCategoryById(String id);
+    CategoryDTO findCategoryById(String id);
 
-    ResponseDTO updateCategory(Map<String, Object> fields, String id);
+    CategoryDTO updateCategory(Map<String, Object> fields, String id);
 
-    ResponseDTO deleteCategoryById(String id);
+    String deleteCategoryById(String id);
 }
