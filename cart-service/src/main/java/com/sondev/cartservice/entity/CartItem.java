@@ -26,4 +26,6 @@ public class CartItem extends AbstractMappedEntity {
     @Field(name = "user_id")
     private String userId;
 
+    @Field(name = "order_id")
+    private String orderId;
 }
