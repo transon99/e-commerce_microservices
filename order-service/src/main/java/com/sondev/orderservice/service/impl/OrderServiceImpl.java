@@ -1,8 +1,10 @@
 package com.sondev.orderservice.service.impl;
 
+import com.sondev.common.response.PagingData;
 import com.sondev.common.response.ResponseDTO;
 import com.sondev.common.utils.Utils;
 import com.sondev.orderservice.dto.request.OrderRequest;
+import com.sondev.orderservice.dto.response.OrderDto;
 import com.sondev.orderservice.entity.Orders;
 import com.sondev.orderservice.mapper.OrderMapper;
 import com.sondev.orderservice.repository.OrderRepository;
@@ -24,28 +26,28 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
 
     @Override
-    public ResponseDTO createOrder(OrderRequest orderRequest) {
+    public String createOrder(OrderRequest orderRequest) {
         Orders orderEntity = orderMapper.reqToEntity(orderRequest);
-        return Utils.getResponseSuccess(orderMapper.toDto(orderRepository.save(orderEntity)), "Successfully!!!");
+        return orderMapper.toDto(orderRepository.save(orderEntity)).getId();
     }
 
     @Override
-    public ResponseDTO findOrderById(String id) {
+    public OrderDto findOrderById(String id) {
         return null;
     }
 
     @Override
-    public ResponseDTO getOrders(String searchText, Integer offset, Integer pageSize, String sortStr) {
+    public PagingData getOrders(String searchText, Integer offset, Integer pageSize, String sortStr) {
         return null;
     }
 
     @Override
-    public ResponseDTO updateOrder(Map<String, Object> fields, String id) {
+    public OrderDto updateOrder(Map<String, Object> fields, String id) {
         return null;
     }
 
     @Override
-    public ResponseDTO deleteOrderById(String id) {
+    public String deleteOrderById(String id) {
         return null;
     }
 

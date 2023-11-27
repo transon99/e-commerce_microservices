@@ -1,6 +1,7 @@
 package com.sondev.productservice.service.impl;
 
 import com.sondev.common.constants.ResponseStatusCode;
+import com.sondev.common.exceptions.APIException;
 import com.sondev.productservice.dto.request.ProductRequest;
 import com.sondev.productservice.dto.response.ProductDto;
 import com.sondev.productservice.entity.Category;
@@ -37,21 +38,30 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    public ResponseDTO createProduct(ProductRequest productRequest) {
+    public String createProduct(ProductRequest productRequest) {
+        log.info("ProductServiceImpl | createProduct is called");
         Product entity = productMapper.reqToEntity(productRequest);
-        return Utils.getResponseSuccess(productMapper.toDto(productRepository.save(entity)),"Successfully!!!");
+        return productMapper.toDto(productRepository.save(entity)).getId();
     }
 
-    public ProductDto findProductById(String id) {
-        if (id == null){
-            log.error("Missing input id");
-            throw new MissingInputException("Missing input id");
+    public ProductDto findProductById(String productId) {
+        log.info("ProductServiceImpl | findProductById is called");
+        log.info("ProductServiceImpl | findProductById | Get the product for productId: {}", productId);
+        if (productId == null){
+            throw new MissingInputException("Missing input productId");
         }
-        return productMapper.toDto(productRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Can't find product with id " + id)));
+         ProductDto productDto = productMapper.toDto(productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Can't find product with id " + productId)));
+
+        log.info("ProductServiceImpl | findProductById | productDto :" + productDto.toString());
+
+        return productDto;
     }
 
-    public ResponseDTO getProducts(String searchText, Integer offset, Integer pageSize, String sortStr) {
+    public PagingData getProducts(String searchText, Integer offset, Integer pageSize, String sortStr) {
+        log.info("ProductServiceImpl | findProductById is called");
+        log.info("ProductServiceImpl | findProductById | offset {}, pageSize {}, sortStr {}   : ", offset, pageSize, sortStr);
+
         Page<Product> productPage;
         Sort sort = PaginationUtils.buildSort(sortStr);
         Pageable pageable = PageRequest.of(offset, pageSize, sort);
@@ -61,22 +71,21 @@ public class ProductServiceImpl implements ProductService {
         }else {
             productPage = productRepository.findByNameContainingIgnoreCase(searchText,pageable);
         }
-        return ResponseDTO.builder()
-                .data(productMapper.toDto(productPage.toList()))
-                .message("Successfully!!!")
-                .pagingData(PagingData.builder()
+
+        return PagingData.builder()
                         .searchText(searchText)
                         .offset(offset)
                         .pageSize(pageSize)
                         .sort(sortStr)
                         .totalRecord(productPage.getTotalElements())
-                        .build())
-                .responseStatusCode(ResponseStatusCode.OK)
-                .build();
+                        .build();
     }
 
-    public ResponseDTO updateProduct(Map<String, Object> fields, String id) {
-        Product currentProduct = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Can't find category with id" + id));
+    public ProductDto updateProduct(Map<String, Object> fields, String productId) {
+        log.info("ProductServiceImpl | updateProduct is called");
+        log.info("ProductServiceImpl | updateProduct | Update the product for productId: {}", productId);
+
+        Product currentProduct = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("Can't find product with id" + productId));
 
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Category.class, key);
@@ -85,14 +94,35 @@ public class ProductServiceImpl implements ProductService {
             ReflectionUtils.setField(field, currentProduct, value);
         });
 
-        return Utils.getResponseSuccess(productMapper.toDto(productRepository.save(currentProduct)),"Successfully!!!");
+        return productMapper.toDto(productRepository.save(currentProduct));
     }
 
-    public ResponseDTO deleteProductById(String id) {
+    public String deleteProductById(String id) {
         if (id == null)
             throw new MissingInputException("Missing input id");
         productRepository.deleteById(id);
-        return Utils.getResponseSuccess(id,"Successfully!!!");
+        return id;
+    }
+
+    @Override
+    public void reduceQuantity(String productId, Integer quantity) {
+        log.info("Reduce Quantity {} for Id: {}", quantity,productId);
+
+        Product product
+                = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Can't find product with id" + productId
+                ));
+
+        if(product.getQuantity() < quantity) {
+            throw new APIException(
+                    "Product does not have sufficient Quantity"
+            );
+        }
+
+        product.setQuantity(product.getQuantity() - quantity);
+        productRepository.save(product);
+        log.info("Product Quantity updated Successfully");
     }
 
 }
