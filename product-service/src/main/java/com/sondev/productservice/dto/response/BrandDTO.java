@@ -13,10 +13,9 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDTO extends AbstractDto<String> {
+public class BrandDTO extends AbstractDto<String> {
     private String id;
     private String name;
     private String imageUrl;
-    private Set<Category> subCategories;
-    private Category parentCategory;
+    private Set<ProductDto> product;
 }

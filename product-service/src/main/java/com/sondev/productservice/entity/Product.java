@@ -44,6 +44,10 @@ public class Product extends AbstractMappedEntity {
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "brand_id", referencedColumnName = "id")
+    private Category brand;
+
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.LAZY)
     private List<Gallery> thumbnailUrls;
