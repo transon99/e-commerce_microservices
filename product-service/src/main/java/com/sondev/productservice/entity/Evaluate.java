@@ -22,7 +22,7 @@ import org.hibernate.annotations.UuidGenerator;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true, exclude = {"product"})
 @Builder
-public class Comment extends AbstractMappedEntity {
+public class Evaluate extends AbstractMappedEntity {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)

@@ -27,14 +27,6 @@ public class Category extends AbstractMappedEntity {
     private String imageUrl;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "parentCategory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Category> subCategories;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "parent_category_id",referencedColumnName = "id")
-    private Category parentCategory;
-
-    @JsonIgnore
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Product> products;
 
