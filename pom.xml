@@ -24,7 +24,8 @@
 		<module>order-service</module>
 		<module>common</module>
 		<module>cart-service</module>
-	</modules>
+        <module>payment-service</module>
+    </modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
