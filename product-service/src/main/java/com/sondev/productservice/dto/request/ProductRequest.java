@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -16,7 +18,7 @@ public class ProductRequest{
     @Size(max = 255)
     private String description;
     @Size(max = 255)
-    private String imageUrl;
+    private List<String> imageUrl;
     @Size(max = 255)
     private String sku;
     private Double priceUnit;

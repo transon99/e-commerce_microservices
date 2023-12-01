@@ -39,10 +39,13 @@ public class Product extends AbstractMappedEntity {
     @Column(name = "quantity")
     private Integer quantity;
 
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "brand_id", referencedColumnName = "id")
+    private Brand brand;
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.LAZY)
@@ -50,5 +53,5 @@ public class Product extends AbstractMappedEntity {
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.LAZY)
-    private List<Comment> comments;
+    private List<Evaluate> evaluates;
 }
