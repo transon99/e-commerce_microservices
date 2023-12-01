@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Objects;
 
-@RequestMapping("/api/v1/carts")
+@RequestMapping("/carts")
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -52,7 +52,7 @@ public class CartController {
     }
 
     @PostMapping("/add-to-cart")
-    public ResponseEntity<ProductDto> addToCart(@RequestBody AddToCartRequest addToCartRequest, @RequestHeader("Authorization") String token ) {
+    public ResponseEntity<String> addToCart(@RequestBody AddToCartRequest addToCartRequest, @RequestHeader("Authorization") String token ) {
         return ResponseEntity.ok().body(cartService.addToCart(addToCartRequest, token));
     }
 
