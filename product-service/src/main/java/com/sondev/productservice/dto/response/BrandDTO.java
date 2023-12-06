@@ -1,7 +1,6 @@
 package com.sondev.productservice.dto.response;
 
 import com.sondev.productservice.dto.AbstractDto;
-import com.sondev.productservice.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,5 +16,5 @@ public class BrandDTO extends AbstractDto<String> {
     private String id;
     private String name;
     private String imageUrl;
-    private Set<ProductDto> product;
+    private Set<ProductDto> products;
 }

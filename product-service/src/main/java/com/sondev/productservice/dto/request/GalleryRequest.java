@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class CategoryRequest {
+public class GalleryRequest {
 
-    private String name;
     private String imageUrl;
+
 }

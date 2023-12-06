@@ -32,7 +32,7 @@ public class Evaluate extends AbstractMappedEntity {
 
     private String userId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private Product product;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "product_id", referencedColumnName = "id")
+//    private Product product;
 }

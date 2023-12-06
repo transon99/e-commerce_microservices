@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-@RequestMapping("/api/v1/products")
+@RequestMapping("/products")
 @RestController
 @Slf4j
 @RequiredArgsConstructor

@@ -12,7 +12,7 @@ import java.util.Set;
 @Table(name = "categories")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true, exclude = {"subCategories", "parentCategory", "products"})
+@EqualsAndHashCode(callSuper = true)
 @Builder
 public class Category extends AbstractMappedEntity {
     @Id

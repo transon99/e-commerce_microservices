@@ -15,15 +15,12 @@ import java.util.List;
 public class ProductRequest{
 
     private String name;
-    @Size(max = 255)
     private String description;
-    @Size(max = 255)
-    private List<String> imageUrl;
-    @Size(max = 255)
+    private List<String> imageUrls;
     private String sku;
     private Double priceUnit;
-    @Max(Integer.MAX_VALUE)
     private Integer quantity;
-    private Category category;
+    private String categoryId;
+    private String brandId;
 
 }

@@ -48,10 +48,12 @@ public class Product extends AbstractMappedEntity {
     private Brand brand;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
     private List<Gallery> thumbnailUrls;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
     private List<Evaluate> evaluates;
 }
