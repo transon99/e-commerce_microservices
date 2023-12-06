@@ -15,7 +15,7 @@ import java.util.List;
 public class ProductDto extends AbstractDto<String> {
 
     private String id;
-    private String title;
+    private String name;
     private String description;
     private List<GalleryDTO> imageUrls;
     private BrandDTO brandDTO;

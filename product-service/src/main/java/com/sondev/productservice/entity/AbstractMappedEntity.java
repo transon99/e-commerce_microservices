@@ -21,12 +21,12 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-abstract public class AbstractMappedEntity implements Serializable {
+public abstract class AbstractMappedEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @LastModifiedBy
-    @Column(name = "updated_by")
+    @Column(name = "last_modified_by", length = 50)
     private String lastModifiedBy;
 
     @UpdateTimestamp(source = SourceType.DB)
@@ -35,7 +35,7 @@ abstract public class AbstractMappedEntity implements Serializable {
     private LocalDateTime lastModifiedAt;
 
     @CreatedBy
-    @Column(name = "created_by")
+    @Column(name = "created_by", nullable = false, length = 50, updatable = false)
     private String createdBy;
 
     @CreationTimestamp(source = SourceType.DB)
