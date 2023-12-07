@@ -1,5 +1,6 @@
 package com.sondev.productservice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.dto.request.ProductRequest;
 import com.sondev.productservice.service.ProductService;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RequestMapping("/products")
@@ -31,14 +34,15 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<ResponseMessage> createProduct(@RequestBody @Validated ProductRequest productRequest) {
+    public ResponseEntity<ResponseMessage> createProduct(@RequestParam("image") List<MultipartFile> files,
+                                                         @RequestParam("data") String data) throws JsonProcessingException  {
         log.info("ProductController | addProduct is called");
 
-        log.info("ProductController | addProduct | productRequest : " + productRequest.toString());
+        log.info("ProductController | addProduct | productRequest : " + data);
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Insert product successful !!",
-                productService.createProduct(productRequest)));
+                productService.createProduct(files,data)));
     }
 
     @GetMapping("/{id}")

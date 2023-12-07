@@ -1,5 +1,6 @@
 package com.sondev.productservice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.productservice.service.CategoryService;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RequestMapping("/categories")
@@ -28,11 +31,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> createCategory(@RequestBody @Validated CategoryRequest categoryRequest) {
+    public ResponseEntity<ResponseMessage> createCategory(@RequestParam("image") List<MultipartFile> files,
+                                                          @RequestParam("data") String data)
+            throws JsonProcessingException {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Create category successful !!",
-                categoryService.createCategory(categoryRequest)));
+                categoryService.createCategory(data, files)));
 
     }
 

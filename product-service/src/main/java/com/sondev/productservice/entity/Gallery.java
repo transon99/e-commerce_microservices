@@ -30,6 +30,9 @@ public class Gallery extends AbstractMappedEntity {
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
+    @Column(name = "image_public_id")
+    private String publicId;
+
 //    @ManyToOne(fetch = FetchType.EAGER)
 //    @JoinColumn(name = "product_id", referencedColumnName = "id")
 //    private Product product;

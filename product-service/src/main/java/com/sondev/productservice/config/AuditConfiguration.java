@@ -1,17 +1,15 @@
 package com.sondev.productservice.config;
 
-import com.sondev.productservice.utils.SecurityUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
-@Profile("!test")
 public class AuditConfiguration {
 
     /**
@@ -29,7 +27,14 @@ public class AuditConfiguration {
 
         @Override
         public Optional<String> getCurrentAuditor() {
-            return SecurityUtils.getCurrentUsername();
+
+            String userDetail =  (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            String userId = "anonymous";
+
+            if (userDetail != null) {
+                userId = userDetail;
+            }
+            return Optional.of(userId);
         }
 
     }

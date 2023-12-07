@@ -16,7 +16,6 @@ public class ProductRequest{
 
     private String name;
     private String description;
-    private List<String> imageUrls;
     private String sku;
     private Double priceUnit;
     private Integer quantity;
