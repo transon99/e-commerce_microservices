@@ -1,8 +1,11 @@
 package com.sondev.productservice.service.impl;
 
+import com.sondev.productservice.adapter.CloudinaryService;
 import com.sondev.productservice.dto.request.GalleryRequest;
 import com.sondev.productservice.dto.response.CategoryDTO;
+import com.sondev.productservice.entity.Category;
 import com.sondev.productservice.entity.Gallery;
+import com.sondev.productservice.exceptions.MissingInputException;
 import com.sondev.productservice.exceptions.NotFoundException;
 import com.sondev.productservice.mapper.GalleryMapper;
 import com.sondev.productservice.repository.GalleryRepository;
@@ -22,7 +25,7 @@ import java.util.Map;
 public class GalleryServiceImpl implements GalleryService {
 
     private final GalleryRepository galleryRepository;
-    private final ProductRepository productRepository;
+    private final CloudinaryService cloudinaryService;
 
     private final GalleryMapper galleryMapper;
 
@@ -53,7 +56,16 @@ public class GalleryServiceImpl implements GalleryService {
 
     @Override
     public String deleteById(String id) {
-        return null;
+        if (id == null) {
+            throw new MissingInputException("Missing input id");
+
+        }
+        Gallery gallery = galleryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Can't find gallery with id " + id));
+        galleryRepository.deleteById(id);
+        cloudinaryService.deleteFile(gallery.getPublicId());
+
+        return id;
     }
 
 }

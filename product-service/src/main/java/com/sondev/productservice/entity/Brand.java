@@ -35,7 +35,6 @@ public class Brand extends AbstractMappedEntity {
     @Column(name = "brand_name", columnDefinition = "char(50)")
     private String name;
 
-    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")
     private List<Gallery> imageUrls;

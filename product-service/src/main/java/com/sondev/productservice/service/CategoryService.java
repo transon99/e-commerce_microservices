@@ -16,7 +16,7 @@ public interface CategoryService {
 
     CategoryDTO findCategoryById(String id);
 
-    CategoryDTO updateCategory(Map<String, Object> fields, String id);
+    CategoryDTO updateCategory(List<MultipartFile> file, String data, String id) throws JsonProcessingException, IllegalAccessException;
 
     String deleteCategoryById(String id);
 }

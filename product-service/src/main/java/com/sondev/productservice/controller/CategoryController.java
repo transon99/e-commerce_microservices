@@ -50,10 +50,10 @@ public class CategoryController {
     }
 
     @GetMapping()
-    public ResponseEntity<ResponseMessage> getCategories(@RequestParam String searchText,
-                                                         @RequestParam Integer offset,
-                                                         @RequestParam Integer pageSize,
-                                                         @RequestParam String sortStr) {
+    public ResponseEntity<ResponseMessage> getCategories(@RequestParam(name = "searchText") String searchText,
+                                                         @RequestParam(name = "offset") Integer offset,
+                                                         @RequestParam(name = "pageSize") Integer pageSize,
+                                                         @RequestParam(name = "sortStr") String sortStr) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Find category successful !!",
@@ -69,11 +69,13 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMessage> update(@RequestBody Map<String, Object> fields, @PathVariable(name = "id") String id) {
+    public ResponseEntity<ResponseMessage> update(@RequestParam(value = "image", required = false)  List<MultipartFile> files,
+                                                  @RequestParam("data") String data,
+                                                  @PathVariable(name = "id") String id) throws JsonProcessingException, IllegalAccessException {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Update category successful !!",
-                categoryService.updateCategory(fields, id)));
+                categoryService.updateCategory(files, data, id)));
     }
 
 }

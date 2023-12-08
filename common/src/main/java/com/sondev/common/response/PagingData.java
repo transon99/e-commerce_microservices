@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class PagingData {
+    private Object data;
     private String searchText;
     private Integer offset;
     private Integer pageSize;

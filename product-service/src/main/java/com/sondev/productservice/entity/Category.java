@@ -24,7 +24,6 @@ public class Category extends AbstractMappedEntity {
     @Column(name = "category_name", columnDefinition = "char(50)")
     private String name;
 
-    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private List<Gallery> imageUrls;

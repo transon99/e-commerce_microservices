@@ -72,6 +72,7 @@ public class BrandServiceImpl implements BrandService {
         }
 
         return PagingData.builder()
+                .data(brandPage)
                 .searchText(searchText)
                 .offset(offset)
                 .pageSize(pageSize)
