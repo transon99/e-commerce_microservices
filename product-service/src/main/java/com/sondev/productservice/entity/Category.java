@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Builder
-public class Category extends AbstractMappedEntity {
+public class Category extends AbstractMappedEntity<String> {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)

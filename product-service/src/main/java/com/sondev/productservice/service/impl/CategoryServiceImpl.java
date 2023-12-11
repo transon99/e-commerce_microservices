@@ -107,26 +107,32 @@ public class CategoryServiceImpl implements CategoryService {
         return id;
     }
 
+    @Override
+    public List<CategoryDTO> getAll() {
+
+        return categoryMapper.toDto(categoryRepository.findAll());
+    }
+
     public CategoryDTO updateCategory(List<MultipartFile> files, String data, String id) throws JsonProcessingException, IllegalAccessException {
 
         Category currentCategory = categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Can't find category with id " + id));
 
         CategoryRequest categoryRequest = objectMapper.readValue(data, CategoryRequest.class);
-        List<Gallery> galleries ;
-        if (files != null){
+        List<Gallery> galleries;
+        if (files != null) {
             List<Gallery> imageList = currentCategory.getImageUrls();
             imageList.forEach(image -> galleryService.deleteById(image.getId()));
-             galleries = files.stream().map(file -> {
+            galleries = files.stream().map(file -> {
                 Map result = cloudinaryService.uploadFile(file);
                 String imageUrl = (String) result.get("secure_url");
                 String publicId = (String) result.get("public_id");
                 return Gallery.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
             }).toList();
-        }else {
+        } else {
             galleries = currentCategory.getImageUrls();
         }
 
-        Category newCategory =  Category.builder()
+        Category newCategory = Category.builder()
                 .id(currentCategory.getId())
                 .name(categoryRequest.getName())
                 .imageUrls(galleries)

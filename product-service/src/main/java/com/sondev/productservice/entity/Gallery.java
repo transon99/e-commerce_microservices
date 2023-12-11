@@ -19,9 +19,9 @@ import org.hibernate.annotations.UuidGenerator;
 @Table(name = "galery")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true, exclude = {"product"})
+@EqualsAndHashCode(callSuper = true)
 @Builder
-public class Gallery extends AbstractMappedEntity {
+public class Gallery extends AbstractMappedEntity<String> {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)

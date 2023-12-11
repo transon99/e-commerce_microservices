@@ -19,4 +19,6 @@ public interface BrandService {
     BrandDTO update(Map<String, Object> fields, String id);
 
     String deleteById(String id);
+
+    List<BrandDTO> getAll();
 }

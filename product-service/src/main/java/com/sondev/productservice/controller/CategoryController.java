@@ -49,7 +49,7 @@ public class CategoryController {
                 categoryService.findCategoryById(id)));
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<ResponseMessage> getCategories(@RequestParam(name = "searchText") String searchText,
                                                          @RequestParam(name = "offset") Integer offset,
                                                          @RequestParam(name = "pageSize") Integer pageSize,
@@ -58,6 +58,14 @@ public class CategoryController {
                 "OK",
                 "Find category successful !!",
                 categoryService.getCategories(searchText, offset, pageSize, sortStr)));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ResponseMessage> getAll() {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Find all category successful !!",
+                categoryService.getAll()));
     }
 
     @DeleteMapping("/{id}")

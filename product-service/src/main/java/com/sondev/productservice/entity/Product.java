@@ -7,14 +7,14 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true, exclude = {"comments", "thumbnailUrls", "category"})
+@EqualsAndHashCode(callSuper = true, exclude = {"category"})
 @Entity
 @Data
 @Table(name = "products")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Product extends AbstractMappedEntity {
+public class Product extends AbstractMappedEntity<String> {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)

@@ -59,6 +59,14 @@ public class BrandController {
                 brandService.getBrands(searchText, offset, pageSize, sortStr)));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<ResponseMessage> getAll() {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Find all brand successful !!",
+                brandService.getAll()));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(

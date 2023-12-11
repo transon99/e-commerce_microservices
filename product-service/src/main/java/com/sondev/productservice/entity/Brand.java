@@ -26,7 +26,7 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Builder
-public class Brand extends AbstractMappedEntity {
+public class Brand extends AbstractMappedEntity<String> {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)

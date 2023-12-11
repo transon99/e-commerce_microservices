@@ -125,4 +125,9 @@ public class BrandServiceImpl implements BrandService {
         return id;
     }
 
+    @Override
+    public List<BrandDTO> getAll() {
+        return brandMapper.toDto(brandRepository.findAll());
+    }
+
 }
