@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
@@ -15,6 +16,6 @@ import java.util.Set;
 public class BrandDTO extends AbstractDto<String> {
     private String id;
     private String name;
-    private String imageUrl;
+    private List<GalleryDTO> imageUrls;
     private Set<ProductDto> products;
 }

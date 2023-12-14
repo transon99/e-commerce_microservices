@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.utils.PaginationUtils;
-import com.sondev.common.utils.commonUtils;
 import com.sondev.productservice.adapter.CloudinaryService;
 import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.productservice.dto.response.CategoryDTO;
@@ -13,25 +12,19 @@ import com.sondev.productservice.entity.Gallery;
 import com.sondev.productservice.exceptions.MissingInputException;
 import com.sondev.productservice.exceptions.NotFoundException;
 import com.sondev.productservice.mapper.CategoryMapper;
+import com.sondev.productservice.mapper.GalleryMapper;
 import com.sondev.productservice.repository.CategoryRepository;
 import com.sondev.productservice.service.CategoryService;
 import com.sondev.productservice.service.GalleryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CloudinaryService cloudinaryService;
     private final GalleryService galleryService;
+    private final GalleryMapper galleryMapper;
     private final ObjectMapper objectMapper;
 
     private final CategoryMapper categoryMapper;
@@ -109,8 +103,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDTO> getAll() {
+        List<Category> categoryList = categoryRepository.findAll();
 
-        return categoryMapper.toDto(categoryRepository.findAll());
+        return categoryMapper.toDto(categoryList);
     }
 
     public CategoryDTO updateCategory(List<MultipartFile> files, String data, String id) throws JsonProcessingException, IllegalAccessException {

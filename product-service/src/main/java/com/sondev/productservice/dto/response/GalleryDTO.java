@@ -2,6 +2,7 @@ package com.sondev.productservice.dto.response;
 
 import com.sondev.productservice.dto.AbstractDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class GalleryDTO extends AbstractDto<String> {
     private String id;
     private String thumbnailUrl;

@@ -6,7 +6,6 @@ import com.sondev.common.response.PagingData;
 import com.sondev.common.utils.PaginationUtils;
 import com.sondev.productservice.adapter.CloudinaryService;
 import com.sondev.productservice.dto.request.BrandRequest;
-import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.productservice.dto.response.BrandDTO;
 import com.sondev.productservice.entity.Brand;
 import com.sondev.productservice.entity.Category;
