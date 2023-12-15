@@ -27,6 +27,9 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  #kafka server url
+  kafka.bos
+
 application:
   security:
     jwt:
@@ -34,3 +37,8 @@ application:
       expiration: 86400000 # a day
       refresh-token:
         expiration: 604800000 # 7 days
+
+spring.
+
+# secretPsw
+secretPsw: kasdjhfkadhsY776ggTyUU65khaskdjfhYuHAwjñlji
