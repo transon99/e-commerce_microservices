@@ -2,6 +2,7 @@ package com.sondev.authservice.config;
 
 import com.sondev.authservice.security.user.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,6 +35,12 @@ public class ApplicationConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    NewTopic mail () {
+        // topic name, partition numbers, replication numbers
+        return new NewTopic("verification-mail", 1, (short) 1);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.sondev.authservice.service;
 
+import com.sondev.authservice.dto.request.ActiveAccountRequest;
 import com.sondev.authservice.dto.request.UserRequest;
 import com.sondev.authservice.dto.response.UserDto;
 import com.sondev.authservice.entity.User;
@@ -17,4 +18,7 @@ public interface UserService {
     UserDto updateUser(Map<String, Object> fields, String id);
 
     String deleteUser(String id);
+
+    String activeUser(ActiveAccountRequest request);
+
 }

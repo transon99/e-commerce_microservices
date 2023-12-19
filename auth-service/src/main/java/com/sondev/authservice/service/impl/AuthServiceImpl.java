@@ -1,7 +1,7 @@
 package com.sondev.authservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sondev.authservice.constants.SocialName;
+import com.sondev.authservice.dto.MailEvent;
 import com.sondev.authservice.dto.UserZalo;
 import com.sondev.authservice.dto.request.LoginRequest;
 import com.sondev.authservice.dto.request.RegisterRequest;
@@ -11,7 +11,9 @@ import com.sondev.authservice.dto.response.AuthDto;
 import com.sondev.authservice.entity.Address;
 import com.sondev.authservice.entity.Role;
 import com.sondev.authservice.entity.User;
+import com.sondev.authservice.entity.VerificationToken;
 import com.sondev.authservice.exceptions.UserAlreadyExistException;
+import com.sondev.authservice.exceptions.UserNotActivatedException;
 import com.sondev.authservice.feignclient.ZaloApi;
 import com.sondev.authservice.mapper.AddressMapper;
 import com.sondev.authservice.mapper.UserMapper;
@@ -20,6 +22,7 @@ import com.sondev.authservice.repository.UserRepository;
 import com.sondev.authservice.security.jwt.JwtService;
 import com.sondev.authservice.service.AuthService;
 import com.sondev.authservice.service.UserService;
+import com.sondev.authservice.service.VerificationService;
 import com.sondev.authservice.utils.TempEmailUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -59,7 +63,9 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserService userService;
+    private final VerificationService verificationService;
     private final PasswordEncoder passwordEncoder;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public AuthDto login(LoginRequest loginRequest) {
@@ -88,6 +94,7 @@ public class AuthServiceImpl implements AuthService {
                 .status("OK")
                 .fullName(userDetail.getFirstName() + " " + userDetail.getLastName())
                 .type("Bearer")
+                .userId(userDetail.getId())
                 .role(userDetail.getRole())
                 .build();
 
@@ -96,30 +103,44 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public String register(RegisterRequest registerRequest) {
-        User userSave;
+        User savedUser;
         Address address;
         Optional<User> currentUser = userRepository.findByEmail(registerRequest.getEmail());
-        if (currentUser.isEmpty()) {
-            User user = userMapper.reqToEntity(registerRequest);
-            if (registerRequest.getAddressRequest() != null) {
-                address = addressRepository.save(addressMapper.reqToEntity(registerRequest.getAddressRequest()));
-                user.setAddresses(Set.of(address));
-            } else {
-                user.setAddresses(new HashSet<>());
+        if (currentUser.isPresent()) {
+            User existedUser = currentUser.get();
+            if (!existedUser.isEnabled()) {
+                throw new UserNotActivatedException(
+                        "User with email " + registerRequest
+                                .getEmail() + " has been registered but not activated. Please check your email.");
+            }else {
+                log.error("*** String, service; register user already exists *");
+                throw new UserAlreadyExistException("user already exists");
             }
-            if (StringUtils.isEmpty(registerRequest.getRole())) {
-                user.setRole(Role.USER);
-            }
-            user.setEnabled(true);
-            user.setLocked(true);
-            user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-            userSave = userRepository.save(user);
-        } else {
-            log.error("*** String, service; register user already exists *");
-            throw new UserAlreadyExistException("user already exists");
-        }
 
-        return userSave.getId();
+
+        }
+        User user = userMapper.reqToEntity(registerRequest);
+        if (registerRequest.getAddressRequest() != null) {
+            address = addressRepository.save(addressMapper.reqToEntity(registerRequest.getAddressRequest()));
+            user.setAddresses(Set.of(address));
+        } else {
+            user.setAddresses(new HashSet<>());
+        }
+        if (StringUtils.isEmpty(registerRequest.getRole())) {
+            user.setRole(Role.USER);
+        }
+        user.setEnabled(true);
+        user.setLocked(true);
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        savedUser = userRepository.save(user);
+
+        //Save the verification token for the user
+        VerificationToken verificationToken = verificationService.saveUserVerificationToken(savedUser);
+
+        //Publish event to Mail service
+        kafkaTemplate.send("verification-mail", new MailEvent(userMapper.toDto(savedUser), verificationToken.getToken()));
+
+        return savedUser.getId();
     }
 
     @Override
@@ -217,6 +238,7 @@ public class AuthServiceImpl implements AuthService {
                 .fullName(userDetail.getFirstName() + " " + userDetail.getLastName())
                 .type("Bearer")
                 .role(userDetail.getRole())
+                .userId(userDetail.getId())
                 .build();
 
     }

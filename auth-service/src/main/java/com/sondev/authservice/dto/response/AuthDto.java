@@ -17,4 +17,5 @@ public class AuthDto {
     private String type;
     private String fullName;
     private Role role;
+    private String userId;
 }
