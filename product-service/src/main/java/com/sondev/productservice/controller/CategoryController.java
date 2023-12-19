@@ -49,6 +49,14 @@ public class CategoryController {
                 categoryService.findCategoryById(id)));
     }
 
+    @GetMapping("/sub/{id}")
+    public ResponseEntity<ResponseMessage> getSubCategory(@PathVariable(name = "id") String id) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Find category successful !!",
+                categoryService.getSubCategory(id)));
+    }
+
     @GetMapping
     public ResponseEntity<ResponseMessage> getCategories(@RequestParam(name = "searchText") String searchText,
                                                          @RequestParam(name = "offset") Integer offset,

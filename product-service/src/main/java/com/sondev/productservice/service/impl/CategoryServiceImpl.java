@@ -18,6 +18,7 @@ import com.sondev.productservice.service.CategoryService;
 import com.sondev.productservice.service.GalleryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -43,8 +45,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     public String createCategory(String data, List<MultipartFile> files) throws JsonProcessingException {
         CategoryRequest categoryRequest = objectMapper.readValue(data, CategoryRequest.class);
-
         Category entity = categoryMapper.reqToEntity(categoryRequest);
+        if (!categoryRequest.getParentCatId().isEmpty()){
+            Optional<Category> parentCategory = categoryRepository.findById(categoryRequest.getParentCatId());
+            entity.setParentCatId(parentCategory.get().getId());
+
+        }
+
+
         List<Gallery> galleries = files.stream().map(file -> {
             Map result = cloudinaryService.uploadFile(file);
             String imageUrl = (String) result.get("secure_url");
@@ -82,6 +90,16 @@ public class CategoryServiceImpl implements CategoryService {
         }
         return categoryMapper.toDto(categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find category with id " + id)));
+    }
+
+    @Override
+    public List<CategoryDTO> getSubCategory(String id) {
+        List<Category> listSubCat = categoryRepository.findByParentCatId(id);
+//        if(CollectionUtils.isEmpty(listSubCat)){
+//            return
+//        }
+
+        return categoryMapper.toDto(listSubCat);
     }
 
     public String deleteCategoryById(String id) {

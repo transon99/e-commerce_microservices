@@ -6,7 +6,6 @@ import com.sondev.productservice.dto.response.CategoryDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CategoryService {
 
@@ -15,6 +14,8 @@ public interface CategoryService {
     PagingData getCategories(String searchText, Integer offset, Integer pageSize, String sortStr);
 
     CategoryDTO findCategoryById(String id);
+
+    List<CategoryDTO> getSubCategory(String id);
 
     CategoryDTO updateCategory(List<MultipartFile> file, String data, String id) throws JsonProcessingException, IllegalAccessException;
 

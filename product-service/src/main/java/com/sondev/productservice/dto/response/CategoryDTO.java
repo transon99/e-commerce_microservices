@@ -1,6 +1,7 @@
 package com.sondev.productservice.dto.response;
 
 import com.sondev.productservice.dto.AbstractDto;
+import com.sondev.productservice.entity.Category;
 import com.sondev.productservice.entity.Gallery;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,5 +20,6 @@ public class CategoryDTO extends AbstractDto<String> {
     private String name;
     private List<Gallery> imageUrls;
     private Set<ProductDto> products;
+    private String parentCatId;
 
 }

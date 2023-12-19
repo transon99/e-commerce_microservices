@@ -24,6 +24,9 @@ public class Category extends AbstractMappedEntity<String> {
     @Column(name = "category_name", columnDefinition = "char(50)")
     private String name;
 
+    @Column(name = "parent_category_id")
+    private String parentCatId;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private List<Gallery> imageUrls;
