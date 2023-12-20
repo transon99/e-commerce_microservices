@@ -55,4 +55,12 @@ public class JwtUtils {
         }
         return null;
     }
+
+    public static String getTokenFromBearer(String token){
+
+        if (token != null && token.startsWith("Bearer ")){
+            return token.substring(7);
+        }
+        return null;
+    }
 }

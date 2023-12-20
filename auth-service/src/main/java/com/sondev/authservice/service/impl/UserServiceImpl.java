@@ -14,7 +14,7 @@ import com.sondev.common.exceptions.APIException;
 import com.sondev.common.exceptions.MissingInputException;
 import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
-//import com.sondev.common.utils.JwtUtils;
+import com.sondev.common.utils.JwtUtils;
 import com.sondev.common.utils.PaginationUtils;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -31,9 +31,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
 
 @Service
 @Slf4j
@@ -59,14 +56,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getCurrentUser(String token) {
-//        Claims claims = JwtUtils.parseClaims(token);
-//        String userId = (String) claims.get("userId");
-//        if (userId.isEmpty()) {
-//            throw new MissingInputException("require userId to get current user");
-//        }
-//        return userMapper.toDto(userRepository.findById(userId)
-//                .orElseThrow(() -> new NotFoundException("Can't find user with id" + userId)));
-        return null;
+        Claims claims = JwtUtils.parseClaims(JwtUtils.getTokenFromBearer(token));
+        String userId = (String) claims.get("userId");
+        if (userId.isEmpty()) {
+            throw new MissingInputException("require userId to get current user");
+        }
+        return userMapper.toDto(userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Can't find user with id" + userId)));
     }
 
     @Override
