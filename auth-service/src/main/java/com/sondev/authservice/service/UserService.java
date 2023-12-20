@@ -4,6 +4,7 @@ import com.sondev.authservice.dto.request.ActiveAccountRequest;
 import com.sondev.authservice.dto.request.UserRequest;
 import com.sondev.authservice.dto.response.UserDto;
 import com.sondev.authservice.entity.User;
+import com.sondev.common.response.PagingData;
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,11 @@ import java.util.Map;
 public interface UserService {
     User createUser(UserRequest userRequest);
 
+    UserDto getCurrentUser(String token);
+
     List<UserDto> getAllUser();
+
+    PagingData getUsers(String searchText, Integer offset, Integer pageSize, String sortStr);
 
     UserDto getUserById(String id);
 

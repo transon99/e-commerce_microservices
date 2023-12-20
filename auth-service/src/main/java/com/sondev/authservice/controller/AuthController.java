@@ -29,28 +29,28 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ResponseMessage> login(@RequestBody @Validated LoginRequest loginRequest) {
         log.info("*** UserDto List, controller; login *");
-        return ResponseEntity.ok().body(new ResponseMessage("200", "Login successful !!!", authService.login(loginRequest)) );
+        return ResponseEntity.ok().body(new ResponseMessage("OK", "Login successful !!!", authService.login(loginRequest)) );
     }
 
     @PostMapping("/login/facebook")
     public ResponseEntity<ResponseMessage> loginFacebook(@RequestBody @Validated SocialLoginRequest loginFacebookRequest) {
-        return ResponseEntity.ok().body(new ResponseMessage("200", "Login successful !!!", authService.loginFacebook(loginFacebookRequest)) );
+        return ResponseEntity.ok().body(new ResponseMessage("OK", "Login successful !!!", authService.loginFacebook(loginFacebookRequest)) );
     }
 
     @PostMapping("/login/zalo")
     public ResponseEntity<ResponseMessage> loginZalo(@RequestBody @Validated SocialLoginRequest loginZaloRequest) {
-        return ResponseEntity.ok().body(new ResponseMessage("200", "Login successful !!!", authService.loginZalo(loginZaloRequest)) );
+        return ResponseEntity.ok().body(new ResponseMessage("OK", "Login successful !!!", authService.loginZalo(loginZaloRequest)) );
     }
 
     @PostMapping("/login/google")
     public ResponseEntity<ResponseMessage> loginGoogle(@RequestBody @Validated SocialLoginRequest loginGoogleRequest) {
-        return ResponseEntity.ok().body(new ResponseMessage("200", "Login successful !!!", authService.loginGoogle(loginGoogleRequest)) );
+        return ResponseEntity.ok().body(new ResponseMessage("OK", "Login successful !!!", authService.loginGoogle(loginGoogleRequest)) );
     }
 
     @PostMapping("/register")
     public ResponseEntity<ResponseMessage> register(@RequestBody @Validated RegisterRequest registerRequest) {
         log.info("*** UserDto List, controller; register *");
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage("200", "Register successful !!!",authService.register(registerRequest)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage("OK", "Register successful !!!",authService.register(registerRequest)));
     }
 
     @PostMapping("/refresh-token")
