@@ -24,6 +24,15 @@ public interface CategoryMapper extends EntityMapper<CategoryDTO, Category>{
                 .build()).toList();
     }
 
+    @Named("mappingIconUrl")
+    default GalleryDTO mappingIconUrl(Gallery gallery) {
+        return  GalleryDTO.builder()
+                .id(gallery.getId())
+                .thumbnailUrl(gallery.getThumbnailUrl())
+                .build();
+    }
+
     @Mapping(target = "imageUrls", source = "imageUrls", qualifiedByName = "mappingImageUrls")
+    @Mapping(target = "iconUrl", source = "iconUrl", qualifiedByName = "mappingIconUrl")
     List<CategoryDTO> toDto(List<Category> categoryList);
 }

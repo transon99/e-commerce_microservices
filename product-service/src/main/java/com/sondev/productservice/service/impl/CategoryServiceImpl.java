@@ -18,7 +18,6 @@ import com.sondev.productservice.service.CategoryService;
 import com.sondev.productservice.service.GalleryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,24 +42,30 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryMapper categoryMapper;
 
-    public String createCategory(String data, List<MultipartFile> files) throws JsonProcessingException {
+    public String createCategory(String data, List<MultipartFile> imageFiles, MultipartFile iconFile) throws JsonProcessingException {
         CategoryRequest categoryRequest = objectMapper.readValue(data, CategoryRequest.class);
         Category entity = categoryMapper.reqToEntity(categoryRequest);
         if (!categoryRequest.getParentCatId().isEmpty()){
-            Optional<Category> parentCategory = categoryRepository.findById(categoryRequest.getParentCatId());
-            entity.setParentCatId(parentCategory.get().getId());
+            Optional<Category> parentCategoryOptional = categoryRepository.findById(categoryRequest.getParentCatId());
+
+            entity.setParent(parentCategoryOptional.get());
 
         }
 
 
-        List<Gallery> galleries = files.stream().map(file -> {
-            Map result = cloudinaryService.uploadFile(file);
-            String imageUrl = (String) result.get("secure_url");
-            String publicId = (String) result.get("public_id");
-            return Gallery.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
-        }).toList();
-        entity.setImageUrls(galleries);
+        List<Gallery> imageUrls = imageFiles.stream().map(this::saveImageToCloud).toList();
+        entity.setImageUrls(imageUrls);
+
+        Gallery iconUrl = saveImageToCloud(iconFile);
+        entity.setIconUrl(iconUrl);
         return categoryMapper.toDto(categoryRepository.save(entity)).getId();
+    }
+
+    private Gallery saveImageToCloud (MultipartFile file) {
+        Map result = cloudinaryService.uploadFile(file);
+        String imageUrl = (String) result.get("secure_url");
+        String publicId = (String) result.get("public_id");
+        return Gallery.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
     }
 
     public PagingData getCategories(String searchText, Integer offset, Integer pageSize, String sortStr) {
@@ -93,13 +98,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDTO> getSubCategory(String id) {
-        List<Category> listSubCat = categoryRepository.findByParentCatId(id);
-//        if(CollectionUtils.isEmpty(listSubCat)){
-//            return
-//        }
-
-        return categoryMapper.toDto(listSubCat);
+    public List<CategoryDTO> getBaseCategories() {
+        List<Category> categoryList = categoryRepository.findAll();
+        List<Category> baseCategoryList = categoryList.stream().filter(category -> category.getParent() == null).toList();
+        return categoryMapper.toDto(baseCategoryList);
     }
 
     public String deleteCategoryById(String id) {
@@ -116,6 +118,7 @@ public class CategoryServiceImpl implements CategoryService {
                 cloudinaryService.deleteFile(image.getPublicId())
         );
 
+        cloudinaryService.deleteFile((category.getIconUrl().getPublicId()));
         return id;
     }
 
@@ -135,12 +138,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (files != null) {
             List<Gallery> imageList = currentCategory.getImageUrls();
             imageList.forEach(image -> galleryService.deleteById(image.getId()));
-            galleries = files.stream().map(file -> {
-                Map result = cloudinaryService.uploadFile(file);
-                String imageUrl = (String) result.get("secure_url");
-                String publicId = (String) result.get("public_id");
-                return Gallery.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
-            }).toList();
+            galleries = files.stream().map(this::saveImageToCloud).toList();
         } else {
             galleries = currentCategory.getImageUrls();
         }

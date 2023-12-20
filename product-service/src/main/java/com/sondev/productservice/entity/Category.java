@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,8 +25,17 @@ public class Category extends AbstractMappedEntity<String> {
     @Column(name = "category_name", columnDefinition = "char(50)")
     private String name;
 
-    @Column(name = "parent_category_id")
-    private String parentCatId;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "gallery_id")
+    private Gallery iconUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Category parent;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Category> children = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")

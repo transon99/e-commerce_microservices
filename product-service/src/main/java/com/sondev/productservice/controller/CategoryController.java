@@ -31,13 +31,14 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> createCategory(@RequestParam("image") List<MultipartFile> files,
+    public ResponseEntity<ResponseMessage> createCategory(@RequestParam("image") List<MultipartFile> imageFiles,
+                                                          @RequestParam("icon") MultipartFile iconFile,
                                                           @RequestParam("data") String data)
             throws JsonProcessingException {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Create category successful !!",
-                categoryService.createCategory(data, files)));
+                categoryService.createCategory(data, imageFiles,iconFile)));
 
     }
 
@@ -49,12 +50,12 @@ public class CategoryController {
                 categoryService.findCategoryById(id)));
     }
 
-    @GetMapping("/sub/{id}")
-    public ResponseEntity<ResponseMessage> getSubCategory(@PathVariable(name = "id") String id) {
+    @GetMapping("/base-categories")
+    public ResponseEntity<ResponseMessage> getSubCategory() {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
-                "Find category successful !!",
-                categoryService.getSubCategory(id)));
+                "Get base categories successful !!",
+                categoryService.getBaseCategories()));
     }
 
     @GetMapping

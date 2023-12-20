@@ -18,8 +18,10 @@ import java.util.Set;
 public class CategoryDTO extends AbstractDto<String> {
     private String id;
     private String name;
-    private List<Gallery> imageUrls;
+    private List<GalleryDTO> imageUrls;
+    private GalleryDTO iconUrl;
     private Set<ProductDto> products;
-    private String parentCatId;
+    private Category parent;
+    private List<Category> children;
 
 }

@@ -9,13 +9,13 @@ import java.util.List;
 
 public interface CategoryService {
 
-    String createCategory(String data, List<MultipartFile> file) throws JsonProcessingException;
+    String createCategory(String data, List<MultipartFile> imageFiles, MultipartFile iconFile) throws JsonProcessingException;
 
     PagingData getCategories(String searchText, Integer offset, Integer pageSize, String sortStr);
 
     CategoryDTO findCategoryById(String id);
 
-    List<CategoryDTO> getSubCategory(String id);
+    List<CategoryDTO> getBaseCategories();
 
     CategoryDTO updateCategory(List<MultipartFile> file, String data, String id) throws JsonProcessingException, IllegalAccessException;
 

@@ -12,5 +12,5 @@ import java.util.List;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, String> {
     Page<Category>  findByNameContainingIgnoreCase (String name, Pageable page);
-    List<Category> findByParentCatId(String id);
+//    List<Category> findByParentCatId(String id);
 }
