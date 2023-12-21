@@ -1,13 +1,8 @@
 package com.sondev.productservice.dto.request;
 
-import com.sondev.productservice.entity.Category;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,6 +14,7 @@ public class ProductRequest{
     private String sku;
     private Double priceUnit;
     private Integer quantity;
+    private Integer discount;
     private String categoryId;
     private String brandId;
 

@@ -6,6 +6,7 @@ import com.sondev.common.response.PagingData;
 import com.sondev.common.utils.PaginationUtils;
 import com.sondev.productservice.adapter.CloudinaryService;
 import com.sondev.productservice.dto.request.CategoryRequest;
+import com.sondev.productservice.dto.response.BannerDto;
 import com.sondev.productservice.dto.response.CategoryDTO;
 import com.sondev.productservice.entity.Category;
 import com.sondev.productservice.entity.Gallery;
@@ -37,21 +38,20 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CloudinaryService cloudinaryService;
     private final GalleryService galleryService;
-    private final GalleryMapper galleryMapper;
     private final ObjectMapper objectMapper;
 
     private final CategoryMapper categoryMapper;
 
-    public String createCategory(String data, List<MultipartFile> imageFiles, MultipartFile iconFile) throws JsonProcessingException {
+    public String createCategory(String data, List<MultipartFile> imageFiles, MultipartFile iconFile)
+            throws JsonProcessingException {
         CategoryRequest categoryRequest = objectMapper.readValue(data, CategoryRequest.class);
         Category entity = categoryMapper.reqToEntity(categoryRequest);
-        if (!categoryRequest.getParentCatId().isEmpty()){
+        if (!categoryRequest.getParentCatId().isEmpty()) {
             Optional<Category> parentCategoryOptional = categoryRepository.findById(categoryRequest.getParentCatId());
 
             entity.setParent(parentCategoryOptional.get());
 
         }
-
 
         List<Gallery> imageUrls = imageFiles.stream().map(this::saveImageToCloud).toList();
         entity.setImageUrls(imageUrls);
@@ -61,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toDto(categoryRepository.save(entity)).getId();
     }
 
-    private Gallery saveImageToCloud (MultipartFile file) {
+    private Gallery saveImageToCloud(MultipartFile file) {
         Map result = cloudinaryService.uploadFile(file);
         String imageUrl = (String) result.get("secure_url");
         String publicId = (String) result.get("public_id");
@@ -69,23 +69,25 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     public PagingData getCategories(String searchText, Integer offset, Integer pageSize, String sortStr) {
-        Page<Category> productPage;
+        Page<Category> categoryPageEntity;
         Sort sort = PaginationUtils.buildSort(sortStr);
         Pageable pageable = PageRequest.of(offset, pageSize, sort);
 
         if (searchText.isEmpty()) {
-            productPage = categoryRepository.findAll(pageable);
+            categoryPageEntity = categoryRepository.findAll(pageable);
         } else {
-            productPage = categoryRepository.findByNameContainingIgnoreCase(searchText, pageable);
+            categoryPageEntity = categoryRepository.findByNameContainingIgnoreCase(searchText, pageable);
         }
 
+        Page<CategoryDTO> categoryDTOPage = categoryPageEntity.map(categoryMapper::toDto);
+
         return PagingData.builder()
-                .data(productPage)
+                .data(categoryDTOPage)
                 .searchText(searchText)
                 .offset(offset)
                 .pageSize(pageSize)
                 .sort(sortStr)
-                .totalRecord(productPage.getTotalElements())
+                .totalRecord(categoryDTOPage.getTotalElements())
                 .build();
     }
 
@@ -100,7 +102,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryDTO> getBaseCategories() {
         List<Category> categoryList = categoryRepository.findAll();
-        List<Category> baseCategoryList = categoryList.stream().filter(category -> category.getParent() == null).toList();
+        List<Category> baseCategoryList = categoryList.stream().filter(category -> category.getParent() == null)
+                .toList();
         return categoryMapper.toDto(baseCategoryList);
     }
 
@@ -129,9 +132,11 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toDto(categoryList);
     }
 
-    public CategoryDTO updateCategory(List<MultipartFile> files, String data, String id) throws JsonProcessingException, IllegalAccessException {
+    public CategoryDTO updateCategory(List<MultipartFile> files, String data, String id)
+            throws JsonProcessingException, IllegalAccessException {
 
-        Category currentCategory = categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Can't find category with id " + id));
+        Category currentCategory = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Can't find category with id " + id));
 
         CategoryRequest categoryRequest = objectMapper.readValue(data, CategoryRequest.class);
         List<Gallery> galleries;
@@ -148,7 +153,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .name(categoryRequest.getName())
                 .imageUrls(galleries)
                 .build();
-
 
         return categoryMapper.toDto(categoryRepository.save(newCategory));
 

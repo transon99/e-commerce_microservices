@@ -1,6 +1,10 @@
 package com.sondev.productservice.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sondev.common.response.PagingData;
 import com.sondev.productservice.adapter.CloudinaryService;
+import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.productservice.dto.request.GalleryRequest;
 import com.sondev.productservice.dto.response.CategoryDTO;
 import com.sondev.productservice.entity.Category;
@@ -15,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -26,31 +31,30 @@ public class GalleryServiceImpl implements GalleryService {
 
     private final GalleryRepository galleryRepository;
     private final CloudinaryService cloudinaryService;
+    private final ObjectMapper objectMapper;
 
     private final GalleryMapper galleryMapper;
 
     @Override
-    public Gallery create(GalleryRequest galleryRequest) {
-        Gallery gallery = galleryMapper.reqToEntity(galleryRequest);
-        //        gallery.setProduct(productRepository.findById(galleryRequest.getProductId()).orElseThrow(
-        //                () -> new NotFoundException("Can't find product with id: " + galleryRequest.getProductId())));
-        return galleryRepository.save(gallery);
-    }
-
-    @Override
-    public String addGalleryToProduct(String galleryId, String productId) {
-        Gallery currentGallery = galleryRepository.findById(galleryId)
-                .orElseThrow(() -> new NotFoundException("Can't find gallery with id: " + galleryId));
+    public Gallery create(MultipartFile file, String data) throws JsonProcessingException {
+        GalleryRequest galleryRequest = objectMapper.readValue(data, GalleryRequest.class);
+        Gallery entity = galleryMapper.reqToEntity(galleryRequest);
         return null;
     }
 
     @Override
     public CategoryDTO findById(String id) {
+
         return null;
     }
 
     @Override
-    public CategoryDTO update(Map<String, Object> fields, String id) {
+    public PagingData findByCondition(String searchText, Integer offset, Integer pageSize, String sortStr) {
+        return null;
+    }
+
+    @Override
+    public CategoryDTO update(MultipartFile file, String data, String id) {
         return null;
     }
 

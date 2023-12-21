@@ -2,10 +2,7 @@ package com.sondev.productservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,24 +13,24 @@ import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Data
-@Table(name = "gallery")
+@Table(name = "banner")
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Builder
-public class Gallery extends AbstractMappedEntity<String> {
+public class Banner extends AbstractMappedEntity<String> {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
 
-    @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
+    @Column(name = "banner_name")
+    private String name;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(name = "image_public_id")
     private String publicId;
 
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "product_id", referencedColumnName = "id")
-//    private Product product;
 }

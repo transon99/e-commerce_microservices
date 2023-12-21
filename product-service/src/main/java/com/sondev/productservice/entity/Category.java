@@ -26,7 +26,7 @@ public class Category extends AbstractMappedEntity<String> {
     private String name;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "gallery_id")
+    @JoinColumn(name = "icon_url_id")
     private Gallery iconUrl;
 
     @ManyToOne
