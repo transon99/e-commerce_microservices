@@ -31,7 +31,7 @@ public class Product extends AbstractMappedEntity<String> {
     private String sku;
 
     @Column(unique = true)
-    private Double discount;
+    private Integer discount;
 
     @Column(name = "price_unit", columnDefinition = "decimal")
     private Double priceUnit;
@@ -47,7 +47,6 @@ public class Product extends AbstractMappedEntity<String> {
     @JoinColumn(name = "brand_id", referencedColumnName = "id")
     private Brand brand;
 
-    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private List<Gallery> thumbnailUrls;

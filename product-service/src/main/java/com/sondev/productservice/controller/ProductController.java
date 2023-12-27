@@ -34,7 +34,7 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<ResponseMessage> createProduct(@RequestParam("image") List<MultipartFile> files,
+    public ResponseEntity<ResponseMessage> createProduct(@RequestParam("images") List<MultipartFile> files,
                                                          @RequestParam("data") String data) throws JsonProcessingException  {
         log.info("ProductController | addProduct is called");
 
@@ -71,6 +71,17 @@ public class ProductController {
                 productService.getProducts(searchText, offset, pageSize, sortStr)));
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<ResponseMessage> filterProduct(@RequestParam String categoryId,
+                                                       @RequestParam Integer offset,
+                                                       @RequestParam Integer pageSize,
+                                                       @RequestParam String brandId) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "get product successful !!",
+                productService.findProductsByCategoryAndBrand( offset, pageSize,categoryId, brandId)));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
@@ -81,12 +92,13 @@ public class ProductController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMessage> update(@RequestBody @Validated Map<String, Object> fields,
-                                 @PathVariable(name = "id") String id) {
+    public ResponseEntity<ResponseMessage> update(@RequestParam(value = "image", required = false)  List<MultipartFile> files,
+                                                  @RequestParam("data") String data,
+                                                  @PathVariable(name = "id") String id) throws JsonProcessingException, IllegalAccessException  {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Update product successful !!",
-                productService.updateProduct(fields,id)));
+                productService.updateProduct(files, data, id)));
     }
 
     @PutMapping("/reduce-quantity/{id}")

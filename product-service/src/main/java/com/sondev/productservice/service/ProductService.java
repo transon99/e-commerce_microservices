@@ -17,7 +17,9 @@ public interface ProductService {
 
     PagingData getProducts(String searchText, Integer offset, Integer pageSize, String sortStr);
 
-    ProductDto updateProduct(Map<String, Object> fields, String id);
+    PagingData findProductsByCategoryAndBrand(Integer offset, Integer pageSize, String categoryId, String brandId);
+
+    ProductDto updateProduct(List<MultipartFile> files,String data, String id) throws JsonProcessingException;
 
     String deleteProductById(String id);
 

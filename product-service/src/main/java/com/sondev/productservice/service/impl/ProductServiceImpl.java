@@ -6,8 +6,10 @@ import com.sondev.common.exceptions.APIException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.utils.PaginationUtils;
 import com.sondev.productservice.adapter.CloudinaryService;
+import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.productservice.dto.request.ProductRequest;
 import com.sondev.productservice.dto.response.ProductDto;
+import com.sondev.productservice.entity.Brand;
 import com.sondev.productservice.entity.Category;
 import com.sondev.productservice.entity.Gallery;
 import com.sondev.productservice.entity.Product;
@@ -19,6 +21,7 @@ import com.sondev.productservice.mapper.ProductMapper;
 import com.sondev.productservice.repository.BrandRepository;
 import com.sondev.productservice.repository.CategoryRepository;
 import com.sondev.productservice.repository.ProductRepository;
+import com.sondev.productservice.service.GalleryService;
 import com.sondev.productservice.service.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -46,23 +49,27 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final CloudinaryService cloudinaryService;
+    private final GalleryService galleryService;
     private final ObjectMapper objectMapper;
     private final ProductMapper productMapper;
     private final BrandMapper brandMapper;
     private final CategoryMapper categoryMapper;
 
+    private Gallery saveImageToCloud(MultipartFile file) {
+        Map result = cloudinaryService.uploadFile(file);
+        String imageUrl = (String) result.get("secure_url");
+        String publicId = (String) result.get("public_id");
+        return Gallery.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
+    }
+
+    @Transactional
     public String createProduct(List<MultipartFile> files, String data) throws JsonProcessingException {
         log.info("ProductServiceImpl | createProduct is called");
         ProductRequest productRequest = objectMapper.readValue(data, ProductRequest.class);
 
         Product entity = productMapper.reqToEntity(productRequest);
 
-        List<Gallery> galleries = files.stream().map(file -> {
-            Map result = cloudinaryService.uploadFile(file);
-            String imageUrl = (String) result.get("secure_url");
-            String publicId = (String) result.get("public_id");
-            return Gallery.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
-        }).toList();
+        List<Gallery> galleries = files.stream().map(this::saveImageToCloud).toList();
         entity.setCategory(categoryRepository.findById(productRequest.getCategoryId()).orElseThrow(
                 () -> new NotFoundException("Can't find category with id" + productRequest.getCategoryId())));
         entity.setBrand(brandRepository.findById(productRequest.getBrandId()).orElseThrow(
@@ -107,6 +114,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return PagingData.builder()
+                .data(productPage.getContent())
                 .searchText(searchText)
                 .offset(offset)
                 .pageSize(pageSize)
@@ -115,23 +123,67 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
-    public ProductDto updateProduct(Map<String, Object> fields, String productId) {
+    public PagingData findProductsByCategoryAndBrand(Integer offset, Integer pageSize, String categoryId, String brandId) {
+        log.info("ProductServiceImpl | findProductsByCategoryAndBrand is called");
+        log.info("ProductServiceImpl | findProductsByCategoryAndBrand | offset {}, pageSize {} : ",
+                offset, pageSize
+        );
+
+        Pageable pageable = PageRequest.of(offset, pageSize);
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                () -> new NotFoundException("Can't find category with id" + categoryId));
+        Brand brand = brandRepository.findById(brandId).orElseThrow(
+                () -> new NotFoundException("Can't find brand with id" + brandId));
+
+        Page<Product> productPage = productRepository.findByCategoryAndBrand(category, brand, pageable);
+
+
+        return PagingData.builder()
+                .data(productPage.getContent())
+                .offset(offset)
+                .pageSize(pageSize)
+                .totalRecord(productPage.getTotalElements())
+                .build();
+    }
+
+    public ProductDto updateProduct(List<MultipartFile> files, String data, String id) throws JsonProcessingException {
         log.info("ProductServiceImpl | updateProduct is called");
-        log.info("ProductServiceImpl | updateProduct | Update the product for productId: {}", productId);
+        log.info("ProductServiceImpl | updateProduct | Update the product for productId: {}", id);
 
-        Product currentProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Can't find product with id" + productId));
+        Product currentProduct = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Can't find product with id " + id));
 
-        fields.forEach((key, value) -> {
-            Field field = ReflectionUtils.findField(Category.class, key);
-            if (field == null) {
-                throw new NullPointerException("Can't find any field");
-            }
-            field.setAccessible(true);
-            ReflectionUtils.setField(field, currentProduct, value);
-        });
+        ProductRequest productRequest = objectMapper.readValue(data, ProductRequest.class);
+        List<Gallery> galleries;
+        if (files != null) {
+            List<Gallery> imageList = currentProduct.getThumbnailUrls();
+            imageList.forEach(image -> galleryService.deleteById(image.getId()));
+            galleries = files.stream().map(this::saveImageToCloud).toList();
+        } else {
+            galleries = currentProduct.getThumbnailUrls();
+        }
 
-        return productMapper.toDto(productRepository.save(currentProduct));
+        Brand brand = brandRepository.findById(productRequest.getBrandId())
+                .orElseThrow(() -> new NotFoundException("Can't find brand with id: " + id));
+
+        Category category = categoryRepository.findById(productRequest.getCategoryId())
+                .orElseThrow(() -> new NotFoundException("Can't find category with id: " + id));
+
+        Product newProduct = Product.builder()
+                .id(currentProduct.getId())
+                .name(productRequest.getName())
+                .thumbnailUrls(galleries)
+                .brand(brand)
+                .category(category)
+                .description(productRequest.getDescription())
+                .sku(productRequest.getSku())
+                .discount(productRequest.getDiscount())
+                .quantity(productRequest.getQuantity())
+                .priceUnit(productRequest.getPriceUnit())
+                .evaluates(currentProduct.getEvaluates())
+                .build();
+
+        return productMapper.toDto(productRepository.save(newProduct));
     }
 
     public String deleteProductById(String id) {
