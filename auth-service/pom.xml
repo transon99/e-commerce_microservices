@@ -82,6 +82,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- upload file -->
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http44</artifactId>
+            <version>1.36.0</version>
+        </dependency>
+
         <!-- Social Facebook -->
         <dependency>
             <groupId>org.springframework.social</groupId>

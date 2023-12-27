@@ -39,3 +39,8 @@ application:
 
 # secretPsw
 secretPsw: kasdjhfkadhsY776ggTyUU65khaskdjfhYuHAwjñlji
+
+# cloud storage
+storage.cloudinary.cloudName : djia7tn8l
+storage.cloudinary.apiKey : 178746625816242
+storage.cloudinary.apiSecret : 178746625816242

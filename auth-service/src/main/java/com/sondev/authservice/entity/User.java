@@ -50,6 +50,9 @@ public class User extends AbstractMappedEntity implements UserDetails {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    @Column(name = "public_avatar_id")
+    private String publicId;
+
     @Column(name = "user_name")
     private String userName;
 

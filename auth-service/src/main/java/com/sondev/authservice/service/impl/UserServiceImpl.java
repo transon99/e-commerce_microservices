@@ -1,5 +1,6 @@
 package com.sondev.authservice.service.impl;
 
+import com.sondev.authservice.adapter.CloudinaryService;
 import com.sondev.authservice.dto.request.ActiveAccountRequest;
 import com.sondev.authservice.dto.request.UserRequest;
 import com.sondev.authservice.dto.response.UserDto;
@@ -19,6 +20,7 @@ import com.sondev.common.utils.PaginationUtils;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +28,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +50,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final CloudinaryService cloudinaryService;
 
     @Override
     public User createUser(UserRequest userRequest) {
@@ -67,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUser() {
-        return null;
+        return userMapper.toDto(userRepository.findAll());
     }
 
     @Override
@@ -95,13 +101,49 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public String updateAvatar(MultipartFile file, String id) {
+        User currentUser = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Can't find user with id" + id));
+
+        if (StringUtils.isNotEmpty(currentUser.getAvatarUrl())) {
+            cloudinaryService.deleteFile(currentUser.getPublicId());
+        }
+
+        Map result = cloudinaryService.uploadFile(file);
+        String avatarUrl = (String) result.get("secure_url");
+        String publicId = (String) result.get("public_id");
+
+        currentUser.setAvatarUrl(avatarUrl);
+        currentUser.setPublicId(publicId);
+
+        userRepository.save(currentUser);
+
+        return currentUser.getAvatarUrl();
+    }
+
+    @Override
     public UserDto getUserById(String id) {
         return null;
     }
 
     @Override
     public UserDto updateUser(Map<String, Object> fields, String id) {
-        return null;
+        User existingUser = userRepository.findById(id).orElseThrow(
+                () -> new NotFoundException("Can't find user with id" + id));
+
+        fields.forEach((key, value) -> {
+            // Tìm tên của trường dựa vào "key"
+            Field field = ReflectionUtils.findField(User.class, key);
+            if (field == null) {
+                throw new NullPointerException("Can't find any field");
+            }
+            // Set quyền truy cập vào biến kể cả nó là private
+            field.setAccessible(true);
+            // đặt giá trị cho một field cụ thể trong một đối tượng dựa trên tên của field đó
+            ReflectionUtils.setField(field, existingUser, value);
+        });
+        userRepository.save(existingUser);
+        return userMapper.toDto(existingUser);
     }
 
     @Override
