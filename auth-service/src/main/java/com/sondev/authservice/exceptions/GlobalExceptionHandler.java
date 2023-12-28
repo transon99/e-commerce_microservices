@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     ErrorResponse handleAuthenticationException(Exception ex) {
-        return new ErrorResponse( HttpStatus.UNAUTHORIZED, "username or password is incorrect.", new Date());
+        return new ErrorResponse( HttpStatus.UNAUTHORIZED, "email or password is incorrect.", new Date());
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)

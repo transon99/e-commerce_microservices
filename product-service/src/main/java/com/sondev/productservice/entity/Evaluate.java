@@ -20,9 +20,9 @@ import org.hibernate.annotations.UuidGenerator;
 @Table(name = "feedback")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true, exclude = {"product"})
+@EqualsAndHashCode(callSuper = true)
 @Builder
-public class Evaluate extends AbstractMappedEntity {
+public class Evaluate extends AbstractMappedEntity<String> {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)
@@ -32,7 +32,7 @@ public class Evaluate extends AbstractMappedEntity {
 
     private String userId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private Product product;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "product_id", referencedColumnName = "id")
+//    private Product product;
 }

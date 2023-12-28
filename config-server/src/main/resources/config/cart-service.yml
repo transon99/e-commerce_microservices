@@ -1,7 +1,7 @@
 server:
   port: 8084
   servlet:
-    context-path: api/v1/cart-service
+    context-path: /api/v1/cart-service
 
 eureka:
   instance:
@@ -13,12 +13,13 @@ eureka:
   #connect to database
   data:
     mongodb:
-      authentication-database: admin
-      username: admin
-      password: admin
-      database: order-service
-      port: 27017
-      host: localhost
+      uri: mongodb://localhost:27017/cart-service
+#      authentication-database: admin
+#      username: admin
+#      password: admin
+#      database: cart-service
+#      port: 27017
+#      host: localhost
 
 application:
   security:

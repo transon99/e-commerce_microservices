@@ -1,5 +1,6 @@
 package com.sondev.productservice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.productservice.service.CategoryService;
@@ -16,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
-@RequestMapping("/api/v1/categories")
+@RequestMapping("/categories")
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -28,11 +31,14 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> createCategory(@RequestBody @Validated CategoryRequest categoryRequest) {
+    public ResponseEntity<ResponseMessage> createCategory(@RequestParam("image") List<MultipartFile> imageFiles,
+                                                          @RequestParam("icon") MultipartFile iconFile,
+                                                          @RequestParam("data") String data)
+            throws JsonProcessingException {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Create category successful !!",
-                categoryService.createCategory(categoryRequest)));
+                categoryService.createCategory(data, imageFiles,iconFile)));
 
     }
 
@@ -44,15 +50,31 @@ public class CategoryController {
                 categoryService.findCategoryById(id)));
     }
 
-    @GetMapping()
-    public ResponseEntity<ResponseMessage> getCategories(@RequestParam String searchText,
-                                                         @RequestParam Integer offset,
-                                                         @RequestParam Integer pageSize,
-                                                         @RequestParam String sortStr) {
+    @GetMapping("/base-categories")
+    public ResponseEntity<ResponseMessage> getSubCategory() {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Get base categories successful !!",
+                categoryService.getBaseCategories()));
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseMessage> getCategories(@RequestParam(name = "searchText") String searchText,
+                                                         @RequestParam(name = "offset") Integer offset,
+                                                         @RequestParam(name = "pageSize") Integer pageSize,
+                                                         @RequestParam(name = "sortStr") String sortStr) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Find category successful !!",
                 categoryService.getCategories(searchText, offset, pageSize, sortStr)));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ResponseMessage> getAll() {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "Find all category successful !!",
+                categoryService.getAll()));
     }
 
     @DeleteMapping("/{id}")
@@ -64,11 +86,13 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMessage> update(@RequestBody Map<String, Object> fields, @PathVariable(name = "id") String id) {
+    public ResponseEntity<ResponseMessage> update(@RequestParam(value = "image", required = false)  List<MultipartFile> files,
+                                                  @RequestParam("data") String data,
+                                                  @PathVariable(name = "id") String id) throws JsonProcessingException, IllegalAccessException {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Update category successful !!",
-                categoryService.updateCategory(fields, id)));
+                categoryService.updateCategory(files, data, id)));
     }
 
 }

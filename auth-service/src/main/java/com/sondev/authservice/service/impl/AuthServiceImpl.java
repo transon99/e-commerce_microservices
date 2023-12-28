@@ -48,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthDto login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUserName(),
+                        loginRequest.getEmail(),
                         loginRequest.getPassword()
                 )
         );
@@ -109,10 +109,9 @@ public class AuthServiceImpl implements AuthService {
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String token = jwtService.getTokenFromRequest(request);
         if (token != null && jwtService.validateToken(token)) {
-            String userName = jwtService.getUserNameFromToken(token);
-            if (userName != null) {
-                User user = userRepository.findByUserName(userName).orElseThrow();
-                User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            String email = jwtService.getEmailFromToken(token);
+            if (email != null) {
+                User user = userRepository.findByEmail(email).orElseThrow();
                 if (jwtService.validateToken(token) ){
                     Map<String, Object> extraClaims = new HashMap<>();
                     extraClaims.put("roles", user.getRole());

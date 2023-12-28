@@ -34,8 +34,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = jwtService.getTokenFromRequest(request);
             if (token != null && jwtService.validateToken(token)) {
-                String userName = jwtService.getUserNameFromToken(token);
-                UserDetails userDetails = userDetailService.loadUserByUsername(userName);
+                String email = jwtService.getEmailFromToken(token);
+                UserDetails userDetails = userDetailService.loadUserByUsername(email);
                 if (userDetails != null) {
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(
@@ -48,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e){
-            log.error("username or password not found");
+            log.error("email or password not found");
         }
         filterChain.doFilter(request, response);
 

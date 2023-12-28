@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -12,9 +14,9 @@ import java.util.Set;
 @Table(name = "categories")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true, exclude = {"subCategories", "parentCategory", "products"})
+@EqualsAndHashCode(callSuper = true)
 @Builder
-public class Category extends AbstractMappedEntity {
+public class Category extends AbstractMappedEntity<String> {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)
@@ -23,8 +25,21 @@ public class Category extends AbstractMappedEntity {
     @Column(name = "category_name", columnDefinition = "char(50)")
     private String name;
 
-    @Column(name = "image_url",columnDefinition = "char(255)")
-    private String imageUrl;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "icon_url_id")
+    private Gallery iconUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Category parent;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Category> children = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private List<Gallery> imageUrls;
 
     @JsonIgnore
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

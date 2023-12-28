@@ -7,14 +7,14 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true, exclude = {"comments", "thumbnailUrls", "category"})
+@EqualsAndHashCode(callSuper = true, exclude = {"category"})
 @Entity
 @Data
 @Table(name = "products")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Product extends AbstractMappedEntity {
+public class Product extends AbstractMappedEntity<String> {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)
@@ -31,7 +31,7 @@ public class Product extends AbstractMappedEntity {
     private String sku;
 
     @Column(unique = true)
-    private Double discount;
+    private Integer discount;
 
     @Column(name = "price_unit", columnDefinition = "decimal")
     private Double priceUnit;
@@ -47,11 +47,12 @@ public class Product extends AbstractMappedEntity {
     @JoinColumn(name = "brand_id", referencedColumnName = "id")
     private Brand brand;
 
-    @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
     private List<Gallery> thumbnailUrls;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
     private List<Evaluate> evaluates;
 }

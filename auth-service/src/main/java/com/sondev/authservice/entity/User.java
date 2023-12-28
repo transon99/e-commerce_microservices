@@ -92,7 +92,7 @@ public class User extends AbstractMappedEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.userName;
+        return this.email;
     }
 
     @Override

@@ -6,6 +6,14 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
       routes:
         - id: product-service
           uri: lb://PRODUCT-SERVICE
@@ -24,12 +32,12 @@ spring:
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
-            - Path=/auth-service/api/v1/**
+            - Path=/api/v1/auth-service/**
 
         - id: cart-service
           uri: lb://CART-SERVICE
           predicates:
-            - Path=/cart-service/api/v1/**
+            - Path=/api/v1/cart-service/**
 eureka:
   instance:
     hostname: localhost

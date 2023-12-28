@@ -20,7 +20,7 @@ public class ProductDto extends AbstractDto<String> {
     private String sku;
     private Double priceUnit;
     private Integer quantity;
-    private String createdAt;
+//    private String createdAt;
 
 //    private String lastModifiedAt;
 //
