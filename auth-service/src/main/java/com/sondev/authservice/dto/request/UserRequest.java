@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class RegisterRequest {
-
+public class UserRequest {
     private String firstName;
 
     private String lastName;
@@ -19,11 +18,6 @@ public class RegisterRequest {
 
     private String phone;
 
-    private AddressRequest addressRequest;
+    private String zaloId;
 
-    private String userName;
-
-    private String password;
-
-    private String role;
 }

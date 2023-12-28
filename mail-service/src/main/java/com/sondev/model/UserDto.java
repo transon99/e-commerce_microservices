@@ -1,29 +1,23 @@
-package com.sondev.authservice.dto.request;
+package com.sondev.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@Builder
-public class RegisterRequest {
+public class UserDto {
+    private String id;
 
     private String firstName;
 
     private String lastName;
 
+    private String imageUrl;
+
     private String email;
 
     private String phone;
 
-    private AddressRequest addressRequest;
-
-    private String userName;
-
-    private String password;
-
-    private String role;
 }

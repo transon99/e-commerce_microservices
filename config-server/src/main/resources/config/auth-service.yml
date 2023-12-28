@@ -27,6 +27,8 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  #kafka server url
+
 application:
   security:
     jwt:
@@ -34,3 +36,11 @@ application:
       expiration: 86400000 # a day
       refresh-token:
         expiration: 604800000 # 7 days
+
+# secretPsw
+secretPsw: kasdjhfkadhsY776ggTyUU65khaskdjfhYuHAwjñlji
+
+# cloud storage
+storage.cloudinary.cloudName : djia7tn8l
+storage.cloudinary.apiKey : 178746625816242
+storage.cloudinary.apiSecret : 178746625816242

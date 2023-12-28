@@ -38,6 +38,9 @@ public class User extends AbstractMappedEntity implements UserDetails {
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
 
+    @Column(name = "zalo_id")
+    private String zaloId;
+
     @Column(name = "first_name")
     private String firstName;
 
@@ -46,6 +49,9 @@ public class User extends AbstractMappedEntity implements UserDetails {
 
     @Column(name = "avatar_url")
     private String avatarUrl;
+
+    @Column(name = "public_avatar_id")
+    private String publicId;
 
     @Column(name = "user_name")
     private String userName;

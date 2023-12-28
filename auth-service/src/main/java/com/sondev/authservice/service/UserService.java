@@ -1,15 +1,32 @@
 package com.sondev.authservice.service;
 
-import com.sondev.common.response.ResponseDTO;
+import com.sondev.authservice.dto.request.ActiveAccountRequest;
+import com.sondev.authservice.dto.request.UserRequest;
+import com.sondev.authservice.dto.response.UserDto;
+import com.sondev.authservice.entity.User;
+import com.sondev.common.response.PagingData;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserService {
-    ResponseDTO getAllUser();
+    User createUser(UserRequest userRequest);
 
-    ResponseDTO getUserById(String id);
+    UserDto getCurrentUser(String token);
 
-    ResponseDTO updateUser(Map<String, Object> fields, String id);
+    List<UserDto> getAllUser();
 
-    ResponseDTO deleteUser(String id);
+    PagingData getUsers(String searchText, Integer offset, Integer pageSize, String sortStr);
+
+    String updateAvatar(MultipartFile file, String id);
+
+    UserDto getUserById(String id);
+
+    UserDto updateUser(Map<String, Object> fields, String id);
+
+    String deleteUser(String id);
+
+    String activeUser(ActiveAccountRequest request);
+
 }
