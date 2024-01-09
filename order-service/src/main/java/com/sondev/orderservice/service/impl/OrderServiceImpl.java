@@ -1,34 +1,65 @@
 package com.sondev.orderservice.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
-import com.sondev.common.response.ResponseDTO;
-import com.sondev.common.utils.Utils;
+import com.sondev.common.response.ResponseMessage;
+import com.sondev.common.utils.JwtUtils;
 import com.sondev.orderservice.dto.request.OrderRequest;
+import com.sondev.orderservice.dto.response.CartDto;
+import com.sondev.orderservice.dto.response.CartItemDto;
 import com.sondev.orderservice.dto.response.OrderDto;
 import com.sondev.orderservice.entity.Orders;
+import com.sondev.orderservice.entity.Status;
+import com.sondev.orderservice.feignclient.CartClient;
+import com.sondev.orderservice.feignclient.ProductClient;
 import com.sondev.orderservice.mapper.OrderMapper;
 import com.sondev.orderservice.repository.OrderRepository;
 import com.sondev.orderservice.service.OrderService;
-import jakarta.transaction.Transactional;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
+import java.util.Date;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class OrderServiceImpl implements OrderService {
 
     private final OrderMapper orderMapper;
     private final OrderRepository orderRepository;
+    private final CartClient cartClient;
+    private final ProductClient productClient;
+    private final ObjectMapper objectMapper;
 
     @Override
-    public String createOrder(OrderRequest orderRequest) {
-        Orders orderEntity = orderMapper.reqToEntity(orderRequest);
-        return orderMapper.toDto(orderRepository.save(orderEntity)).getId();
+    @Transactional
+    public String createOrder(OrderRequest orderRequest, String token) {
+        CartDto cartDto = new CartDto();
+
+        ResponseMessage cartResponse = cartClient.getCartByUser(token).getBody();
+        assert cartResponse != null;
+        if (cartResponse.getData() != null) {
+            cartDto = objectMapper.convertValue(cartResponse.getData(), CartDto.class);
+
+        }
+
+        Claims claims = JwtUtils.parseClaims(token);
+        String userId = (String) claims.get("userId");
+        Orders order = Orders.builder()
+                .orderDate(new Date())
+                .cartId(orderRequest.getCartId())
+                .userId(userId)
+                .status(Status.PENDING)
+                .isAccept(false)
+                .totalPrice(cartDto.getTotalPrice())
+                .paymentMethodId(orderRequest.getPaymentMethodId())
+                .build();
+
+        return orderMapper.toDto(orderRepository.save(order)).getId();
     }
 
     @Override
@@ -42,13 +73,37 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDto updateOrder(Map<String, Object> fields, String id) {
-        return null;
+    @Transactional
+    public OrderDto acceptOrder(String id, String token) {
+        CartDto cartDto = new CartDto();
+
+        Orders order = orderRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Can't find order with id" + id));
+
+        ResponseMessage cartResponse = cartClient.getCartById(token, order.getCartId()).getBody();
+        assert cartResponse != null;
+        if (cartResponse.getData() != null) {
+            cartDto = objectMapper.convertValue(cartResponse.getData(), CartDto.class);
+        }
+
+        cartDto.getCartItemIds().forEach(cartItemId -> {
+            ResponseMessage cartItemResponse = cartClient.getCartItemById(token, cartItemId).getBody();
+            assert cartItemResponse != null;
+            if (cartItemResponse.getData() != null) {
+                CartItemDto cartItemDto = objectMapper.convertValue(cartItemResponse.getData(), CartItemDto.class);
+                productClient.reduceQuantity(cartItemDto.getProductId(),cartItemDto.getQuantity());
+            }
+        });
+
+        order.setAccept(true);
+        order.setStatus(Status.CONFIRMED);
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     @Override
-    public String deleteOrderById(String id) {
-        return null;
+    public String cancelOrder(String id) {
+        orderRepository.deleteById(id);
+        return id;
     }
 
 }

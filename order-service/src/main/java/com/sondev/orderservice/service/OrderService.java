@@ -8,14 +8,14 @@ import java.util.Map;
 
 public interface OrderService {
 
-    String createOrder(OrderRequest orderRequest);
+    String createOrder(OrderRequest orderRequest, String token);
 
     OrderDto findOrderById(String id);
 
     PagingData getOrders(String searchText, Integer offset, Integer pageSize, String sortStr);
 
-    OrderDto updateOrder(Map<String, Object> fields, String id);
+    OrderDto acceptOrder(String id,String token);
 
-    String deleteOrderById(String id);
+    String cancelOrder(String id);
 
 }

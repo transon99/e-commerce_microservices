@@ -28,11 +28,12 @@ public class Evaluate extends AbstractMappedEntity<String> {
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
 
-    private String note;
+    private String content;
 
+    @Column(name = "user_id")
     private String userId;
 
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "product_id", referencedColumnName = "id")
-//    private Product product;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

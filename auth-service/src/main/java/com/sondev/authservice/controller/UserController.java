@@ -35,6 +35,12 @@ public class UserController {
         return ResponseEntity.ok().body(new ResponseMessage("OK", "Get current user successful !!!", userService.getCurrentUser(token)) );
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER')")
+    public ResponseEntity<ResponseMessage> getById(@PathVariable String id){
+        return ResponseEntity.ok().body(new ResponseMessage("OK", "Get user successful !!!", userService.getUserById(id)) );
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
     public ResponseEntity<ResponseMessage> updateUserInfo(@RequestBody Map<String, Object> fields, @PathVariable String id){

@@ -27,7 +27,7 @@ spring:
       ddl-auto: update
     show-sql: true
 
-  #kafka server url
+#kafka server url
 
 application:
   security:

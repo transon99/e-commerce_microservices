@@ -1,7 +1,7 @@
-package com.sondev.cartservice.dto.response;
+package com.sondev.orderservice.dto.response;
 
 
-import com.sondev.cartservice.dto.AbstractDto;
+import com.sondev.orderservice.dto.AbstractDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,5 +17,5 @@ public class CartDto extends AbstractDto<String> {
     private String id;
     private Double totalPrice;
     private Integer quantity;
-    private List<String> productId;
+    private List<String> cartItemIds;
 }

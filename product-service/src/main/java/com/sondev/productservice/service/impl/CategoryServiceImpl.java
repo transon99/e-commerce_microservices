@@ -17,8 +17,10 @@ import com.sondev.productservice.mapper.GalleryMapper;
 import com.sondev.productservice.repository.CategoryRepository;
 import com.sondev.productservice.service.CategoryService;
 import com.sondev.productservice.service.GalleryService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -132,26 +134,45 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toDto(categoryList);
     }
 
-    public CategoryDTO updateCategory(List<MultipartFile> files, String data, String id)
-            throws JsonProcessingException, IllegalAccessException {
+    @Transactional
+    public CategoryDTO updateCategory(List<MultipartFile> files, MultipartFile iconFile, String data, String id)
+            throws JsonProcessingException {
 
         Category currentCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find category with id " + id));
 
         CategoryRequest categoryRequest = objectMapper.readValue(data, CategoryRequest.class);
-        List<Gallery> galleries;
+
+        Category currentCategoryParent = currentCategory.getParent();
+        if (!StringUtils.equals(categoryRequest.getParentCatId(), currentCategoryParent.getId())) {
+            currentCategoryParent = categoryRepository.findById(categoryRequest.getParentCatId()).orElseThrow(
+                    () -> new NotFoundException("Can't find category with id" + categoryRequest.getParentCatId()));
+        }
+
+        List<Gallery> imageList;
+        Gallery icon;
         if (files != null) {
-            List<Gallery> imageList = currentCategory.getImageUrls();
-            imageList.forEach(image -> galleryService.deleteById(image.getId()));
-            galleries = files.stream().map(this::saveImageToCloud).toList();
+            List<Gallery> currentImageList = currentCategory.getImageUrls();
+            currentImageList.forEach(image -> galleryService.deleteById(image.getId()));
+            imageList = files.stream().map(this::saveImageToCloud).toList();
         } else {
-            galleries = currentCategory.getImageUrls();
+            imageList = currentCategory.getImageUrls();
+        }
+
+        if (iconFile != null) {
+            Gallery currentIcon = currentCategory.getIconUrl();
+            galleryService.deleteById(currentIcon.getId());
+            icon = saveImageToCloud(iconFile);
+        } else {
+            icon = currentCategory.getIconUrl();
         }
 
         Category newCategory = Category.builder()
                 .id(currentCategory.getId())
                 .name(categoryRequest.getName())
-                .imageUrls(galleries)
+                .imageUrls(imageList)
+                .parent(currentCategoryParent)
+                .iconUrl(icon)
                 .build();
 
         return categoryMapper.toDto(categoryRepository.save(newCategory));

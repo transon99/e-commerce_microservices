@@ -40,7 +40,7 @@ public class ApplicationConfig {
     @Bean
     NewTopic mail () {
         // topic name, partition numbers, replication numbers
-        return new NewTopic("verification-mail", 1, (short) 1);
+        return new NewTopic("verification", 1, (short) 1);
     }
 
 }

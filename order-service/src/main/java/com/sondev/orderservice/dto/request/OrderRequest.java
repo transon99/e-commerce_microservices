@@ -1,6 +1,5 @@
 package com.sondev.orderservice.dto.request;
 
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,18 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class OrderRequest {
 
-    @Size(max = 50)
-    private String firstName;
+    private String paymentMethodId;
 
-    @Size(max = 50)
-    private String lastName;
-
-    @Size(max = 50)
-    private String email;
-
-    @Size(max = 30)
-    private String phoneNumber;
-
-    private Integer status;
+    private String cartId;
 
 }

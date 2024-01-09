@@ -24,6 +24,7 @@ import com.sondev.authservice.service.AuthService;
 import com.sondev.authservice.service.UserService;
 import com.sondev.authservice.service.VerificationService;
 import com.sondev.authservice.utils.TempEmailUtils;
+import com.sondev.common.exceptions.APIException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -228,9 +229,6 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtService.generateAccessToken(userDetail, extraClaims);
         String refreshToken = jwtService.generateRefreshToken(userDetail);
 
-        //        if (userDetail.getEnabled()) {
-        //            throw new APIException("User is not enable!!");
-        //        }
         return AuthDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

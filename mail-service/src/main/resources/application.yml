@@ -3,6 +3,10 @@ spring:
     name: mail-service
   config:
     import: "optional:configserver:http://localhost:8888"
+  kafka:
+    consumer:
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
   mail:
     default-encoding: UTF-8
@@ -19,6 +23,7 @@ spring:
           starttls:
             enable: true
             required: true
+
 
 
 

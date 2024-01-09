@@ -9,7 +9,8 @@ import java.util.List;
 
 public interface CategoryService {
 
-    String createCategory(String data, List<MultipartFile> imageFiles, MultipartFile iconFile) throws JsonProcessingException;
+    String createCategory(String data, List<MultipartFile> imageFiles, MultipartFile iconFile)
+            throws JsonProcessingException;
 
     PagingData getCategories(String searchText, Integer offset, Integer pageSize, String sortStr);
 
@@ -17,9 +18,11 @@ public interface CategoryService {
 
     List<CategoryDTO> getBaseCategories();
 
-    CategoryDTO updateCategory(List<MultipartFile> file, String data, String id) throws JsonProcessingException, IllegalAccessException;
+    CategoryDTO updateCategory(List<MultipartFile> file, MultipartFile iconFile, String data, String id)
+            throws JsonProcessingException, IllegalAccessException;
 
     String deleteCategoryById(String id);
 
     List<CategoryDTO> getAll();
+
 }

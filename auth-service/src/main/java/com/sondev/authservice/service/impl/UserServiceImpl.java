@@ -56,6 +56,7 @@ public class UserServiceImpl implements UserService {
     public User createUser(UserRequest userRequest) {
         User user = userMapper.reqUserToEntity(userRequest);
         user.setRole(Role.USER);
+        user.setEnabled(Boolean.TRUE);
         user.setPassword(passwordEncoder.encode(secretPsw));
         return userRepository.save(user);
     }
@@ -123,7 +124,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(String id) {
-        return null;
+        return userMapper.toDto(
+                userRepository.findById(id).orElseThrow(() -> new NotFoundException("Can't find user with id" + id)));
     }
 
     @Override

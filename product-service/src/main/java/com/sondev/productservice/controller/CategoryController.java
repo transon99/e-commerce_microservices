@@ -38,7 +38,7 @@ public class CategoryController {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Create category successful !!",
-                categoryService.createCategory(data, imageFiles,iconFile)));
+                categoryService.createCategory(data, imageFiles, iconFile)));
 
     }
 
@@ -86,13 +86,16 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMessage> update(@RequestParam(value = "image", required = false)  List<MultipartFile> files,
+    public ResponseEntity<ResponseMessage> update(@RequestParam(value = "image",
+            required = false) List<MultipartFile> files,
+                                                  @RequestParam("icon") MultipartFile iconFile,
                                                   @RequestParam("data") String data,
-                                                  @PathVariable(name = "id") String id) throws JsonProcessingException, IllegalAccessException {
+                                                  @PathVariable(name = "id") String id)
+            throws JsonProcessingException, IllegalAccessException {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Update category successful !!",
-                categoryService.updateCategory(files, data, id)));
+                categoryService.updateCategory(files, iconFile, data, id)));
     }
 
 }

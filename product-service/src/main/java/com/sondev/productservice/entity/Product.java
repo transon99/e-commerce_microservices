@@ -51,8 +51,6 @@ public class Product extends AbstractMappedEntity<String> {
     @JoinColumn(name = "product_id")
     private List<Gallery> thumbnailUrls;
 
-    @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Evaluate> evaluates;
 }

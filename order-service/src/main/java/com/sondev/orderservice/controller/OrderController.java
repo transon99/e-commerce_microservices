@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,12 +30,13 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> createOrder(@RequestBody @Validated OrderRequest orderRequest) {
+    public ResponseEntity<ResponseMessage> createOrder(@RequestBody @Validated OrderRequest orderRequest,
+                                                       @RequestHeader("Authorization") String token) {
         log.info("*** OrderDto, controller; create order *");
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Create order successful !!",
-                orderService.createOrder(orderRequest)));
+                orderService.createOrder(orderRequest, token)));
     }
 
     @GetMapping("/{id}")
@@ -47,27 +49,27 @@ public class OrderController {
 
     @GetMapping()
     public ResponseEntity<ResponseMessage> getOrders(@RequestParam String searchText,
-                                    @RequestParam Integer offset,
-                                    @RequestParam Integer pageSize,
-                                    @RequestParam String sortStr) {
+                                                     @RequestParam Integer offset,
+                                                     @RequestParam Integer pageSize,
+                                                     @RequestParam String sortStr) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "get orders successful !!", orderService.getOrders(searchText, offset, pageSize, sortStr)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
+    public ResponseEntity<ResponseMessage> cancelOrder(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
-                "Delete order successful !!", orderService.deleteOrderById(id)));
+                "Cancel order successful !!", orderService.cancelOrder(id)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMessage> update(@RequestBody @Validated Map<String, Object> fields,
-                                 @PathVariable(name = "id") String id) {
+    public ResponseEntity<ResponseMessage> acceptOrder(
+            @PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
-                "Update order successful !!", orderService.updateOrder(fields, id)));
+                "Accept order successful !!", orderService.acceptOrder(id)));
     }
 
 }

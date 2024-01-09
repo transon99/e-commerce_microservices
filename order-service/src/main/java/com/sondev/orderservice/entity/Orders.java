@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -19,25 +20,24 @@ public class Orders extends AbstractMappedEntity {
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
 
-    @Column(name = "first_name", nullable = false, columnDefinition = "char(255)")
-    private String firstName;
+    @Column(name = "order_date")
+    private Date orderDate;
 
-    @Column(name = "last_name", nullable = false, columnDefinition = "char(255)")
-    private String lastName;
+    @Column(name = "total_price")
+    private double totalPrice;
 
-    @Column(name = "email", nullable = false, columnDefinition = "char(255)")
-    @Email(message = "*Input must be in Email format!**")
-    private String email;
+    @Column(name = "payment_method_id")
+    private String paymentMethodId;
 
-    @Column(name = "phone_number", nullable = false, columnDefinition = "char(255)")
-    private String phoneNumber;
+    @Column(name = "is_accept")
+    private boolean isAccept;
 
     @Column(name = "status")
-    private Integer status;
+    private Status status;
 
     @Column(name = "user_id")
     private String userId;
 
-    @Column(name = "cart_ids")
+    @Column(name = "cart_id")
     private String cartId;
 }

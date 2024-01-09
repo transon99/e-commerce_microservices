@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -23,6 +23,9 @@ public class Cart extends AbstractMappedEntity {
     private String userId;
 
     @Field(name = "cart_items")
-    private List<String> cartItems;
+    private Set<String> cartItems;
+
+    @Field(name = "total_price")
+    private Double totalPrice;
 
 }
