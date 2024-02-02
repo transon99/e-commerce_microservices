@@ -27,7 +27,7 @@ public class Category extends AbstractMappedEntity<String> {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "icon_url_id")
-    private Gallery iconUrl;
+    private Image iconUrl;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
@@ -39,7 +39,7 @@ public class Category extends AbstractMappedEntity<String> {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    private List<Gallery> imageUrls;
+    private List<Image> imageUrls;
 
     @JsonIgnore
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

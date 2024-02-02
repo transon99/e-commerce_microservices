@@ -2,9 +2,10 @@ package com.sondev.orderservice.service;
 
 import com.sondev.common.response.PagingData;
 import com.sondev.orderservice.dto.request.OrderRequest;
+import com.sondev.orderservice.dto.response.CountOrderByStatusResponse;
 import com.sondev.orderservice.dto.response.OrderDto;
 
-import java.util.Map;
+import java.util.List;
 
 public interface OrderService {
 
@@ -12,10 +13,12 @@ public interface OrderService {
 
     OrderDto findOrderById(String id);
 
-    PagingData getOrders(String searchText, Integer offset, Integer pageSize, String sortStr);
+    PagingData getOrders( Integer offset, Integer pageSize);
 
     OrderDto acceptOrder(String id,String token);
 
     String cancelOrder(String id);
+
+    List<CountOrderByStatusResponse> getAllByStatus();
 
 }

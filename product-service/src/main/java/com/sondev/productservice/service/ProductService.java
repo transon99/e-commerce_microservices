@@ -7,11 +7,10 @@ import com.sondev.productservice.dto.response.ProductDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ProductService {
 
-    String createProduct(List<MultipartFile> files,String data) throws JsonProcessingException;
+    String createProduct(ProductRequest productRequest);
 
     ProductDto findProductById(String id);
 

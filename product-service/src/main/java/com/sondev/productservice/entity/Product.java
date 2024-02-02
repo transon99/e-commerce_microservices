@@ -1,6 +1,5 @@
 package com.sondev.productservice.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -49,8 +48,8 @@ public class Product extends AbstractMappedEntity<String> {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private List<Gallery> thumbnailUrls;
+    private List<Image> thumbnailUrls;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Evaluate> evaluates;
+    private List<Rating> ratings;
 }

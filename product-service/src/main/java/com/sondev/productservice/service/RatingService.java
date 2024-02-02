@@ -1,18 +1,18 @@
 package com.sondev.productservice.service;
 
 import com.sondev.common.response.PagingData;
-import com.sondev.productservice.dto.request.EvaluateRequest;
-import com.sondev.productservice.dto.response.EvaluateDto;
+import com.sondev.productservice.dto.request.RatingRequest;
+import com.sondev.productservice.dto.response.RatingDto;
 
-public interface EvaluateService {
+public interface RatingService {
 
-    EvaluateDto create(EvaluateRequest evaluateRequest);
+    RatingDto create(RatingRequest ratingRequest);
 
     PagingData getByProductAndUser(Integer offset, Integer pageSize, String productId, String userId);
 
     PagingData getByProduct(Integer offset, Integer pageSize, String productId);
 
-    EvaluateDto update(String id, EvaluateRequest evaluateRequest, String token);
+    RatingDto update(String id, RatingRequest ratingRequest, String token);
 
     String delete(String id);
 

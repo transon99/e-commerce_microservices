@@ -2,14 +2,13 @@ package com.sondev.productservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sondev.common.response.PagingData;
+import com.sondev.productservice.dto.request.BannerRequest;
 import com.sondev.productservice.dto.response.BannerDto;
-import com.sondev.productservice.dto.response.CategoryDTO;
-import com.sondev.productservice.entity.Gallery;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface BannerService {
 
-    String create(MultipartFile file, String data) throws JsonProcessingException;
+    String create(BannerRequest bannerRequest);
 
     BannerDto findById(String id);
 

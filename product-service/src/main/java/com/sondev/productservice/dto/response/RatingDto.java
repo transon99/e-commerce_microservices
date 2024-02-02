@@ -6,16 +6,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-import java.util.Set;
-
 @EqualsAndHashCode(callSuper = true)
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BrandDTO extends AbstractDto<String> {
-    private String id;
-    private String name;
-    private List<GalleryDTO> imageUrls;
-    private Set<ProductDto> products;
+@Data
+public class RatingDto extends AbstractDto<String> {
+
+    private String content;
+
+//    private String userId;
+//
+//    private String productId;
+
 }

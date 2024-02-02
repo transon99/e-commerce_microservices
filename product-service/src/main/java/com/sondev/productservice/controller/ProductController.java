@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,15 +35,11 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<ResponseMessage> createProduct(@RequestParam("images") List<MultipartFile> files,
-                                                         @RequestParam("data") String data) throws JsonProcessingException  {
-        log.info("ProductController | addProduct is called");
-
-        log.info("ProductController | addProduct | productRequest : " + data);
+    public ResponseEntity<ResponseMessage> createProduct(@ModelAttribute ProductRequest productRequest) throws JsonProcessingException  {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Insert product successful !!",
-                productService.createProduct(files,data)));
+                productService.createProduct(productRequest)));
     }
 
     @GetMapping("/{id}")

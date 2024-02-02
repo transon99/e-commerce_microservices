@@ -2,14 +2,16 @@ package com.sondev.productservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sondev.common.response.ResponseMessage;
+import com.sondev.productservice.dto.request.BannerRequest;
 import com.sondev.productservice.service.BannerService;
-import com.sondev.productservice.service.GalleryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,13 +26,12 @@ public class BannerController {
 
     private final BannerService bannerService;
 
-    public ResponseEntity<ResponseMessage> create(@RequestParam("image") MultipartFile file,
-                                                  @RequestParam("data") String data) throws
-            JsonProcessingException {
+    @PostMapping
+    public ResponseEntity<ResponseMessage> create(@ModelAttribute BannerRequest bannerRequest) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Insert banner successful !!",
-                bannerService.create(file, data)));
+                bannerService.create(bannerRequest)));
     }
 
     @GetMapping("/{id}")

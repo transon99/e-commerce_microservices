@@ -2,32 +2,27 @@ package com.sondev.productservice.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sondev.common.exceptions.MissingInputException;
+import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.productservice.adapter.CloudinaryService;
-import com.sondev.productservice.dto.request.CategoryRequest;
-import com.sondev.productservice.dto.request.GalleryRequest;
-import com.sondev.productservice.dto.response.CategoryDTO;
-import com.sondev.productservice.entity.Category;
-import com.sondev.productservice.entity.Gallery;
-import com.sondev.productservice.exceptions.MissingInputException;
-import com.sondev.productservice.exceptions.NotFoundException;
+import com.sondev.productservice.dto.request.ImageRequest;
+import com.sondev.productservice.dto.response.CategoryDto;
+import com.sondev.productservice.entity.Image;
 import com.sondev.productservice.mapper.GalleryMapper;
 import com.sondev.productservice.repository.GalleryRepository;
-import com.sondev.productservice.repository.ProductRepository;
-import com.sondev.productservice.service.GalleryService;
+import com.sondev.productservice.service.ImageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class GalleryServiceImpl implements GalleryService {
+public class ImageServiceImpl implements ImageService {
 
     private final GalleryRepository galleryRepository;
     private final CloudinaryService cloudinaryService;
@@ -36,14 +31,14 @@ public class GalleryServiceImpl implements GalleryService {
     private final GalleryMapper galleryMapper;
 
     @Override
-    public Gallery create(MultipartFile file, String data) throws JsonProcessingException {
-        GalleryRequest galleryRequest = objectMapper.readValue(data, GalleryRequest.class);
-        Gallery entity = galleryMapper.reqToEntity(galleryRequest);
+    public Image create(MultipartFile file, String data) throws JsonProcessingException {
+        ImageRequest imageRequest = objectMapper.readValue(data, ImageRequest.class);
+        Image entity = galleryMapper.reqToEntity(imageRequest);
         return null;
     }
 
     @Override
-    public CategoryDTO findById(String id) {
+    public CategoryDto findById(String id) {
 
         return null;
     }
@@ -54,7 +49,7 @@ public class GalleryServiceImpl implements GalleryService {
     }
 
     @Override
-    public CategoryDTO update(MultipartFile file, String data, String id) {
+    public CategoryDto update(MultipartFile file, String data, String id) {
         return null;
     }
 
@@ -64,10 +59,10 @@ public class GalleryServiceImpl implements GalleryService {
             throw new MissingInputException("Missing input id");
 
         }
-        Gallery gallery = galleryRepository.findById(id)
+        Image image = galleryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find gallery with id " + id));
         galleryRepository.deleteById(id);
-        cloudinaryService.deleteFile(gallery.getPublicId());
+        cloudinaryService.deleteFile(image.getPublicId());
 
         return id;
     }

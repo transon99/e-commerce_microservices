@@ -1,24 +1,23 @@
 package com.sondev.productservice.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sondev.common.response.PagingData;
-import com.sondev.productservice.dto.response.BrandDTO;
-import org.springframework.web.multipart.MultipartFile;
+import com.sondev.productservice.dto.request.BrandRequest;
+import com.sondev.productservice.dto.response.BrandDto;
 
 import java.util.List;
 import java.util.Map;
 
 public interface BrandService {
 
-    String create(List<MultipartFile> files,String data) throws JsonProcessingException;
+    String create(BrandRequest brandRequest);
 
     PagingData getBrands(String searchText, Integer offset, Integer pageSize, String sortStr);
 
-    BrandDTO findById(String id);
+    BrandDto findById(String id);
 
-    BrandDTO update(Map<String, Object> fields, String id);
+    BrandDto update(Map<String, Object> fields, String id);
 
     String deleteById(String id);
 
-    List<BrandDTO> getAll();
+    List<BrandDto> getAll();
 }

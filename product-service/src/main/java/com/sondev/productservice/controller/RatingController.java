@@ -1,11 +1,9 @@
 package com.sondev.productservice.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.response.ResponseMessage;
-import com.sondev.productservice.dto.request.EvaluateRequest;
-import com.sondev.productservice.dto.response.EvaluateDto;
-import com.sondev.productservice.service.EvaluateService;
+import com.sondev.productservice.dto.request.RatingRequest;
+import com.sondev.productservice.service.RatingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,33 +18,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RequestMapping("/evaluates")
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-public class EvaluateController {
+public class RatingController {
 
-    private final EvaluateService evaluateService;
+    private final RatingService ratingService;
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> createCategory(@Valid @RequestBody EvaluateRequest evaluateRequest) {
+    public ResponseEntity<ResponseMessage> createCategory(@Valid @RequestBody RatingRequest ratingRequest) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Create evaluate successful !!",
-                evaluateService.create(evaluateRequest)));
+                ratingService.create(ratingRequest)));
 
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ResponseMessage> update(@PathVariable String id,
-                                                  @RequestBody EvaluateRequest evaluateRequest,
+                                                  @RequestBody RatingRequest ratingRequest,
                                                   @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Update evaluate successful !!",
-                evaluateService.update(id, evaluateRequest, token)));
+                ratingService.update(id, ratingRequest, token)));
     }
 
     @GetMapping()
@@ -57,9 +53,9 @@ public class EvaluateController {
         PagingData evaluatesResponse;
 
         if (userId == null) {
-            evaluatesResponse = evaluateService.getByProduct(offset, pageSize, productId);
+            evaluatesResponse = ratingService.getByProduct(offset, pageSize, productId);
         } else {
-            evaluatesResponse = evaluateService.getByProductAndUser(offset, pageSize, productId, userId);
+            evaluatesResponse = ratingService.getByProductAndUser(offset, pageSize, productId, userId);
         }
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",

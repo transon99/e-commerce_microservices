@@ -2,19 +2,19 @@ package com.sondev.productservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sondev.common.exceptions.APIException;
+import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.JwtUtils;
-import com.sondev.productservice.dto.request.EvaluateRequest;
-import com.sondev.productservice.dto.response.EvaluateDto;
+import com.sondev.productservice.dto.request.RatingRequest;
+import com.sondev.productservice.dto.response.RatingDto;
 import com.sondev.productservice.dto.response.UserDto;
-import com.sondev.productservice.entity.Evaluate;
-import com.sondev.productservice.exceptions.NotFoundException;
+import com.sondev.productservice.entity.Rating;
 import com.sondev.productservice.feignclient.UserClient;
-import com.sondev.productservice.mapper.EvaluateMapper;
+import com.sondev.productservice.mapper.RatingMapper;
 import com.sondev.productservice.repository.EvaluateRepository;
 import com.sondev.productservice.repository.ProductRepository;
-import com.sondev.productservice.service.EvaluateService;
+import com.sondev.productservice.service.RatingService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,33 +28,33 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EvaluateServiceImpl implements EvaluateService {
+public class RatingServiceImpl implements RatingService {
 
     private final EvaluateRepository evaluateRepository;
     private final ProductRepository productRepository;
-    private final EvaluateMapper evaluateMapper;
+    private final RatingMapper ratingMapper;
     private final UserClient userClient;
     private final ObjectMapper objectMapper;
 
 
     @Override
-    public EvaluateDto create(EvaluateRequest evaluateRequest) {
-        Evaluate evaluate = Evaluate.builder()
-                .content(evaluateRequest.getContent())
-                .product(productRepository.findById(evaluateRequest.getProductId()).orElseThrow(
-                        () -> new NotFoundException("Can't find product with id" + evaluateRequest.getProductId())))
-                .userId(evaluateRequest.getUserId())
+    public RatingDto create(RatingRequest ratingRequest) {
+        Rating rating = Rating.builder()
+                .content(ratingRequest.getContent())
+                .product(productRepository.findById(ratingRequest.getProductId()).orElseThrow(
+                        () -> new NotFoundException("Can't find product with id" + ratingRequest.getProductId())))
+                .userId(ratingRequest.getUserId())
                 .build();
-        return evaluateMapper.toDto(evaluateRepository.save(evaluate));
+        return ratingMapper.toDto(evaluateRepository.save(rating));
     }
 
     @Override
     public PagingData getByProductAndUser(Integer offset, Integer pageSize, String productId, String userId) {
         Pageable pageable = PageRequest.of(offset, pageSize);
 
-        Page<Evaluate> evaluatePage = evaluateRepository.findByProductIdAndUserId( pageable,productId,userId);
+        Page<Rating> evaluatePage = evaluateRepository.findByProductIdAndUserId( pageable,productId,userId);
 
-        Page<EvaluateDto> evaluateDtoPage = evaluatePage.map(evaluateMapper::toDto);
+        Page<RatingDto> evaluateDtoPage = evaluatePage.map(ratingMapper::toDto);
 
         return PagingData.builder()
                 .data(evaluateDtoPage)
@@ -68,10 +68,10 @@ public class EvaluateServiceImpl implements EvaluateService {
     public PagingData getByProduct(Integer offset, Integer pageSize, String productId) {
         Pageable pageable = PageRequest.of(offset, pageSize);
 
-        Page<Evaluate> evaluatePage = evaluateRepository.findByProductId( pageable,productId);
+        Page<Rating> evaluatePage = evaluateRepository.findByProductId( pageable,productId);
 //        UserDto user = getUserById(evaluatePage.getContent())
 
-        Page<EvaluateDto> evaluateDtoPage = evaluatePage.map(evaluateMapper::toDto);
+        Page<RatingDto> evaluateDtoPage = evaluatePage.map(ratingMapper::toDto);
 
         return PagingData.builder()
                 .data(evaluateDtoPage.getContent())
@@ -83,19 +83,19 @@ public class EvaluateServiceImpl implements EvaluateService {
 
     @Override
     @Transactional
-    public EvaluateDto update(String id, EvaluateRequest evaluateRequest, String token) {
+    public RatingDto update(String id, RatingRequest ratingRequest, String token) {
         Claims claims = JwtUtils.parseClaims(token);
         String currentUserId = (String) claims.get("userId");
 
-        if (!StringUtils.equals(evaluateRequest.getUserId(), currentUserId)) {
+        if (!StringUtils.equals(ratingRequest.getUserId(), currentUserId)) {
             throw new APIException("You cannot evaluate as another user");
         }
 
-        Evaluate evaluate = evaluateRepository.findById(id)
+        Rating rating = evaluateRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find evaluate with id" + id));
-        evaluate.setContent(evaluateRequest.getContent());
+        rating.setContent(ratingRequest.getContent());
 
-        return evaluateMapper.toDto(evaluateRepository.save(evaluate));
+        return ratingMapper.toDto(evaluateRepository.save(rating));
     }
 
     @Override

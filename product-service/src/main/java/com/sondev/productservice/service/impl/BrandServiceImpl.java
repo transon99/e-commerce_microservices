@@ -2,16 +2,16 @@ package com.sondev.productservice.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sondev.common.exceptions.MissingInputException;
+import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.utils.PaginationUtils;
 import com.sondev.productservice.adapter.CloudinaryService;
 import com.sondev.productservice.dto.request.BrandRequest;
-import com.sondev.productservice.dto.response.BrandDTO;
+import com.sondev.productservice.dto.response.BrandDto;
 import com.sondev.productservice.entity.Brand;
 import com.sondev.productservice.entity.Category;
-import com.sondev.productservice.entity.Gallery;
-import com.sondev.productservice.exceptions.MissingInputException;
-import com.sondev.productservice.exceptions.NotFoundException;
+import com.sondev.productservice.entity.Image;
 import com.sondev.productservice.mapper.BrandMapper;
 import com.sondev.productservice.repository.BrandRepository;
 import com.sondev.productservice.service.BrandService;
@@ -43,17 +43,17 @@ public class BrandServiceImpl implements BrandService {
     private final BrandMapper brandMapper;
 
     @Override
-    public String create(List<MultipartFile> files, String data) throws JsonProcessingException {
-        BrandRequest brandRequest = objectMapper.readValue(data, BrandRequest.class);
+    public String create(BrandRequest brandRequest) {
+
         Brand entity = brandMapper.reqToEntity(brandRequest);
 
-        List<Gallery> galleries = files.stream().map(file -> {
+        List<Image> images = brandRequest.getFiles().stream().map(file -> {
             Map result = cloudinaryService.uploadFile(file);
             String imageUrl = (String) result.get("secure_url");
             String publicId = (String) result.get("public_id");
-            return Gallery.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
+            return Image.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
         }).toList();
-        entity.setImageUrls(galleries);
+        entity.setImageUrls(images);
 
         return brandMapper.toDto(brandRepository.save(entity)).getId();
     }
@@ -81,7 +81,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public BrandDTO findById(String id) {
+    public BrandDto findById(String id) {
         if (id == null) {
             throw new MissingInputException("Missing input id");
         }
@@ -90,7 +90,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public BrandDTO update(Map<String, Object> fields, String id) {
+    public BrandDto update(Map<String, Object> fields, String id) {
         Brand currentBrand = brandRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find brand with id" + id));
 
@@ -125,7 +125,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public List<BrandDTO> getAll() {
+    public List<BrandDto> getAll() {
         return brandMapper.toDto(brandRepository.findAll());
     }
 

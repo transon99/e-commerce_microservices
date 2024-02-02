@@ -2,21 +2,19 @@ package com.sondev.productservice.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sondev.common.exceptions.MissingInputException;
+import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.utils.PaginationUtils;
 import com.sondev.productservice.adapter.CloudinaryService;
 import com.sondev.productservice.dto.request.CategoryRequest;
-import com.sondev.productservice.dto.response.BannerDto;
-import com.sondev.productservice.dto.response.CategoryDTO;
+import com.sondev.productservice.dto.response.CategoryDto;
 import com.sondev.productservice.entity.Category;
-import com.sondev.productservice.entity.Gallery;
-import com.sondev.productservice.exceptions.MissingInputException;
-import com.sondev.productservice.exceptions.NotFoundException;
+import com.sondev.productservice.entity.Image;
 import com.sondev.productservice.mapper.CategoryMapper;
-import com.sondev.productservice.mapper.GalleryMapper;
 import com.sondev.productservice.repository.CategoryRepository;
 import com.sondev.productservice.service.CategoryService;
-import com.sondev.productservice.service.GalleryService;
+import com.sondev.productservice.service.ImageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,14 +37,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CloudinaryService cloudinaryService;
-    private final GalleryService galleryService;
+    private final ImageService imageService;
     private final ObjectMapper objectMapper;
 
     private final CategoryMapper categoryMapper;
 
-    public String createCategory(String data, List<MultipartFile> imageFiles, MultipartFile iconFile)
-            throws JsonProcessingException {
-        CategoryRequest categoryRequest = objectMapper.readValue(data, CategoryRequest.class);
+    public String createCategory(CategoryRequest categoryRequest){
         Category entity = categoryMapper.reqToEntity(categoryRequest);
         if (!categoryRequest.getParentCatId().isEmpty()) {
             Optional<Category> parentCategoryOptional = categoryRepository.findById(categoryRequest.getParentCatId());
@@ -55,19 +51,19 @@ public class CategoryServiceImpl implements CategoryService {
 
         }
 
-        List<Gallery> imageUrls = imageFiles.stream().map(this::saveImageToCloud).toList();
+        List<Image> imageUrls = categoryRequest.getImageFiles().stream().map(this::saveImageToCloud).toList();
         entity.setImageUrls(imageUrls);
 
-        Gallery iconUrl = saveImageToCloud(iconFile);
+        Image iconUrl = saveImageToCloud(categoryRequest.getIconFile());
         entity.setIconUrl(iconUrl);
         return categoryMapper.toDto(categoryRepository.save(entity)).getId();
     }
 
-    private Gallery saveImageToCloud(MultipartFile file) {
+    private Image saveImageToCloud(MultipartFile file) {
         Map result = cloudinaryService.uploadFile(file);
         String imageUrl = (String) result.get("secure_url");
         String publicId = (String) result.get("public_id");
-        return Gallery.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
+        return Image.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
     }
 
     public PagingData getCategories(String searchText, Integer offset, Integer pageSize, String sortStr) {
@@ -81,7 +77,7 @@ public class CategoryServiceImpl implements CategoryService {
             categoryPageEntity = categoryRepository.findByNameContainingIgnoreCase(searchText, pageable);
         }
 
-        Page<CategoryDTO> categoryDTOPage = categoryPageEntity.map(categoryMapper::toDto);
+        Page<CategoryDto> categoryDTOPage = categoryPageEntity.map(categoryMapper::toDto);
 
         return PagingData.builder()
                 .data(categoryDTOPage)
@@ -93,7 +89,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .build();
     }
 
-    public CategoryDTO findCategoryById(String id) {
+    public CategoryDto findCategoryById(String id) {
         if (id == null) {
             throw new MissingInputException("Missing input id");
         }
@@ -102,7 +98,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDTO> getBaseCategories() {
+    public List<CategoryDto> getBaseCategories() {
         List<Category> categoryList = categoryRepository.findAll();
         List<Category> baseCategoryList = categoryList.stream().filter(category -> category.getParent() == null)
                 .toList();
@@ -128,14 +124,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDTO> getAll() {
+    public List<CategoryDto> getAll() {
         List<Category> categoryList = categoryRepository.findAll();
 
         return categoryMapper.toDto(categoryList);
     }
 
     @Transactional
-    public CategoryDTO updateCategory(List<MultipartFile> files, MultipartFile iconFile, String data, String id)
+    public CategoryDto updateCategory(List<MultipartFile> files, MultipartFile iconFile, String data, String id)
             throws JsonProcessingException {
 
         Category currentCategory = categoryRepository.findById(id)
@@ -149,19 +145,19 @@ public class CategoryServiceImpl implements CategoryService {
                     () -> new NotFoundException("Can't find category with id" + categoryRequest.getParentCatId()));
         }
 
-        List<Gallery> imageList;
-        Gallery icon;
+        List<Image> imageList;
+        Image icon;
         if (files != null) {
-            List<Gallery> currentImageList = currentCategory.getImageUrls();
-            currentImageList.forEach(image -> galleryService.deleteById(image.getId()));
+            List<Image> currentImageList = currentCategory.getImageUrls();
+            currentImageList.forEach(image -> imageService.deleteById(image.getId()));
             imageList = files.stream().map(this::saveImageToCloud).toList();
         } else {
             imageList = currentCategory.getImageUrls();
         }
 
         if (iconFile != null) {
-            Gallery currentIcon = currentCategory.getIconUrl();
-            galleryService.deleteById(currentIcon.getId());
+            Image currentIcon = currentCategory.getIconUrl();
+            imageService.deleteById(currentIcon.getId());
             icon = saveImageToCloud(iconFile);
         } else {
             icon = currentCategory.getIconUrl();

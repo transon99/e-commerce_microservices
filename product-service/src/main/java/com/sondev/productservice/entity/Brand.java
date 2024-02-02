@@ -37,7 +37,7 @@ public class Brand extends AbstractMappedEntity<String> {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")
-    private List<Gallery> imageUrls;
+    private List<Image> imageUrls;
 
     @JsonIgnore
     @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

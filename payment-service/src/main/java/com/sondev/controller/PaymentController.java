@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 @RequestMapping("/api/v1/payment")
@@ -29,11 +31,19 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> createPayment(@RequestBody @Validated PaymentRequest paymentRequest) {
+    public ResponseEntity<ResponseMessage> createPayment(@RequestBody @Validated PaymentRequest paymentRequest,@RequestHeader("Authorization") String token)
+            throws UnsupportedEncodingException {
+
+        if (paymentService.createPayment(paymentRequest, token) == null){
+            return ResponseEntity.internalServerError().body(new ResponseMessage(
+                    "ERROR",
+                    "Some error happened went create payment !!",
+                    paymentService.createPayment(paymentRequest, token)));
+        }
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
                 "Create payment successful !!",
-                paymentService.createPayment(paymentRequest)));
+                paymentService.createPayment(paymentRequest, token)));
     }
 
     @GetMapping("/{id}")

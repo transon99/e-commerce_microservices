@@ -13,7 +13,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Data
-@Table(name = "banner")
+@Table(name = "banners")
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)

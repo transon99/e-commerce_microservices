@@ -1,8 +1,6 @@
-package com.sondev.orderservice.dto.response;
+package com.sondev.dto.response;
 
-import com.sondev.orderservice.dto.AbstractDto;
-import com.sondev.orderservice.entity.PaymentMethod;
-import com.sondev.orderservice.entity.Status;
+import com.sondev.dto.AbstractDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,9 +24,7 @@ public class OrderDto extends AbstractDto<String> {
 
     private boolean isAccept;
 
-    private Status status;
-
-    private PaymentMethod paymentMethod;
+    private String status;
 
     private String userId;
 

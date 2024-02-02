@@ -15,13 +15,14 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class AbstractMappedEntity{
+public class AbstractMappedEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

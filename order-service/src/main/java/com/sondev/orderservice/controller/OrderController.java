@@ -48,13 +48,19 @@ public class OrderController {
     }
 
     @GetMapping()
-    public ResponseEntity<ResponseMessage> getOrders(@RequestParam String searchText,
-                                                     @RequestParam Integer offset,
-                                                     @RequestParam Integer pageSize,
-                                                     @RequestParam String sortStr) {
+    public ResponseEntity<ResponseMessage> getOrders(
+            @RequestParam Integer offset,
+            @RequestParam Integer pageSize) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
-                "get orders successful !!", orderService.getOrders(searchText, offset, pageSize, sortStr)));
+                "get orders successful !!", orderService.getOrders(offset, pageSize)));
+    }
+
+    @GetMapping()
+    public ResponseEntity<ResponseMessage> getAllByStatus() {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                "OK",
+                "get orders successful !!", orderService.getAllByStatus()));
     }
 
     @DeleteMapping("/{id}")
@@ -66,10 +72,11 @@ public class OrderController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ResponseMessage> acceptOrder(
-            @PathVariable(name = "id") String id) {
+            @PathVariable(name = "id") String id,
+            @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 "OK",
-                "Accept order successful !!", orderService.acceptOrder(id)));
+                "Accept order successful !!", orderService.acceptOrder(id, token)));
     }
 
 }

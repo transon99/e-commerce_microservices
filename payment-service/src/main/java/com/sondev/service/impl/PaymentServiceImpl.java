@@ -1,20 +1,24 @@
 package com.sondev.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sondev.common.exceptions.MissingInputException;
 import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
+import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.PaginationUtils;
+import com.sondev.config.VNPayConfig;
 import com.sondev.dto.request.PaymentRequest;
+import com.sondev.dto.response.OrderDto;
 import com.sondev.dto.response.PaymentDto;
 import com.sondev.entity.Payment;
+import com.sondev.entity.PaymentMethod;
+import com.sondev.feignclient.OrderClient;
 import com.sondev.mapper.PaymentMapper;
-
 import com.sondev.repository.PaymentRepository;
 import com.sondev.service.PaymentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +26,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 @Slf4j
 @Service
@@ -33,10 +48,96 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
+    private final OrderClient orderClient;
+    private final ObjectMapper objectMapper;
 
-    public String createPayment(PaymentRequest paymentRequest) {
-        Payment entity = paymentMapper.reqToEntity(paymentRequest);
-        return paymentMapper.toDto(paymentRepository.save(entity)).getId();
+    private static final String SUCCESS_VNPAY_CODE = "00";
+
+    public String createPayment(PaymentRequest paymentRequest, String token) throws UnsupportedEncodingException {
+
+        OrderDto productDto = new OrderDto();
+        ResponseMessage orderResponse = orderClient.findById(token, paymentRequest.getOrderId()).getBody();
+        assert orderResponse != null;
+        if (orderResponse.getData() != null) {
+            productDto = objectMapper.convertValue(orderResponse.getData(), OrderDto.class);
+        }
+
+        double amount =  productDto.getTotalPrice()*100;
+//        String bankCode = req.getParameter("bankCode");
+
+        String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
+//        String vnp_IpAddr = VNPayConfig.getIpAddress(req);
+
+        String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
+
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", VNPayConfig.vnp_Version);
+        vnp_Params.put("vnp_Command", VNPayConfig.vnp_Command);
+        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+        vnp_Params.put("vnp_Amount", String.valueOf(amount));
+        vnp_Params.put("vnp_CurrCode", "VND");
+        vnp_Params.put("vnp_BankCode", "VCB");
+
+//        if (bankCode != null && !bankCode.isEmpty()) {
+//            vnp_Params.put("vnp_BankCode", bankCode);
+//        }
+        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
+        vnp_Params.put("vnp_OrderType", VNPayConfig.orderType);
+        vnp_Params.put("vnp_Locale", "vn");
+
+//        String locate = req.getParameter("language");
+//        if (locate != null && !locate.isEmpty()) {
+//            vnp_Params.put("vnp_Locale", locate);
+//        } else {
+//            vnp_Params.put("vnp_Locale", "vn");
+//        }
+
+        vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_ReturnUrl);
+//        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        String vnp_CreateDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+
+        cld.add(Calendar.MINUTE, 15);
+        String vnp_ExpireDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+
+        List fieldNames = new ArrayList(vnp_Params.keySet());
+        Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+        Iterator itr = fieldNames.iterator();
+        while (itr.hasNext()) {
+            String fieldName = (String) itr.next();
+            String fieldValue = (String) vnp_Params.get(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                //Build hash data
+                hashData.append(fieldName);
+                hashData.append('=');
+                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                //Build query
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                query.append('=');
+                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                if (itr.hasNext()) {
+                    query.append('&');
+                    hashData.append('&');
+                }
+            }
+        }
+        String queryUrl = query.toString();
+        String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.secretKey, hashData.toString());
+        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+        String paymentUrl = VNPayConfig.vnp_PayUrl + "?" + queryUrl;
+
+        if(extractResponseCodeFromUrl(paymentUrl).equals(SUCCESS_VNPAY_CODE)){
+            Payment payment = paymentMapper.reqToEntity(paymentRequest);
+            return paymentMapper.toDto(paymentRepository.save(payment)).getId();
+        }
+        return null;
     }
 
     public PaymentDto findById(String paymentId) {
@@ -93,6 +194,10 @@ public class PaymentServiceImpl implements PaymentService {
         }
         paymentRepository.deleteById(id);
         return id;
+    }
+
+    private String extractResponseCodeFromUrl(String url){
+      return null;
     }
 
 }

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GalleryDTO extends AbstractDto<String> {
+public class ImageDto extends AbstractDto<String> {
     private String id;
     private String thumbnailUrl;
 }

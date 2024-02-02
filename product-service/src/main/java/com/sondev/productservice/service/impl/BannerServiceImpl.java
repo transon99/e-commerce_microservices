@@ -2,17 +2,14 @@ package com.sondev.productservice.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sondev.common.exceptions.MissingInputException;
+import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.utils.PaginationUtils;
 import com.sondev.productservice.adapter.CloudinaryService;
 import com.sondev.productservice.dto.request.BannerRequest;
-import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.productservice.dto.response.BannerDto;
 import com.sondev.productservice.entity.Banner;
-import com.sondev.productservice.entity.Category;
-import com.sondev.productservice.entity.Gallery;
-import com.sondev.productservice.exceptions.MissingInputException;
-import com.sondev.productservice.exceptions.NotFoundException;
 import com.sondev.productservice.mapper.BannerMapper;
 import com.sondev.productservice.repository.BannerRepository;
 import com.sondev.productservice.service.BannerService;
@@ -44,9 +41,8 @@ public class BannerServiceImpl implements BannerService {
     }
 
     @Override
-    public String create(MultipartFile file, String data) throws JsonProcessingException {
-        BannerRequest bannerRequest = objectMapper.readValue(data, BannerRequest.class);
-        Banner entity = saveImageToCloud(file);
+    public String create(BannerRequest bannerRequest) {
+        Banner entity = saveImageToCloud(bannerRequest.getFile());
         entity.setName(bannerRequest.getName());
         return bannerMapper.toDto(bannerRepository.save(entity)).getId();
     }

@@ -8,8 +8,9 @@ import com.sondev.common.utils.JwtUtils;
 import com.sondev.orderservice.dto.request.OrderRequest;
 import com.sondev.orderservice.dto.response.CartDto;
 import com.sondev.orderservice.dto.response.CartItemDto;
+import com.sondev.orderservice.dto.response.CountOrderByStatusResponse;
 import com.sondev.orderservice.dto.response.OrderDto;
-import com.sondev.orderservice.entity.Orders;
+import com.sondev.orderservice.entity.Order;
 import com.sondev.orderservice.entity.Status;
 import com.sondev.orderservice.feignclient.CartClient;
 import com.sondev.orderservice.feignclient.ProductClient;
@@ -19,10 +20,15 @@ import com.sondev.orderservice.service.OrderService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -49,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
 
         Claims claims = JwtUtils.parseClaims(token);
         String userId = (String) claims.get("userId");
-        Orders order = Orders.builder()
+        Order order = Order.builder()
                 .orderDate(new Date())
                 .cartId(orderRequest.getCartId())
                 .userId(userId)
@@ -68,8 +74,21 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public PagingData getOrders(String searchText, Integer offset, Integer pageSize, String sortStr) {
-        return null;
+    public PagingData getOrders(Integer offset, Integer pageSize) {
+
+        Page<Order> orderPageEntity;
+        Pageable pageable = PageRequest.of(offset, pageSize);
+
+        orderPageEntity = orderRepository.findAll(pageable);
+
+        Page<OrderDto> categoryDTOPage = orderPageEntity.map(orderMapper::toDto);
+
+        return PagingData.builder()
+                .data(categoryDTOPage)
+                .offset(offset)
+                .pageSize(pageSize)
+                .totalRecord(categoryDTOPage.getTotalElements())
+                .build();
     }
 
     @Override
@@ -77,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto acceptOrder(String id, String token) {
         CartDto cartDto = new CartDto();
 
-        Orders order = orderRepository.findById(id)
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find order with id" + id));
 
         ResponseMessage cartResponse = cartClient.getCartById(token, order.getCartId()).getBody();
@@ -91,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
             assert cartItemResponse != null;
             if (cartItemResponse.getData() != null) {
                 CartItemDto cartItemDto = objectMapper.convertValue(cartItemResponse.getData(), CartItemDto.class);
-                productClient.reduceQuantity(cartItemDto.getProductId(),cartItemDto.getQuantity());
+                productClient.reduceQuantity(cartItemDto.getProductId(), cartItemDto.getQuantity());
             }
         });
 
@@ -104,6 +123,18 @@ public class OrderServiceImpl implements OrderService {
     public String cancelOrder(String id) {
         orderRepository.deleteById(id);
         return id;
+    }
+
+    @Override
+    public List<CountOrderByStatusResponse> getAllByStatus() {
+        List<CountOrderByStatusResponse> responses = new ArrayList<>();
+        for (Status status: Status.values()){
+            Integer countStatusOrder = orderRepository.countOrderByStatus(status.name());
+            CountOrderByStatusResponse statusOrder = new CountOrderByStatusResponse(status,countStatusOrder);
+            responses.add(statusOrder);
+        }
+
+        return responses;
     }
 
 }

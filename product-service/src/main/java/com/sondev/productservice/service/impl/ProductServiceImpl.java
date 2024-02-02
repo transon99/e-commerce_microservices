@@ -3,25 +3,24 @@ package com.sondev.productservice.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sondev.common.exceptions.APIException;
+import com.sondev.common.exceptions.MissingInputException;
+import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.utils.PaginationUtils;
 import com.sondev.productservice.adapter.CloudinaryService;
-import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.productservice.dto.request.ProductRequest;
 import com.sondev.productservice.dto.response.ProductDto;
 import com.sondev.productservice.entity.Brand;
 import com.sondev.productservice.entity.Category;
-import com.sondev.productservice.entity.Gallery;
+import com.sondev.productservice.entity.Image;
 import com.sondev.productservice.entity.Product;
-import com.sondev.productservice.exceptions.MissingInputException;
-import com.sondev.productservice.exceptions.NotFoundException;
 import com.sondev.productservice.mapper.BrandMapper;
 import com.sondev.productservice.mapper.CategoryMapper;
 import com.sondev.productservice.mapper.ProductMapper;
 import com.sondev.productservice.repository.BrandRepository;
 import com.sondev.productservice.repository.CategoryRepository;
 import com.sondev.productservice.repository.ProductRepository;
-import com.sondev.productservice.service.GalleryService;
+import com.sondev.productservice.service.ImageService;
 import com.sondev.productservice.service.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +31,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -49,27 +46,26 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final CloudinaryService cloudinaryService;
-    private final GalleryService galleryService;
+    private final ImageService imageService;
     private final ObjectMapper objectMapper;
     private final ProductMapper productMapper;
     private final BrandMapper brandMapper;
     private final CategoryMapper categoryMapper;
 
-    private Gallery saveImageToCloud(MultipartFile file) {
+    private Image saveImageToCloud(MultipartFile file) {
         Map result = cloudinaryService.uploadFile(file);
         String imageUrl = (String) result.get("secure_url");
         String publicId = (String) result.get("public_id");
-        return Gallery.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
+        return Image.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
     }
 
     @Transactional
-    public String createProduct(List<MultipartFile> files, String data) throws JsonProcessingException {
+    public String createProduct(ProductRequest productRequest) {
         log.info("ProductServiceImpl | createProduct is called");
-        ProductRequest productRequest = objectMapper.readValue(data, ProductRequest.class);
 
         Product entity = productMapper.reqToEntity(productRequest);
 
-        List<Gallery> galleries = files.stream().map(this::saveImageToCloud).toList();
+        List<Image> galleries = productRequest.getFiles().stream().map(this::saveImageToCloud).toList();
         entity.setCategory(categoryRepository.findById(productRequest.getCategoryId()).orElseThrow(
                 () -> new NotFoundException("Can't find category with id" + productRequest.getCategoryId())));
         entity.setBrand(brandRepository.findById(productRequest.getBrandId()).orElseThrow(
@@ -154,10 +150,10 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException("Can't find product with id " + id));
 
         ProductRequest productRequest = objectMapper.readValue(data, ProductRequest.class);
-        List<Gallery> galleries;
+        List<Image> galleries;
         if (files != null) {
-            List<Gallery> imageList = currentProduct.getThumbnailUrls();
-            imageList.forEach(image -> galleryService.deleteById(image.getId()));
+            List<Image> imageList = currentProduct.getThumbnailUrls();
+            imageList.forEach(image -> imageService.deleteById(image.getId()));
             galleries = files.stream().map(this::saveImageToCloud).toList();
         } else {
             galleries = currentProduct.getThumbnailUrls();
@@ -180,7 +176,7 @@ public class ProductServiceImpl implements ProductService {
                 .discount(productRequest.getDiscount())
                 .quantity(productRequest.getQuantity())
                 .priceUnit(productRequest.getPriceUnit())
-                .evaluates(currentProduct.getEvaluates())
+                .ratings(currentProduct.getRatings())
                 .build();
 
         return productMapper.toDto(productRepository.save(newProduct));

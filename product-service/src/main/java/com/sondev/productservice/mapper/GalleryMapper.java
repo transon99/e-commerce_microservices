@@ -1,13 +1,13 @@
 package com.sondev.productservice.mapper;
 
-import com.sondev.productservice.dto.request.GalleryRequest;
-import com.sondev.productservice.dto.response.GalleryDTO;
-import com.sondev.productservice.entity.Gallery;
+import com.sondev.productservice.dto.request.ImageRequest;
+import com.sondev.productservice.dto.response.ImageDto;
+import com.sondev.productservice.entity.Image;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface GalleryMapper extends EntityMapper<GalleryDTO, Gallery>{
+public interface GalleryMapper extends EntityMapper<ImageDto, Image>{
 
-    Gallery reqToEntity(GalleryRequest galleryRequest);
+    Image reqToEntity(ImageRequest imageRequest);
 
 }

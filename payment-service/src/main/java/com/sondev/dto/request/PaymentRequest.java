@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PaymentRequest {
 
-    private String paymentId;
     private String orderId;
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;

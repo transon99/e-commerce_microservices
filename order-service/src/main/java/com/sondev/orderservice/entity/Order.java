@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @Builder
 @EqualsAndHashCode(callSuper = true)
-public class Orders extends AbstractMappedEntity {
+public class Order extends AbstractMappedEntity {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)
@@ -26,8 +26,11 @@ public class Orders extends AbstractMappedEntity {
     @Column(name = "total_price")
     private double totalPrice;
 
-    @Column(name = "payment_method_id")
-    private String paymentMethodId;
+    @Column(name = "payment_id")
+    private String paymentId;
+
+    @Column(name = "payment_method")
+    private String paymentMethod;
 
     @Column(name = "is_accept")
     private boolean isAccept;

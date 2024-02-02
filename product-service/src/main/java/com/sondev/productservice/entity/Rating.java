@@ -1,5 +1,6 @@
 package com.sondev.productservice.entity;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,24 +17,25 @@ import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Data
-@Table(name = "gallery")
+@Table(name = "feedback")
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Builder
-public class Gallery extends AbstractMappedEntity<String> {
+public class Rating extends AbstractMappedEntity<String> {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
 
-    @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
+    private Double rate;
 
-    @Column(name = "image_public_id")
-    private String publicId;
+    private String content;
 
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "product_id", referencedColumnName = "id")
-//    private Product product;
+    @Column(name = "user_id")
+    private String userId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

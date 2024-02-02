@@ -1,8 +1,6 @@
 package com.sondev.productservice.dto.response;
 
 import com.sondev.productservice.dto.AbstractDto;
-import com.sondev.productservice.entity.Category;
-import com.sondev.productservice.entity.Gallery;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,13 +13,9 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDTO extends AbstractDto<String> {
+public class BrandDto extends AbstractDto<String> {
     private String id;
     private String name;
-    private List<GalleryDTO> imageUrls;
-    private GalleryDTO iconUrl;
+    private List<ImageDto> imageUrls;
     private Set<ProductDto> products;
-    private Category parent;
-    private List<Category> children;
-
 }
