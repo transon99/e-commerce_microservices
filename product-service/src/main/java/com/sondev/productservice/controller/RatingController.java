@@ -1,5 +1,6 @@
 package com.sondev.productservice.controller;
 
+import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.dto.request.RatingRequest;
@@ -29,7 +30,7 @@ public class RatingController {
     @PostMapping
     public ResponseEntity<ResponseMessage> createCategory(@Valid @RequestBody RatingRequest ratingRequest) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Create evaluate successful !!",
                 ratingService.create(ratingRequest)));
 
@@ -40,7 +41,7 @@ public class RatingController {
                                                   @RequestBody RatingRequest ratingRequest,
                                                   @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Update evaluate successful !!",
                 ratingService.update(id, ratingRequest, token)));
     }
@@ -58,7 +59,7 @@ public class RatingController {
             evaluatesResponse = ratingService.getByProductAndUser(offset, pageSize, productId, userId);
         }
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Get evaluates successful !!",
                 evaluatesResponse));
     }

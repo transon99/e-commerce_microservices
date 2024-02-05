@@ -1,6 +1,7 @@
 package com.sondev.productservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.service.ImageService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class ImageController {
                                                   @RequestParam("data") String data) throws
             JsonProcessingException {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Insert gallery successful !!",
                 imageService.create(file, data)));
     }
@@ -35,7 +36,7 @@ public class ImageController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseMessage> findById(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Get gallery successful !!",
                 imageService.findById(id)));
     }
@@ -46,7 +47,7 @@ public class ImageController {
                                                            @RequestParam Integer pageSize,
                                                            @RequestParam String sortStr) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "get galleries successful !!",
                 imageService.findByCondition(searchText, offset, pageSize, sortStr)));
     }
@@ -54,7 +55,7 @@ public class ImageController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Delete gallery successful !!",
                 imageService.deleteById(id)));
     }
@@ -66,7 +67,7 @@ public class ImageController {
                                                   @PathVariable(name = "id") String id)
             throws JsonProcessingException, IllegalAccessException {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Update gallery successful !!",
                 imageService.update(file, data, id)));
     }

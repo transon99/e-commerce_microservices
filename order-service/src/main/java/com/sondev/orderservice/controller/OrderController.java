@@ -1,5 +1,6 @@
 package com.sondev.orderservice.controller;
 
+import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.Utils;
 import com.sondev.orderservice.dto.request.OrderRequest;
@@ -34,7 +35,7 @@ public class OrderController {
                                                        @RequestHeader("Authorization") String token) {
         log.info("*** OrderDto, controller; create order *");
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Create order successful !!",
                 orderService.createOrder(orderRequest, token)));
     }
@@ -42,7 +43,7 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseMessage> findById(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Find order successful !!",
                 orderService.findOrderById(id)));
     }
@@ -52,21 +53,21 @@ public class OrderController {
             @RequestParam Integer offset,
             @RequestParam Integer pageSize) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "get orders successful !!", orderService.getOrders(offset, pageSize)));
     }
 
     @GetMapping()
     public ResponseEntity<ResponseMessage> getAllByStatus() {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "get orders successful !!", orderService.getAllByStatus()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseMessage> cancelOrder(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Cancel order successful !!", orderService.cancelOrder(id)));
     }
 
@@ -75,7 +76,7 @@ public class OrderController {
             @PathVariable(name = "id") String id,
             @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Accept order successful !!", orderService.acceptOrder(id, token)));
     }
 

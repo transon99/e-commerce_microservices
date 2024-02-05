@@ -1,14 +1,17 @@
-package com.sondev.dto.request;
+package com.sondev.orderservice.dto.request;
 
-import com.sondev.entity.PaymentMethod;
-import com.sondev.entity.PaymentStatus;
+
+import com.sondev.orderservice.entity.PaymentMethod;
+import com.sondev.orderservice.entity.PaymentStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class PaymentRequest {
 
     private PaymentMethod paymentMethod;

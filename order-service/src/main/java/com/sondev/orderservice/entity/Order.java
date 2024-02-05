@@ -3,9 +3,11 @@ package com.sondev.orderservice.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Order extends AbstractMappedEntity {
     @Id
@@ -30,16 +34,16 @@ public class Order extends AbstractMappedEntity {
     private String paymentId;
 
     @Column(name = "payment_method")
-    private String paymentMethod;
-
-    @Column(name = "is_accept")
-    private boolean isAccept;
+    private PaymentMethod paymentMethod;
 
     @Column(name = "status")
     private Status status;
 
     @Column(name = "user_id")
     private String userId;
+
+    @Column(name = "delivery_address")
+    private String deliveryAddress;
 
     @Column(name = "cart_id")
     private String cartId;

@@ -1,6 +1,7 @@
 package com.sondev.productservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.dto.request.CategoryRequest;
 import com.sondev.productservice.service.CategoryService;
@@ -31,7 +32,7 @@ public class CategoryController {
     @PostMapping
     public ResponseEntity<ResponseMessage> createCategory(@ModelAttribute CategoryRequest categoryRequest) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Create category successful !!",
                 categoryService.createCategory(categoryRequest)));
     }
@@ -39,7 +40,7 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseMessage> findById(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Find category successful !!",
                 categoryService.findCategoryById(id)));
     }
@@ -47,7 +48,7 @@ public class CategoryController {
     @GetMapping("/base-categories")
     public ResponseEntity<ResponseMessage> getSubCategory() {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Get base categories successful !!",
                 categoryService.getBaseCategories()));
     }
@@ -58,7 +59,7 @@ public class CategoryController {
                                                          @RequestParam(name = "pageSize") Integer pageSize,
                                                          @RequestParam(name = "sortStr") String sortStr) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Find category successful !!",
                 categoryService.getCategories(searchText, offset, pageSize, sortStr)));
     }
@@ -66,7 +67,7 @@ public class CategoryController {
     @GetMapping("/all")
     public ResponseEntity<ResponseMessage> getAll() {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Find all category successful !!",
                 categoryService.getAll()));
     }
@@ -74,7 +75,7 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Delete category successful !!",
                 categoryService.deleteCategoryById(id)));
     }
@@ -87,7 +88,7 @@ public class CategoryController {
                                                   @PathVariable(name = "id") String id)
             throws JsonProcessingException, IllegalAccessException {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Update category successful !!",
                 categoryService.updateCategory(files, iconFile, data, id)));
     }

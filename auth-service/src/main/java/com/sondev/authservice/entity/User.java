@@ -8,7 +8,9 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -63,9 +65,9 @@ public class User extends AbstractMappedEntity implements UserDetails {
 
     private String phone;
 
-    @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<Address> addresses;
+    @OneToOne
+    @JoinColumn(name = "address_id")
+    private Address addresses;
 
     @Enumerated(EnumType.STRING)
     private Role role;

@@ -1,7 +1,7 @@
-package com.sondev.orderservice.dto.response;
+package com.sondev.dto.response;
 
 
-import com.sondev.orderservice.dto.AbstractDto;
+import com.sondev.dto.AbstractDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

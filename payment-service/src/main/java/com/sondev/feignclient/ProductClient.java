@@ -1,4 +1,4 @@
-package com.sondev.orderservice.feignclient;
+package com.sondev.feignclient;
 
 import com.sondev.common.response.ResponseMessage;
 import org.springframework.cloud.openfeign.FeignClient;

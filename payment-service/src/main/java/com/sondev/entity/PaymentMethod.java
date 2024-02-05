@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum PaymentMethod {
     COD("COD"),
-    MOMO("Momo"),
-    VN_PAY("Vn_Pay");
+    STRIPE("STRIPE"),
+    VN_PAY("VN_PAY");
 
     private final String method;
 }

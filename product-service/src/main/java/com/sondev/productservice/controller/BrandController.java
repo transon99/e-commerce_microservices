@@ -1,6 +1,7 @@
 package com.sondev.productservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.dto.request.BrandRequest;
 import com.sondev.productservice.service.BrandService;
@@ -34,7 +35,7 @@ public class BrandController {
     @PostMapping
     public ResponseEntity<ResponseMessage> create(@ModelAttribute BrandRequest brandRequest) throws JsonProcessingException {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Create brand successful !!",
                 brandService.create(brandRequest)));
 
@@ -43,7 +44,7 @@ public class BrandController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseMessage> findById(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Find brand successful !!",
                 brandService.findById(id)));
     }
@@ -54,7 +55,7 @@ public class BrandController {
                                                          @RequestParam Integer pageSize,
                                                          @RequestParam String sortStr) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Find brand successful !!",
                 brandService.getBrands(searchText, offset, pageSize, sortStr)));
     }
@@ -62,7 +63,7 @@ public class BrandController {
     @GetMapping("/all")
     public ResponseEntity<ResponseMessage> getAll() {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Find all brand successful !!",
                 brandService.getAll()));
     }
@@ -70,7 +71,7 @@ public class BrandController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Delete brand successful !!",
                 brandService.deleteById(id)));
     }
@@ -78,7 +79,7 @@ public class BrandController {
     @PutMapping("/{id}")
     public ResponseEntity<ResponseMessage> update(@RequestBody Map<String, Object> fields, @PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Update brand successful !!",
                 brandService.update(fields, id)));
     }

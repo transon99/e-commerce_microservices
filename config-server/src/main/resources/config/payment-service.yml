@@ -1,0 +1,31 @@
+server:
+  port: 8084
+  servlet:
+    context-path: /api/v1/payment-service
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+#connect to database
+spring:
+  datasource:
+    #    url: jdbc:mysql://mysql-springboot-container:3306/e-commerce-microservice
+    url: jdbc:mysql://localhost:3306/payment-service
+    username: root
+    password: Dfer2205me
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+STRIPE_SECRET_KEY: sk_test_51OgOCdLOmLphZ7kVM5nykoqiQWrHmGNr1l9sze8TKIEtNJnxogNdWR4gd3aIVPL4yLAODf0HKJK3SINaRC4t86C800K08LLmEO
+CLIENT_BASE_URL: http://localhost:3000

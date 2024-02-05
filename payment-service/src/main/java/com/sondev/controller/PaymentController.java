@@ -1,5 +1,6 @@
 package com.sondev.controller;
 
+import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.dto.request.PaymentRequest;
 import com.sondev.service.PaymentService;
@@ -31,17 +32,18 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> createPayment(@RequestBody @Validated PaymentRequest paymentRequest,@RequestHeader("Authorization") String token)
+    public ResponseEntity<ResponseMessage> createPayment(@RequestBody @Validated PaymentRequest paymentRequest,
+                                                         @RequestHeader("Authorization") String token)
             throws UnsupportedEncodingException {
 
-        if (paymentService.createPayment(paymentRequest, token) == null){
+        if (paymentService.createPayment(paymentRequest,token) == null) {
             return ResponseEntity.internalServerError().body(new ResponseMessage(
-                    "ERROR",
+                    ResponseStatus.OK,
                     "Some error happened went create payment !!",
                     paymentService.createPayment(paymentRequest, token)));
         }
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Create payment successful !!",
                 paymentService.createPayment(paymentRequest, token)));
     }
@@ -49,7 +51,7 @@ public class PaymentController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseMessage> findById(@PathVariable("id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Create payment successful !!",
                 paymentService.findById(id)));
     }
@@ -58,7 +60,7 @@ public class PaymentController {
     public ResponseEntity<ResponseMessage> delete(@PathVariable("id") String id) {
 
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Create payment successful !!",
                 paymentService.deleteById(id)));
     }
@@ -69,7 +71,7 @@ public class PaymentController {
             @RequestParam Integer pageSize,
             @RequestParam String sortStr) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "get payments successful !!",
                 paymentService.getPayments(offset, pageSize, sortStr)));
     }
@@ -78,7 +80,7 @@ public class PaymentController {
     public ResponseEntity<ResponseMessage> update(@RequestBody @Validated Map<String, Object> fields,
                                                   @PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Update product successful !!",
                 paymentService.updatePayment(fields, id)));
     }

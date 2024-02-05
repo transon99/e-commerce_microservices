@@ -30,12 +30,6 @@ public class Address extends AbstractMappedEntity {
     @Column(name = "full_address", unique = true)
     private String fullAddress;
 
-    private String district;
-
     private String city;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
 
 }

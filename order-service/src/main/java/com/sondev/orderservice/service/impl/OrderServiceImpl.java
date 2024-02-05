@@ -1,18 +1,24 @@
 package com.sondev.orderservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sondev.common.constants.ResponseStatus;
+import com.sondev.common.exceptions.APIException;
 import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.JwtUtils;
 import com.sondev.orderservice.dto.request.OrderRequest;
+import com.sondev.orderservice.dto.request.PaymentRequest;
 import com.sondev.orderservice.dto.response.CartDto;
 import com.sondev.orderservice.dto.response.CartItemDto;
 import com.sondev.orderservice.dto.response.CountOrderByStatusResponse;
 import com.sondev.orderservice.dto.response.OrderDto;
 import com.sondev.orderservice.entity.Order;
+import com.sondev.orderservice.entity.PaymentMethod;
+import com.sondev.orderservice.entity.PaymentStatus;
 import com.sondev.orderservice.entity.Status;
 import com.sondev.orderservice.feignclient.CartClient;
+import com.sondev.orderservice.feignclient.PaymentClient;
 import com.sondev.orderservice.feignclient.ProductClient;
 import com.sondev.orderservice.mapper.OrderMapper;
 import com.sondev.orderservice.repository.OrderRepository;
@@ -39,6 +45,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CartClient cartClient;
     private final ProductClient productClient;
+    private final PaymentClient paymentClient;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -50,21 +57,48 @@ public class OrderServiceImpl implements OrderService {
         assert cartResponse != null;
         if (cartResponse.getData() != null) {
             cartDto = objectMapper.convertValue(cartResponse.getData(), CartDto.class);
-
         }
 
         Claims claims = JwtUtils.parseClaims(token);
         String userId = (String) claims.get("userId");
-        Order order = Order.builder()
-                .orderDate(new Date())
-                .cartId(orderRequest.getCartId())
-                .userId(userId)
-                .status(Status.PENDING)
-                .isAccept(false)
-                .totalPrice(cartDto.getTotalPrice())
-                .paymentMethodId(orderRequest.getPaymentMethodId())
-                .build();
+        Order order = null;
+        if (orderRequest.getPaymentMethod().equals(PaymentMethod.COD.name())) {
+            paymentClient.createPayment(PaymentRequest.builder().paymentStatus(PaymentStatus.NOT_STARTED).paymentMethod(
+                            PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(cartDto.getTotalPrice()).build(),
+                    token);
 
+            order = Order.builder()
+                    .orderDate(new Date())
+                    .cartId(cartDto.getId())
+                    .userId(userId)
+                    .status(Status.PENDING)
+                    .totalPrice(cartDto.getTotalPrice())
+                    .paymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod()))
+                    .build();
+        } else {
+            ResponseMessage cartItemResponse = paymentClient.createPayment(
+                    PaymentRequest.builder().paymentStatus(PaymentStatus.NOT_STARTED).paymentMethod(
+                                    PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(cartDto.getTotalPrice())
+                            .build(),
+                    token).getBody();
+
+            assert cartItemResponse != null;
+            if (cartItemResponse.getStatus().equals(ResponseStatus.OK)) {
+                order = Order.builder()
+                        .orderDate(new Date())
+                        .cartId(cartDto.getId())
+                        .userId(userId)
+                        .status(Status.COMPLETED)
+                        .totalPrice(cartDto.getTotalPrice())
+                        .paymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod()))
+                        .build();
+            } else {
+                throw new APIException("Something went wrong");
+            }
+
+        }
+
+        assert order != null;
         return orderMapper.toDto(orderRepository.save(order)).getId();
     }
 
@@ -105,16 +139,9 @@ public class OrderServiceImpl implements OrderService {
             cartDto = objectMapper.convertValue(cartResponse.getData(), CartDto.class);
         }
 
-        cartDto.getCartItemIds().forEach(cartItemId -> {
-            ResponseMessage cartItemResponse = cartClient.getCartItemById(token, cartItemId).getBody();
-            assert cartItemResponse != null;
-            if (cartItemResponse.getData() != null) {
-                CartItemDto cartItemDto = objectMapper.convertValue(cartItemResponse.getData(), CartItemDto.class);
-                productClient.reduceQuantity(cartItemDto.getProductId(), cartItemDto.getQuantity());
-            }
-        });
+        cartDto.getCartItemDtoList().forEach(
+                cartItemDto -> productClient.reduceQuantity(cartItemDto.getProductId(), cartItemDto.getQuantity()));
 
-        order.setAccept(true);
         order.setStatus(Status.CONFIRMED);
         return orderMapper.toDto(orderRepository.save(order));
     }
@@ -128,9 +155,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<CountOrderByStatusResponse> getAllByStatus() {
         List<CountOrderByStatusResponse> responses = new ArrayList<>();
-        for (Status status: Status.values()){
+        for (Status status : Status.values()) {
             Integer countStatusOrder = orderRepository.countOrderByStatus(status.name());
-            CountOrderByStatusResponse statusOrder = new CountOrderByStatusResponse(status,countStatusOrder);
+            CountOrderByStatusResponse statusOrder = new CountOrderByStatusResponse(status, countStatusOrder);
             responses.add(statusOrder);
         }
 

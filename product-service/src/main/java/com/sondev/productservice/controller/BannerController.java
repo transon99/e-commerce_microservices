@@ -1,6 +1,7 @@
 package com.sondev.productservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.dto.request.BannerRequest;
 import com.sondev.productservice.service.BannerService;
@@ -29,7 +30,7 @@ public class BannerController {
     @PostMapping
     public ResponseEntity<ResponseMessage> create(@ModelAttribute BannerRequest bannerRequest) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Insert banner successful !!",
                 bannerService.create(bannerRequest)));
     }
@@ -37,7 +38,7 @@ public class BannerController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseMessage> findById(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Get banner successful !!",
                 bannerService.findById(id)));
     }
@@ -48,7 +49,7 @@ public class BannerController {
                                                            @RequestParam Integer pageSize,
                                                            @RequestParam String sortStr) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "get banner successful !!",
                 bannerService.findByCondition(searchText, offset, pageSize, sortStr)));
     }
@@ -56,7 +57,7 @@ public class BannerController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Delete banner successful !!",
                 bannerService.deleteById(id)));
     }
@@ -68,7 +69,7 @@ public class BannerController {
                                                   @PathVariable(name = "id") String id)
             throws JsonProcessingException, IllegalAccessException {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Update banner successful !!",
                 bannerService.update(file, data, id)));
     }

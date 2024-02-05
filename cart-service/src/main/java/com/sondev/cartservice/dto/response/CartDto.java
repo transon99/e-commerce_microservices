@@ -17,5 +17,5 @@ public class CartDto extends AbstractDto<String> {
     private String id;
     private Double totalPrice;
     private Integer quantity;
-    private List<String> productId;
+    private List<CartItemDto> cartItemDtoList;
 }

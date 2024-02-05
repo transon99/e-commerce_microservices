@@ -1,6 +1,7 @@
 package com.sondev.productservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.dto.request.ProductRequest;
 import com.sondev.productservice.service.ProductService;
@@ -37,7 +38,7 @@ public class ProductController {
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<ResponseMessage> createProduct(@ModelAttribute ProductRequest productRequest) throws JsonProcessingException  {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Insert product successful !!",
                 productService.createProduct(productRequest)));
     }
@@ -48,7 +49,7 @@ public class ProductController {
 
         log.info("ProductController | getProductById | productId : " + id);
         return  ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Get product successful !!",
                 productService.findProductById(id)));
     }
@@ -63,7 +64,7 @@ public class ProductController {
 
         log.info("ProductController | getProducts | offset {}, pageSize {}, sortStr {}   : ", offset, pageSize, sortStr);
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "get product successful !!",
                 productService.getProducts(searchText, offset, pageSize, sortStr)));
     }
@@ -74,7 +75,7 @@ public class ProductController {
                                                        @RequestParam Integer pageSize,
                                                        @RequestParam String brandId) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "get product successful !!",
                 productService.findProductsByCategoryAndBrand( offset, pageSize,categoryId, brandId)));
     }
@@ -82,7 +83,7 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseMessage> delete(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Delete product successful !!",
                 productService.deleteProductById(id)));
     }
@@ -93,7 +94,7 @@ public class ProductController {
                                                   @RequestParam("data") String data,
                                                   @PathVariable(name = "id") String id) throws JsonProcessingException, IllegalAccessException  {
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Update product successful !!",
                 productService.updateProduct(files, data, id)));
     }
@@ -111,7 +112,7 @@ public class ProductController {
 
         productService.reduceQuantity(productId,quantity);
         return ResponseEntity.ok().body(new ResponseMessage(
-                "OK",
+                ResponseStatus.OK,
                 "Update product successful !!",
                 null));
     }

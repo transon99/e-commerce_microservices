@@ -24,6 +24,7 @@ import com.sondev.authservice.service.AuthService;
 import com.sondev.authservice.service.UserService;
 import com.sondev.authservice.service.VerificationService;
 import com.sondev.authservice.utils.TempEmailUtils;
+import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.exceptions.APIException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -92,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .status("OK")
+                .status(String.valueOf(ResponseStatus.OK))
                 .fullName(userDetail.getFirstName() + " " + userDetail.getLastName())
                 .type("Bearer")
                 .userId(userDetail.getId())
@@ -123,9 +124,9 @@ public class AuthServiceImpl implements AuthService {
         User user = userMapper.reqToEntity(registerRequest);
         if (registerRequest.getAddressRequest() != null) {
             address = addressRepository.save(addressMapper.reqToEntity(registerRequest.getAddressRequest()));
-            user.setAddresses(Set.of(address));
+            user.setAddresses(address);
         } else {
-            user.setAddresses(new HashSet<>());
+            user.setAddresses(new Address());
         }
         if (StringUtils.isEmpty(registerRequest.getRole())) {
             user.setRole(Role.USER);
@@ -159,7 +160,7 @@ public class AuthServiceImpl implements AuthService {
                     AuthDto authDto = AuthDto.builder()
                             .accessToken(accessToken)
                             .refreshToken(token)
-                            .status("OK")
+                            .status(String.valueOf(ResponseStatus.OK))
                             .fullName(user.getFirstName() + " " + user.getLastName())
                             .type("Bearer")
                             .role(user.getRole())
@@ -232,7 +233,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .status("OK")
+                .status(String.valueOf(ResponseStatus.OK))
                 .fullName(userDetail.getFirstName() + " " + userDetail.getLastName())
                 .type("Bearer")
                 .role(userDetail.getRole())
