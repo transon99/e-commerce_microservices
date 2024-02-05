@@ -9,6 +9,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class AddressRequest {
     private String fullAddress;
-    private String district;
     private String city;
 }

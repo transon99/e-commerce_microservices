@@ -4,19 +4,5 @@ spring:
   config:
     import: "optional:configserver:http://localhost:8888"
 
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      #0: no wait for kafka response
-      #1: leader write success, not wait for follower
-      #-1: wait for all leader and replication
-      acks: -1
-      retries: 1
 
-      #prevent duplicate send
-      properties:
-        [enable.idempotence]: true
-        [max.in.flight.requests.per.connection] : 5
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
 

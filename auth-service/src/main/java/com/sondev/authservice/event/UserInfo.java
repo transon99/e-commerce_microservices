@@ -1,15 +1,16 @@
-package com.sondev.authservice.dto.request;
+package com.sondev.authservice.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @Builder
-public class RegisterRequest {
+public class UserInfo {
+    private String id;
 
     private String firstName;
 
@@ -18,10 +19,4 @@ public class RegisterRequest {
     private String email;
 
     private String phone;
-
-    private AddressRequest addressRequest;
-
-    private String password;
-
-    private String role;
 }

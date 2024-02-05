@@ -30,6 +30,6 @@ public class UserDto extends AbstractDto<String> {
 
     private Role role;
 
-    private Set<AddressDto> addresses;
+    private AddressDto address;
 
 }

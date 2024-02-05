@@ -55,9 +55,6 @@ public class User extends AbstractMappedEntity implements UserDetails {
     @Column(name = "public_avatar_id")
     private String publicId;
 
-    @Column(name = "user_name")
-    private String userName;
-
     @Email(message = "*Input must be in Email format!**")
     private String email;
 
@@ -65,9 +62,9 @@ public class User extends AbstractMappedEntity implements UserDetails {
 
     private String phone;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
-    private Address addresses;
+    private Address address;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -76,10 +73,9 @@ public class User extends AbstractMappedEntity implements UserDetails {
 
     private Boolean enabled;
 
-    public User(String firstName, String lastName, String userName, String email, String password, Role role) {
+    public User(String firstName, String lastName, String email, String password, Role role) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.userName = userName;
         this.email = email;
         this.password = password;
         this.role = role;

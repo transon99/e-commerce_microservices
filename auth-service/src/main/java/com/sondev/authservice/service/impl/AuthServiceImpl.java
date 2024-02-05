@@ -1,7 +1,7 @@
 package com.sondev.authservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sondev.authservice.dto.MailEvent;
+import com.sondev.authservice.event.MailEvent;
 import com.sondev.authservice.dto.UserZalo;
 import com.sondev.authservice.dto.request.LoginRequest;
 import com.sondev.authservice.dto.request.RegisterRequest;
@@ -12,6 +12,7 @@ import com.sondev.authservice.entity.Address;
 import com.sondev.authservice.entity.Role;
 import com.sondev.authservice.entity.User;
 import com.sondev.authservice.entity.VerificationToken;
+import com.sondev.authservice.event.UserInfo;
 import com.sondev.authservice.exceptions.UserAlreadyExistException;
 import com.sondev.authservice.exceptions.UserNotActivatedException;
 import com.sondev.authservice.feignclient.ZaloApi;
@@ -25,7 +26,6 @@ import com.sondev.authservice.service.UserService;
 import com.sondev.authservice.service.VerificationService;
 import com.sondev.authservice.utils.TempEmailUtils;
 import com.sondev.common.constants.ResponseStatus;
-import com.sondev.common.exceptions.APIException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +44,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -67,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final VerificationService verificationService;
     private final PasswordEncoder passwordEncoder;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, MailEvent> kafkaTemplate;
 
     @Override
     public AuthDto login(LoginRequest loginRequest) {
@@ -114,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new UserNotActivatedException(
                         "User with email " + registerRequest
                                 .getEmail() + " has been registered but not activated. Please check your email.");
-            }else {
+            } else {
                 log.error("*** String, service; register user already exists *");
                 throw new UserAlreadyExistException("user already exists");
             }
@@ -124,9 +122,9 @@ public class AuthServiceImpl implements AuthService {
         User user = userMapper.reqToEntity(registerRequest);
         if (registerRequest.getAddressRequest() != null) {
             address = addressRepository.save(addressMapper.reqToEntity(registerRequest.getAddressRequest()));
-            user.setAddresses(address);
+            user.setAddress(address);
         } else {
-            user.setAddresses(new Address());
+            user.setAddress(new Address());
         }
         if (StringUtils.isEmpty(registerRequest.getRole())) {
             user.setRole(Role.USER);
@@ -140,7 +138,13 @@ public class AuthServiceImpl implements AuthService {
         VerificationToken verificationToken = verificationService.saveUserVerificationToken(savedUser);
 
         //Publish event to Mail service
-        kafkaTemplate.send("verification-mail", new MailEvent(userMapper.toDto(savedUser), verificationToken.getToken()));
+        kafkaTemplate.send("verification-mail", new MailEvent(UserInfo.builder()
+                .id(savedUser.getId())
+                .firstName(savedUser.getFirstName())
+                .lastName(savedUser.getLastName())
+                .email(savedUser.getEmail())
+                .phone(savedUser.getPhone())
+                .build(), verificationToken.getToken()));
 
         return savedUser.getId();
     }
@@ -175,7 +179,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthDto loginFacebook(SocialLoginRequest loginFacebookRequest) {
         Facebook facebook = new FacebookTemplate(loginFacebookRequest.getSocialAccessToken());
-        final String[] fields = { "email", "picture" };
+        final String[] fields = {"email", "picture"};
 
         org.springframework.social.facebook.api.User user = facebook.fetchObject("me",
                 org.springframework.social.facebook.api.User.class, fields);

@@ -1,23 +1,23 @@
+server:
+  port: 8085
+  servlet:
+    context-path: /api/v1/cart-service
+
 spring:
   #kafka server url
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
-      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
-      auto-offset-reset: earliest
+      properties:
+        spring.json.type.mapping: event:com.sondev.mailservice.model.MailEvent
+        spring.json.trusted.packages: "*"
+      group-id: notificationId
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
 
-  mail:
-    default-encoding: UTF-8
-    host: smtp.gmail.com
-    username: transon9900@gmail.com
-    password: lkhb ozcj uvgj cjqx
-    port: 587
-    protocol: smtp
-    test-connection: false
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+    mode: HTML
+

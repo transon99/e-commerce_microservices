@@ -1,6 +1,5 @@
-package com.sondev.authservice.dto;
+package com.sondev.mailservice.model;
 
-import com.sondev.authservice.dto.response.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MailEvent {
-    private UserDto userDto;
+    private UserInfo userInfo;
     private String verificationToken;
 }

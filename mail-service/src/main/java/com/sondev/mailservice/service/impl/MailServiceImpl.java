@@ -1,8 +1,10 @@
-package com.sondev.service.impl;
+package com.sondev.mailservice.service.impl;
 
-import com.sondev.model.MailEvent;
-import com.sondev.service.MailService;
+
+import com.sondev.mailservice.model.MailEvent;
+import com.sondev.mailservice.service.MailService;
 import jakarta.mail.MessagingException;
+
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,23 +34,24 @@ public class MailServiceImpl implements MailService {
 
 
     @Override
-    @KafkaListener(topics = "verification")
-    public void sendVerificationEmail(MailEvent mailEvent, String url) {
+    @KafkaListener(topics = "verification-mail")
+    public void sendVerificationEmail(MailEvent mailEvent) {
         String subject = "Email Verification";
         String senderName = "SG Shop";
 
         MimeMessage message = mailSender.createMimeMessage();
+        log.info("Got message <{}>", mailEvent.getUserInfo().getId());
 
         try {
             var messageHelper = new MimeMessageHelper(message, true, "UTF-8");
 
             messageHelper.setFrom(from, senderName);
-            messageHelper.setTo(mailEvent.getUserDto().getEmail());
+            messageHelper.setTo(mailEvent.getUserInfo().getEmail());
             messageHelper.setSubject(subject);
-            Map<String, Object> context = Map.of("username", mailEvent.getUserDto().getFirstName() + mailEvent.getUserDto().getLastName(), "verificationLink", url);
+            Map<String, Object> context = Map.of("username", mailEvent.getUserInfo().getFirstName() + mailEvent.getUserInfo().getLastName(), "verificationLink", mailEvent.getVerificationToken());
 
             String mailContent = templateEngine.process(
-                    "email_templates/verification_template.html", new Context(Locale.getDefault(), context));
+                    "verification_template", new Context(Locale.getDefault(), context));
             messageHelper.setText(mailContent, true);
         } catch (MessagingException | UnsupportedEncodingException e) {
             log.error(e.getMessage());

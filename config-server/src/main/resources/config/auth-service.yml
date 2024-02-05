@@ -14,7 +14,7 @@ eureka:
 spring:
   datasource:
     #    url: jdbc:mysql://mysql-springboot-container:3306/user-service
-    url: jdbc:mysql://localhost:3306/user-service
+    url: jdbc:mysql://localhost:3306/auth-service
     username: root
     password: Dfer2205me
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -27,7 +27,24 @@ spring:
       ddl-auto: update
     show-sql: true
 
-#kafka server url
+  # kafka properties
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      #0: no wait for kafka response
+      #1: leader write success, not wait for follower
+      #-1: wait for all leader and replication
+      acks: -1
+      retries: 1
+
+      #prevent duplicate send
+      properties:
+        spring.json.type.mapping: event:com.sondev.authservice.event.MailEvent
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+
+
 
 application:
   security:

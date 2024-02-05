@@ -21,10 +21,9 @@ public interface UserMapper extends EntityMapper<UserDto, User>{
                 .id(address.getId())
                 .fullAddress(address.getFullAddress())
                 .city(address.getCity())
-                .district(address.getDistrict())
                 .build();
     }
 
-    @Mapping(target = "addresses", source = "addresses", qualifiedByName = "mappingAddress")
+    @Mapping(target = "address", source = "address", qualifiedByName = "mappingAddress")
     UserDto toDto(User user);
 }

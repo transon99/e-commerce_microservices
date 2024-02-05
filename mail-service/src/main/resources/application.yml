@@ -3,16 +3,11 @@ spring:
     name: mail-service
   config:
     import: "optional:configserver:http://localhost:8888"
-  kafka:
-    consumer:
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-
   mail:
     default-encoding: UTF-8
     host: smtp.gmail.com
     username: transon9900@gmail.com
-    password: lkhb ozcj uvgj cjqx
+    password: ynzd tqlm wdxb frxo
     port: 587
     protocol: smtp
     test-connection: false
@@ -23,6 +18,7 @@ spring:
           starttls:
             enable: true
             required: true
+
 
 
 
