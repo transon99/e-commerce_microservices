@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -24,14 +25,11 @@ public class OrderDto extends AbstractDto<String> {
 
     private String paymentMethodId;
 
-    private boolean isAccept;
-
     private Status status;
 
     private PaymentMethod paymentMethod;
 
     private String userId;
 
-    private String cartId;
-
+    private List<OrderItemDto> orderItemDtoList;
 }

@@ -1,6 +1,11 @@
 package com.sondev.orderservice.dto.response;
 
 import com.sondev.orderservice.dto.AbstractDto;
+import com.sondev.orderservice.entity.Order;
+import jakarta.persistence.Column;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,9 +13,9 @@ import lombok.NoArgsConstructor;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class CartItemDto extends AbstractDto<String> {
+@NoArgsConstructor
+public class OrderItemDto extends AbstractDto<String> {
     private String id;
 
     private Integer quantity;
@@ -19,5 +24,4 @@ public class CartItemDto extends AbstractDto<String> {
 
     private String userId;
 
-    private String orderId;
 }

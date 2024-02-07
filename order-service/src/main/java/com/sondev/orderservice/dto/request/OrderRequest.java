@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -13,5 +15,7 @@ public class OrderRequest {
     private String paymentMethod;
 
     private String deliveryAddress;
+
+    private Set<OrderItemRequest> orderItemRequest;
 
 }

@@ -7,12 +7,12 @@ import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.JwtUtils;
+import com.sondev.orderservice.dto.request.OrderItemRequest;
 import com.sondev.orderservice.dto.request.OrderRequest;
 import com.sondev.orderservice.dto.request.PaymentRequest;
-import com.sondev.orderservice.dto.response.CartDto;
-import com.sondev.orderservice.dto.response.CartItemDto;
 import com.sondev.orderservice.dto.response.CountOrderByStatusResponse;
 import com.sondev.orderservice.dto.response.OrderDto;
+import com.sondev.orderservice.dto.response.ProductDto;
 import com.sondev.orderservice.entity.Order;
 import com.sondev.orderservice.entity.PaymentMethod;
 import com.sondev.orderservice.entity.PaymentStatus;
@@ -20,6 +20,7 @@ import com.sondev.orderservice.entity.Status;
 import com.sondev.orderservice.feignclient.CartClient;
 import com.sondev.orderservice.feignclient.PaymentClient;
 import com.sondev.orderservice.feignclient.ProductClient;
+import com.sondev.orderservice.mapper.OrderItemMapper;
 import com.sondev.orderservice.mapper.OrderMapper;
 import com.sondev.orderservice.repository.OrderRepository;
 import com.sondev.orderservice.service.OrderService;
@@ -35,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -42,6 +44,7 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderMapper orderMapper;
+    private final OrderItemMapper orderItemMapper;
     private final OrderRepository orderRepository;
     private final CartClient cartClient;
     private final ProductClient productClient;
@@ -51,34 +54,29 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public String createOrder(OrderRequest orderRequest, String token) {
-        CartDto cartDto = new CartDto();
 
-        ResponseMessage cartResponse = cartClient.getCartByUser(token).getBody();
-        assert cartResponse != null;
-        if (cartResponse.getData() != null) {
-            cartDto = objectMapper.convertValue(cartResponse.getData(), CartDto.class);
-        }
+        double totalPrice = getTotalPrice(orderRequest.getOrderItemRequest(), token);
 
         Claims claims = JwtUtils.parseClaims(token);
         String userId = (String) claims.get("userId");
         Order order = null;
         if (orderRequest.getPaymentMethod().equals(PaymentMethod.COD.name())) {
             paymentClient.createPayment(PaymentRequest.builder().paymentStatus(PaymentStatus.NOT_STARTED).paymentMethod(
-                            PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(cartDto.getTotalPrice()).build(),
+                            PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(totalPrice).build(),
                     token);
 
             order = Order.builder()
                     .orderDate(new Date())
-                    .cartId(cartDto.getId())
                     .userId(userId)
                     .status(Status.PENDING)
-                    .totalPrice(cartDto.getTotalPrice())
+                    .totalPrice(totalPrice)
+                    .orderItems(orderItemMapper.reqToEntity(orderRequest.getOrderItemRequest()))
                     .paymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod()))
                     .build();
         } else {
             ResponseMessage cartItemResponse = paymentClient.createPayment(
                     PaymentRequest.builder().paymentStatus(PaymentStatus.NOT_STARTED).paymentMethod(
-                                    PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(cartDto.getTotalPrice())
+                                    PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(totalPrice)
                             .build(),
                     token).getBody();
 
@@ -86,10 +84,10 @@ public class OrderServiceImpl implements OrderService {
             if (cartItemResponse.getStatus().equals(ResponseStatus.OK)) {
                 order = Order.builder()
                         .orderDate(new Date())
-                        .cartId(cartDto.getId())
                         .userId(userId)
                         .status(Status.COMPLETED)
-                        .totalPrice(cartDto.getTotalPrice())
+                        .orderItems(orderItemMapper.reqToEntity(orderRequest.getOrderItemRequest()))
+                        .totalPrice(totalPrice)
                         .paymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod()))
                         .build();
             } else {
@@ -128,19 +126,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDto acceptOrder(String id, String token) {
-        CartDto cartDto = new CartDto();
-
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find order with id" + id));
 
-        ResponseMessage cartResponse = cartClient.getCartById(token, order.getCartId()).getBody();
-        assert cartResponse != null;
-        if (cartResponse.getData() != null) {
-            cartDto = objectMapper.convertValue(cartResponse.getData(), CartDto.class);
-        }
-
-        cartDto.getCartItemDtoList().forEach(
-                cartItemDto -> productClient.reduceQuantity(cartItemDto.getProductId(), cartItemDto.getQuantity()));
+        order.getOrderItems().forEach(
+                orderItem-> productClient.reduceQuantity(orderItem.getProductId(), orderItem.getQuantity()));
 
         order.setStatus(Status.CONFIRMED);
         return orderMapper.toDto(orderRepository.save(order));
@@ -162,6 +152,23 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return responses;
+    }
+
+    private double getTotalPrice(Set<OrderItemRequest> orderItemDtos, String token) {
+
+        double totalPrice = 0.0;
+        for (OrderItemRequest item : orderItemDtos) {
+
+            ResponseMessage productResponse = productClient.findById(token, item.getProductId()).getBody();
+            assert productResponse != null;
+            if (productResponse.getData() != null) {
+                ProductDto productDto = objectMapper.convertValue(productResponse.getData(), ProductDto.class);
+
+                totalPrice += productDto.getPriceUnit() * productDto.getQuantity();
+            }
+
+        }
+        return totalPrice;
     }
 
 }
