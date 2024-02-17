@@ -71,7 +71,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private static final String SUCCESS_VNPAY_CODE = "00";
 
-    public String createPayment(PaymentRequest paymentRequest, String token)
+    public String checkout(PaymentRequest paymentRequest, String token)
             throws UnsupportedEncodingException, StripeException {
 
         CartDto cartDto = new CartDto();

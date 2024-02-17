@@ -22,5 +22,5 @@ public interface PaymentClient {
     ResponseEntity<ResponseMessage> findAll(@RequestHeader(name = "Authorization") String token);
 
     @PostMapping
-    ResponseEntity<ResponseMessage> createPayment(@RequestBody @Validated PaymentRequest paymentRequest, @RequestHeader("Authorization") String token);
+    ResponseEntity<ResponseMessage> checkout(@RequestBody @Validated PaymentRequest paymentRequest, @RequestHeader("Authorization") String token);
 }
