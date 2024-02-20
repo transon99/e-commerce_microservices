@@ -77,11 +77,11 @@ public class BrandController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMessage> update(@RequestBody Map<String, Object> fields, @PathVariable(name = "id") String id) {
+    public ResponseEntity<ResponseMessage> update(@ModelAttribute BrandRequest brandRequest, @PathVariable(name = "id") String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 ResponseStatus.OK,
                 "Update brand successful !!",
-                brandService.update(fields, id)));
+                brandService.update(brandRequest, id)));
     }
 
 }

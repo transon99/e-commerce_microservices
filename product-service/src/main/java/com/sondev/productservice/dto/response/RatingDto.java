@@ -12,10 +12,14 @@ import lombok.NoArgsConstructor;
 @Data
 public class RatingDto extends AbstractDto<String> {
 
+    private String id;
+
+    private Double rate;
+
     private String content;
 
-//    private String userId;
-//
-//    private String productId;
+    private String userId;
+
+    private ProductDto product;
 
 }

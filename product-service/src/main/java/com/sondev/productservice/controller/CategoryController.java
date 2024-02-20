@@ -81,16 +81,13 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMessage> update(@RequestParam(value = "image",
-            required = false) List<MultipartFile> files,
-                                                  @RequestParam("icon") MultipartFile iconFile,
-                                                  @RequestParam("data") String data,
+    public ResponseEntity<ResponseMessage> update(@ModelAttribute CategoryRequest categoryRequest,
                                                   @PathVariable(name = "id") String id)
-            throws JsonProcessingException, IllegalAccessException {
+             {
         return ResponseEntity.ok().body(new ResponseMessage(
                 ResponseStatus.OK,
                 "Update category successful !!",
-                categoryService.updateCategory(files, iconFile, data, id)));
+                categoryService.updateCategory(categoryRequest, id)));
     }
 
 }

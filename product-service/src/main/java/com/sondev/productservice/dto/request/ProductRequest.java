@@ -14,8 +14,7 @@ public class ProductRequest{
 
     private String name;
     private String description;
-    private String sku;
-    private Double priceUnit;
+    private Double price;
     private Integer quantity;
     private Integer discount;
     private String categoryId;

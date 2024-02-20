@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,17 +45,24 @@ public class CategoryServiceImpl implements CategoryService {
 
     public String createCategory(CategoryRequest categoryRequest){
         Category entity = categoryMapper.reqToEntity(categoryRequest);
-        if (!categoryRequest.getParentCatId().isEmpty()) {
+        if (StringUtils.isNoneEmpty(categoryRequest.getParentCatId())) {
             Optional<Category> parentCategoryOptional = categoryRepository.findById(categoryRequest.getParentCatId());
 
             entity.setParent(parentCategoryOptional.get());
 
         }
 
-        List<Image> imageUrls = categoryRequest.getImageFiles().stream().map(this::saveImageToCloud).toList();
-        entity.setImageUrls(imageUrls);
+        List<Image> imageUrls = null;
+        Image iconUrl = null;
+        if (categoryRequest.getImageFile() != null) {
+            imageUrls = List.of(saveImageToCloud(categoryRequest.getImageFile()));
+        }
 
-        Image iconUrl = saveImageToCloud(categoryRequest.getIconFile());
+        if (categoryRequest.getIconFile() != null){
+            iconUrl = saveImageToCloud(categoryRequest.getIconFile());
+        }
+
+        entity.setImageUrls(imageUrls);
         entity.setIconUrl(iconUrl);
         return categoryMapper.toDto(categoryRepository.save(entity)).getId();
     }
@@ -131,34 +139,34 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Transactional
-    public CategoryDto updateCategory(List<MultipartFile> files, MultipartFile iconFile, String data, String id)
-            throws JsonProcessingException {
+    public CategoryDto updateCategory(CategoryRequest categoryRequest, String id) {
 
         Category currentCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find category with id " + id));
 
-        CategoryRequest categoryRequest = objectMapper.readValue(data, CategoryRequest.class);
-
         Category currentCategoryParent = currentCategory.getParent();
-        if (!StringUtils.equals(categoryRequest.getParentCatId(), currentCategoryParent.getId())) {
-            currentCategoryParent = categoryRepository.findById(categoryRequest.getParentCatId()).orElseThrow(
-                    () -> new NotFoundException("Can't find category with id" + categoryRequest.getParentCatId()));
+        if (currentCategoryParent !=null){
+            if (!StringUtils.equals(categoryRequest.getParentCatId(), currentCategoryParent.getId())) {
+                currentCategoryParent = categoryRepository.findById(categoryRequest.getParentCatId()).orElseThrow(
+                        () -> new NotFoundException("Can't find category with id" + categoryRequest.getParentCatId()));
+            }
         }
+
 
         List<Image> imageList;
         Image icon;
-        if (files != null) {
+        if (categoryRequest.getImageFile() != null) {
             List<Image> currentImageList = currentCategory.getImageUrls();
             currentImageList.forEach(image -> imageService.deleteById(image.getId()));
-            imageList = files.stream().map(this::saveImageToCloud).toList();
+            imageList = List.of(saveImageToCloud(categoryRequest.getImageFile()));
         } else {
             imageList = currentCategory.getImageUrls();
         }
 
-        if (iconFile != null) {
+        if (categoryRequest.getIconFile() != null) {
             Image currentIcon = currentCategory.getIconUrl();
             imageService.deleteById(currentIcon.getId());
-            icon = saveImageToCloud(iconFile);
+            icon = saveImageToCloud(categoryRequest.getIconFile());
         } else {
             icon = currentCategory.getIconUrl();
         }

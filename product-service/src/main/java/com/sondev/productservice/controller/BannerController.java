@@ -43,6 +43,14 @@ public class BannerController {
                 bannerService.findById(id)));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<ResponseMessage> findAll() {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                ResponseStatus.OK,
+                "Get banner successful !!",
+                bannerService.findAll()));
+    }
+
     @GetMapping()
     public ResponseEntity<ResponseMessage> findByCondition(@RequestParam String searchText,
                                                            @RequestParam Integer offset,
@@ -63,15 +71,13 @@ public class BannerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMessage> update(@RequestParam(value = "image",
-            required = false) MultipartFile file,
-                                                  @RequestParam("data") String data,
+    public ResponseEntity<ResponseMessage> update(@ModelAttribute BannerRequest bannerRequest,
                                                   @PathVariable(name = "id") String id)
             throws JsonProcessingException, IllegalAccessException {
         return ResponseEntity.ok().body(new ResponseMessage(
                 ResponseStatus.OK,
                 "Update banner successful !!",
-                bannerService.update(file, data, id)));
+                bannerService.update(bannerRequest, id)));
     }
 
 }

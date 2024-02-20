@@ -25,15 +25,11 @@ public class Product extends AbstractMappedEntity<String> {
     @Column(name = "description")
     private String description;
 
-
-    @Column(unique = true,columnDefinition = "char(20)")
-    private String sku;
-
     @Column(unique = true)
     private Integer discount;
 
-    @Column(name = "price_unit", columnDefinition = "decimal")
-    private Double priceUnit;
+    @Column(name = "price", columnDefinition = "decimal")
+    private Double price;
 
     @Column(name = "quantity")
     private Integer quantity;

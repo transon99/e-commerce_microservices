@@ -172,10 +172,9 @@ public class ProductServiceImpl implements ProductService {
                 .brand(brand)
                 .category(category)
                 .description(productRequest.getDescription())
-                .sku(productRequest.getSku())
                 .discount(productRequest.getDiscount())
                 .quantity(productRequest.getQuantity())
-                .priceUnit(productRequest.getPriceUnit())
+                .price(productRequest.getPrice())
                 .ratings(currentProduct.getRatings())
                 .build();
 

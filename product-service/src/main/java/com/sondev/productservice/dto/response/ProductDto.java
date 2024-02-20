@@ -20,8 +20,7 @@ public class ProductDto extends AbstractDto<String> {
     private List<ImageDto> imageUrls;
     private BrandDto brandDTO;
     private CategoryDto categoryDTO;
-    private String sku;
-    private Double priceUnit;
+    private Double price;
     private Integer quantity;
     private Integer discount;
 

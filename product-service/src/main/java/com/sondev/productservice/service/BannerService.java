@@ -6,6 +6,8 @@ import com.sondev.productservice.dto.request.BannerRequest;
 import com.sondev.productservice.dto.response.BannerDto;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface BannerService {
 
     String create(BannerRequest bannerRequest);
@@ -14,8 +16,9 @@ public interface BannerService {
 
     PagingData findByCondition(String searchText, Integer offset, Integer pageSize, String sortStr);
 
-    BannerDto update(MultipartFile file, String data, String id) throws JsonProcessingException;
+    BannerDto update(BannerRequest bannerRequest, String id) throws JsonProcessingException;
 
     String deleteById(String id);
 
+    List<BannerDto> findAll();
 }
