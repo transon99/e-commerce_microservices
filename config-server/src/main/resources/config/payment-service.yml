@@ -27,5 +27,10 @@ spring:
       ddl-auto: update
     show-sql: true
 
-STRIPE_SECRET_KEY: sk_test_51OgOCdLOmLphZ7kVM5nykoqiQWrHmGNr1l9sze8TKIEtNJnxogNdWR4gd3aIVPL4yLAODf0HKJK3SINaRC4t86C800K08LLmEO
-CLIENT_BASE_URL: http://localhost:3000
+CLIENT_BASE_URL: http://localhost:3010
+
+stripe:
+  secret:
+    key: sk_test_51OgOCdLOmLphZ7kVM5nykoqiQWrHmGNr1l9sze8TKIEtNJnxogNdWR4gd3aIVPL4yLAODf0HKJK3SINaRC4t86C800K08LLmEO
+  webhook:
+    secret:

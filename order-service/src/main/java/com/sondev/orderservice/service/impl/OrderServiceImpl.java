@@ -55,49 +55,50 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public String createOrder(OrderRequest orderRequest, String token) {
 
-        double totalPrice = getTotalPrice(orderRequest.getOrderItemRequest(), token);
-
-        Claims claims = JwtUtils.parseClaims(token);
-        String userId = (String) claims.get("userId");
-        Order order = null;
-        if (orderRequest.getPaymentMethod().equals(PaymentMethod.COD.name())) {
-            paymentClient.createPayment(PaymentRequest.builder().paymentStatus(PaymentStatus.NOT_STARTED).paymentMethod(
-                            PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(totalPrice).build(),
-                    token);
-
-            order = Order.builder()
-                    .orderDate(new Date())
-                    .userId(userId)
-                    .status(Status.PENDING)
-                    .totalPrice(totalPrice)
-                    .orderItems(orderItemMapper.reqToEntity(orderRequest.getOrderItemRequest()))
-                    .paymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod()))
-                    .build();
-        } else {
-            ResponseMessage cartItemResponse = paymentClient.createPayment(
-                    PaymentRequest.builder().paymentStatus(PaymentStatus.NOT_STARTED).paymentMethod(
-                                    PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(totalPrice)
-                            .build(),
-                    token).getBody();
-
-            assert cartItemResponse != null;
-            if (cartItemResponse.getStatus().equals(ResponseStatus.OK)) {
-                order = Order.builder()
-                        .orderDate(new Date())
-                        .userId(userId)
-                        .status(Status.COMPLETED)
-                        .orderItems(orderItemMapper.reqToEntity(orderRequest.getOrderItemRequest()))
-                        .totalPrice(totalPrice)
-                        .paymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod()))
-                        .build();
-            } else {
-                throw new APIException("Something went wrong");
-            }
-
-        }
-
-        assert order != null;
-        return orderMapper.toDto(orderRepository.save(order)).getId();
+//        double totalPrice = getTotalPrice(orderRequest.getOrderItemRequest(), token);
+//
+//        Claims claims = JwtUtils.parseClaims(token);
+//        String userId = (String) claims.get("userId");
+//        Order order = null;
+//        if (orderRequest.getPaymentMethod().equals(PaymentMethod.COD.name())) {
+//            paymentClient.createPayment(PaymentRequest.builder().paymentStatus(PaymentStatus.NOT_STARTED).paymentMethod(
+//                            PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(totalPrice).build(),
+//                    token);
+//
+//            order = Order.builder()
+//                    .orderDate(new Date())
+//                    .userId(userId)
+//                    .status(Status.PENDING)
+//                    .totalPrice(totalPrice)
+//                    .orderItems(orderItemMapper.reqToEntity(orderRequest.getOrderItemRequest()))
+//                    .paymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod()))
+//                    .build();
+//        } else {
+//            ResponseMessage cartItemResponse = paymentClient.createPayment(
+//                    PaymentRequest.builder().paymentStatus(PaymentStatus.NOT_STARTED).paymentMethod(
+//                                    PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(totalPrice)
+//                            .build(),
+//                    token).getBody();
+//
+//            assert cartItemResponse != null;
+//            if (cartItemResponse.getStatus().equals(ResponseStatus.OK)) {
+//                order = Order.builder()
+//                        .orderDate(new Date())
+//                        .userId(userId)
+//                        .status(Status.COMPLETED)
+//                        .orderItems(orderItemMapper.reqToEntity(orderRequest.getOrderItemRequest()))
+//                        .totalPrice(totalPrice)
+//                        .paymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod()))
+//                        .build();
+//            } else {
+//                throw new APIException("Something went wrong");
+//            }
+//
+//        }
+//
+//        assert order != null;
+//        return orderMapper.toDto(orderRepository.save(order)).getId();
+        return null;
     }
 
     @Override
