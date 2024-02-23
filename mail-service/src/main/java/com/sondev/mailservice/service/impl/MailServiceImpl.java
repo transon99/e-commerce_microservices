@@ -14,6 +14,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -27,6 +28,9 @@ import java.util.Map;
 public class MailServiceImpl implements MailService {
     @Value("${spring.mail.username}")
     private String from;
+
+    @Value("${client.baseUrl}")
+    private String clientUrl;
 
     private final JavaMailSender mailSender;
 
@@ -42,13 +46,17 @@ public class MailServiceImpl implements MailService {
         MimeMessage message = mailSender.createMimeMessage();
         log.info("Got message <{}>", mailEvent.getUserInfo().getId());
 
+        String url = String.format("%s/verification/%s", clientUrl, mailEvent.getVerificationToken());
+
+        log.info("Got url <{}>", url);
+
         try {
             var messageHelper = new MimeMessageHelper(message, true, "UTF-8");
 
             messageHelper.setFrom(from, senderName);
             messageHelper.setTo(mailEvent.getUserInfo().getEmail());
             messageHelper.setSubject(subject);
-            Map<String, Object> context = Map.of("username", mailEvent.getUserInfo().getFirstName() + mailEvent.getUserInfo().getLastName(), "verificationLink", mailEvent.getVerificationToken());
+            Map<String, Object> context = Map.of("username", mailEvent.getUserInfo().getFirstName() + mailEvent.getUserInfo().getLastName(), "verificationLink", url);
 
             String mailContent = templateEngine.process(
                     "verification_template", new Context(Locale.getDefault(), context));

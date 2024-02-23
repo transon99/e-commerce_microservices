@@ -2,6 +2,7 @@ package com.sondev.productservice.dto.response;
 
 import com.sondev.productservice.dto.AbstractDto;
 import com.sondev.productservice.entity.Category;
+import com.sondev.productservice.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +20,7 @@ public class CategoryDto extends AbstractDto<String> {
     private String name;
     private List<ImageDto> imageUrls;
     private ImageDto iconUrl;
-    private Set<ProductDto> products;
+    private Set<Product> products;
     private Category parent;
     private List<Category> children;
 

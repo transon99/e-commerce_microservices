@@ -14,7 +14,6 @@ import java.util.List;
 public class PaymentRequest {
 
     private PaymentMethod paymentMethod;
-    private PaymentStatus paymentStatus;
     private double totalPrice;
-    private List<StripeItemRequest> stripeItemRequest;
+    private StripeRequest stripeRequest;
 }

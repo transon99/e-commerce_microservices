@@ -23,4 +23,5 @@ public interface AuthService {
 
     AuthDto loginGoogle(SocialLoginRequest loginGoogleRequest);
 
+    String activeUser(String token);
 }

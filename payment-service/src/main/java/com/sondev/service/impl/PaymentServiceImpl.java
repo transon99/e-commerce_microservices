@@ -8,10 +8,11 @@ import com.sondev.common.utils.PaginationUtils;
 import com.sondev.config.VNPayConfig;
 import com.sondev.dto.request.PaymentRequest;
 import com.sondev.dto.request.StripeItemRequest;
+import com.sondev.dto.request.StripeRequest;
 import com.sondev.dto.response.PaymentDto;
 import com.sondev.entity.Payment;
+import com.sondev.entity.PaymentMethod;
 import com.sondev.entity.PaymentStatus;
-import com.sondev.feignclient.CartClient;
 import com.sondev.feignclient.ProductClient;
 import com.sondev.mapper.PaymentMapper;
 import com.sondev.repository.PaymentRepository;
@@ -54,11 +55,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
-    private final CartClient cartClient;
-    private final ProductClient productClient;
-    private final ObjectMapper objectMapper;
 
-    @Value("${stripe.secret.key")
+    @Value("${stripe.secret.key}")
     private String secretKey;
 
     @Value("${CLIENT_BASE_URL}")
@@ -81,8 +79,8 @@ public class PaymentServiceImpl implements PaymentService {
                 }
                 break;
             case STRIPE:
-                Session session = payWithStripe(paymentRequest.getStripeItemRequest());
-                return session.getId();
+                Session session = payWithStripe(paymentRequest.getStripeRequest());
+                return session.getUrl();
             default:
                 log.warn("Payment type is not supported");
         }
@@ -222,24 +220,32 @@ public class PaymentServiceImpl implements PaymentService {
         return VNPayConfig.vnp_PayUrl + "?" + queryUrl;
     }
 
-    private Session payWithStripe(List<StripeItemRequest> checkoutItemDtoList) throws StripeException {
-        String successURL = clientBaseURL + "checkout-success";
+    private Session payWithStripe(StripeRequest stripeRequest) throws StripeException {
+        String successURL = clientBaseURL + "/checkout-success";
 
-        String failureURL = clientBaseURL + "checkout-failed";
+        String failureURL = clientBaseURL + "/checkout-failed";
 
         Stripe.apiKey = secretKey;
 
+        Payment paymentEntity = paymentRepository.save(Payment.builder()
+                .paymentMethod(PaymentMethod.STRIPE)
+                .paymentStatus(PaymentStatus.NOT_STARTED)
+                .build());
+
         List<SessionCreateParams.LineItem> sessionItemList = new ArrayList<>();
 
-        for (StripeItemRequest checkoutItemDto : checkoutItemDtoList) {
+        for (StripeItemRequest checkoutItemDto : stripeRequest.getStripeItemList()) {
             sessionItemList.add(createSessionLineItem(checkoutItemDto));
         }
 
         SessionCreateParams params = SessionCreateParams.builder()
+
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setCancelUrl(failureURL)
                 .addAllLineItem(sessionItemList)
+                .putMetadata("orderId", stripeRequest.getOrderId())
+                .putMetadata("paymentId", paymentEntity.getPaymentId())
                 .setSuccessUrl(successURL)
                 .build();
         return Session.create(params);
@@ -260,6 +266,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .setUnitAmount((long) (checkoutItemDto.getPrice() * 100))
                 .setProductData(
                         SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                .putMetadata("productId", checkoutItemDto.getProductId())
+                                .putMetadata("userId", checkoutItemDto.getUserId())
                                 .setName(checkoutItemDto.getProductName())
                                 .build()
                 ).build();

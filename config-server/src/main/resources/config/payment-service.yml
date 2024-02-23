@@ -27,6 +27,22 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  # kafka properties
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      #0: no wait for kafka response
+      #1: leader write success, not wait for follower
+      #-1: wait for all leader and replication
+      acks: -1
+      retries: 1
+
+      #prevent duplicate send
+#      properties:
+#        spring.json.type.mapping: event:com.sondev.event.UpdateOrderRequest
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 CLIENT_BASE_URL: http://localhost:3010
 
 stripe:

@@ -8,21 +8,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.Date;
+
 @Entity
-@Data
-@Table(name = "feedback")
+@Setter
+@Getter
+@Table(name = "review")
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Builder
-public class Rating extends AbstractMappedEntity<String> {
+public class Review extends AbstractMappedEntity<String> {
     @Id
     @UuidGenerator
     @Column(name = "id", unique = true, nullable = false, updatable = false)
@@ -35,7 +34,10 @@ public class Rating extends AbstractMappedEntity<String> {
     @Column(name = "user_id")
     private String userId;
 
+    @Column(name = "create_date")
+    private Date createDate;
+
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
 }

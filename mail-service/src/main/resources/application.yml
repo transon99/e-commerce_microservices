@@ -19,6 +19,9 @@ spring:
             enable: true
             required: true
 
+client:
+  baseUrl: http://localhost:3010
+
 
 
 

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping("/api/v1/stripe")
+@RequestMapping("/stripe")
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -32,5 +32,13 @@ public class StripeController {
                 ResponseStatus.OK,
                 "successful !!",
                 stripeService.handleStripeEvent(payload, sigHeader)));
+    }
+
+    @PostMapping("/test")
+    public ResponseEntity<ResponseMessage> test(){
+        return ResponseEntity.ok().body(new ResponseMessage(
+                ResponseStatus.OK,
+                "successful !!",
+                stripeService.test()));
     }
 }

@@ -1,16 +1,16 @@
 package com.sondev.productservice.dto.response;
 
 import com.sondev.productservice.dto.AbstractDto;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class RatingDto extends AbstractDto<String> {
+@Builder
+public class ReviewDto extends AbstractDto<String> {
 
     private String id;
 
@@ -22,4 +22,5 @@ public class RatingDto extends AbstractDto<String> {
 
     private ProductDto product;
 
+    private Date createDate;
 }

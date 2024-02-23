@@ -35,4 +35,5 @@ public interface CategoryMapper extends EntityMapper<CategoryDto, Category>{
     @Mapping(target = "imageUrls", source = "imageUrls", qualifiedByName = "mappingImageUrls")
     @Mapping(target = "iconUrl", source = "iconUrl", qualifiedByName = "mappingIconUrl")
     List<CategoryDto> toDto(List<Category> categoryList);
+
 }

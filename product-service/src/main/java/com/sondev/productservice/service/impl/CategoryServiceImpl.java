@@ -12,6 +12,7 @@ import com.sondev.productservice.dto.response.CategoryDto;
 import com.sondev.productservice.entity.Category;
 import com.sondev.productservice.entity.Image;
 import com.sondev.productservice.mapper.CategoryMapper;
+import com.sondev.productservice.mapper.ProductMapper;
 import com.sondev.productservice.repository.CategoryRepository;
 import com.sondev.productservice.service.CategoryService;
 import com.sondev.productservice.service.ImageService;
@@ -39,11 +40,11 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CloudinaryService cloudinaryService;
     private final ImageService imageService;
-    private final ObjectMapper objectMapper;
+    private final ProductMapper productMapper;
 
     private final CategoryMapper categoryMapper;
 
-    public String createCategory(CategoryRequest categoryRequest){
+    public String createCategory(CategoryRequest categoryRequest) {
         Category entity = categoryMapper.reqToEntity(categoryRequest);
         if (StringUtils.isNoneEmpty(categoryRequest.getParentCatId())) {
             Optional<Category> parentCategoryOptional = categoryRepository.findById(categoryRequest.getParentCatId());
@@ -58,7 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
             imageUrls = List.of(saveImageToCloud(categoryRequest.getImageFile()));
         }
 
-        if (categoryRequest.getIconFile() != null){
+        if (categoryRequest.getIconFile() != null) {
             iconUrl = saveImageToCloud(categoryRequest.getIconFile());
         }
 
@@ -110,6 +111,9 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> categoryList = categoryRepository.findAll();
         List<Category> baseCategoryList = categoryList.stream().filter(category -> category.getParent() == null)
                 .toList();
+
+
+
         return categoryMapper.toDto(baseCategoryList);
     }
 
@@ -145,7 +149,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new NotFoundException("Can't find category with id " + id));
 
         Category currentCategoryParent = currentCategory.getParent();
-        if (currentCategoryParent !=null){
+        if (currentCategoryParent != null) {
             if (!StringUtils.equals(categoryRequest.getParentCatId(), currentCategoryParent.getId())) {
                 currentCategoryParent = categoryRepository.findById(categoryRequest.getParentCatId()).orElseThrow(
                         () -> new NotFoundException("Can't find category with id" + categoryRequest.getParentCatId()));

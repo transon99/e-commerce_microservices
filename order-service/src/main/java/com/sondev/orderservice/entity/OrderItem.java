@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.UuidGenerator;
 
 @Data
@@ -38,7 +39,7 @@ public class OrderItem extends AbstractMappedEntity {
     @Column(name = "user_id")
     private String userId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private Order order;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "order_id")
+//    private Order order;
 }

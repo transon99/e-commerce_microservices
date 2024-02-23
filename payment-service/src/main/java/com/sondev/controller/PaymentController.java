@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-@RequestMapping("/api/v1/payment")
+@RequestMapping("")
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -32,7 +32,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping
+    @PostMapping("/checkout")
     public ResponseEntity<ResponseMessage> checkout(@RequestBody @Validated PaymentRequest paymentRequest,
                                                          @RequestHeader("Authorization") String token)
             throws UnsupportedEncodingException, StripeException {

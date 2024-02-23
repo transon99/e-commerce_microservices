@@ -2,23 +2,30 @@ package com.sondev.orderservice.service;
 
 import com.sondev.common.response.PagingData;
 import com.sondev.orderservice.dto.request.OrderRequest;
+import com.sondev.orderservice.dto.request.UpdateOrderRequest;
 import com.sondev.orderservice.dto.response.CountOrderByStatusResponse;
 import com.sondev.orderservice.dto.response.OrderDto;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
 
-    String createOrder(OrderRequest orderRequest, String token);
+    String createOrder(OrderRequest orderRequest);
 
     OrderDto findOrderById(String id);
 
     PagingData getOrders( Integer offset, Integer pageSize);
 
-    OrderDto acceptOrder(String id,String token);
+    OrderDto changeStatusEvent(UpdateOrderRequest updateOrderRequest);
+
+    OrderDto update(Map<String, Object> fields, String id);
 
     String cancelOrder(String id);
 
     List<CountOrderByStatusResponse> getAllByStatus();
 
+    List<OrderDto> getOrderOfCurrentUser(String token);
 }

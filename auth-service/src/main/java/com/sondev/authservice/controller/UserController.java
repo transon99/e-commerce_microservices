@@ -31,7 +31,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/current")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
     public ResponseEntity<ResponseMessage> getCurrentUser(@RequestHeader("Authorization") String token){
         return ResponseEntity.ok().body(new ResponseMessage(ResponseStatus.OK, "Get current user successful !!!", userService.getCurrentUser(token)) );
     }
@@ -74,4 +74,6 @@ public class UserController {
     public ResponseEntity<ResponseMessage> deleteUser(@PathVariable String id){
         return ResponseEntity.ok().body(new ResponseMessage(ResponseStatus.OK, "Delete user successful !!!", userService.deleteUser(id)) );
     }
+
+
 }

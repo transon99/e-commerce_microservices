@@ -20,12 +20,15 @@ import com.sondev.authservice.mapper.AddressMapper;
 import com.sondev.authservice.mapper.UserMapper;
 import com.sondev.authservice.repository.AddressRepository;
 import com.sondev.authservice.repository.UserRepository;
+import com.sondev.authservice.repository.VerificationTokenRepository;
 import com.sondev.authservice.security.jwt.JwtService;
 import com.sondev.authservice.service.AuthService;
 import com.sondev.authservice.service.UserService;
 import com.sondev.authservice.service.VerificationService;
 import com.sondev.authservice.utils.TempEmailUtils;
 import com.sondev.common.constants.ResponseStatus;
+import com.sondev.common.exceptions.APIException;
+import com.sondev.common.exceptions.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +60,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
     private final AddressMapper addressMapper;
     private final UserMapper userMapper;
     private final ZaloApi zaloApi;
@@ -85,9 +89,9 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtService.generateAccessToken(userDetail, extraClaims);
         String refreshToken = jwtService.generateRefreshToken(userDetail);
 
-        //        if (userDetail.getEnabled()) {
-        //            throw new APIException("User is not enable!!");
-        //        }
+        if (!userDetail.getEnabled()) {
+            throw new APIException("User is not enable!!");
+        }
         return AuthDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -129,8 +133,8 @@ public class AuthServiceImpl implements AuthService {
         if (StringUtils.isEmpty(registerRequest.getRole())) {
             user.setRole(Role.USER);
         }
-        user.setEnabled(true);
-        user.setLocked(true);
+        user.setEnabled(false);
+        user.setLocked(false);
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         savedUser = userRepository.save(user);
 
@@ -214,6 +218,15 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthDto loginGoogle(SocialLoginRequest loginGoogleRequest) {
         return null;
+    }
+
+    @Override
+    public String activeUser(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token).orElseThrow(() -> new NotFoundException("Can't find Token " + token));
+        User currentUser = userRepository.findById(verificationToken.getUserId()).orElseThrow(() -> new NotFoundException("Can't find user with id " + verificationToken.getUserId()));
+        currentUser.setEnabled(true);
+
+        return userRepository.save(currentUser).getId();
     }
 
     private AuthDto loginSocial(User user) {
