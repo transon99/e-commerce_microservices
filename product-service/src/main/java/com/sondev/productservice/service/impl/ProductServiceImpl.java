@@ -59,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
         Map result = cloudinaryService.uploadFile(file);
         String imageUrl = (String) result.get("secure_url");
         String publicId = (String) result.get("public_id");
-        return Image.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
+        return Image.builder().publicId(publicId).imageUrl(imageUrl).build();
     }
 
     @Transactional
@@ -74,7 +74,7 @@ public class ProductServiceImpl implements ProductService {
                 () -> new NotFoundException("Can't find category with id" + productRequest.getCategoryId())));
         entity.setBrand(brandRepository.findById(productRequest.getBrandId()).orElseThrow(
                 () -> new NotFoundException("Can't find brand with id" + productRequest.getBrandId())));
-        entity.setThumbnailUrls(galleries);
+        entity.setImageUrls(galleries);
 
         return productMapper.toDto(productRepository.save(entity)).getId();
     }
@@ -157,11 +157,11 @@ public class ProductServiceImpl implements ProductService {
         ProductRequest productRequest = objectMapper.readValue(data, ProductRequest.class);
         List<Image> galleries;
         if (files != null) {
-            List<Image> imageList = currentProduct.getThumbnailUrls();
+            List<Image> imageList = currentProduct.getImageUrls();
             imageList.forEach(image -> imageService.deleteById(image.getId()));
             galleries = files.stream().map(this::saveImageToCloud).toList();
         } else {
-            galleries = currentProduct.getThumbnailUrls();
+            galleries = currentProduct.getImageUrls();
         }
 
         Brand brand = brandRepository.findById(productRequest.getBrandId())
@@ -173,7 +173,7 @@ public class ProductServiceImpl implements ProductService {
         Product newProduct = Product.builder()
                 .id(currentProduct.getId())
                 .name(productRequest.getName())
-                .thumbnailUrls(galleries)
+                .imageUrls(galleries)
                 .brand(brand)
                 .category(category)
                 .description(productRequest.getDescription())
@@ -192,7 +192,7 @@ public class ProductServiceImpl implements ProductService {
         }
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find product with id " + id));
-        product.getThumbnailUrls().forEach(image ->
+        product.getImageUrls().forEach(image ->
                 cloudinaryService.deleteFile(image.getPublicId()));
         productRepository.deleteById(id);
 

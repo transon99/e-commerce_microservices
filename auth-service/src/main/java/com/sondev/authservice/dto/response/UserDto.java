@@ -32,4 +32,7 @@ public class UserDto extends AbstractDto<String> {
 
     private AddressDto address;
 
+    private Boolean locked;
+
+    private Boolean enabled;
 }

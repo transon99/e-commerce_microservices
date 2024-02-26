@@ -49,7 +49,7 @@ public class Product extends AbstractMappedEntity<String> {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private List<Image> thumbnailUrls;
+    private List<Image> imageUrls;
 
     @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

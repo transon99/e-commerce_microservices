@@ -11,6 +11,8 @@ public class ReviewRequest {
 
     private String content;
 
+    private Double rate;
+
     private String userId;
 
     private String productId;

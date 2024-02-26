@@ -21,8 +21,8 @@ public class Image extends AbstractMappedEntity<String> {
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
 
-    @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(name = "image_public_id")
     private String publicId;

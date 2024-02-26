@@ -28,14 +28,15 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthEntryPoint unauthorizedHandler;
 
+    private static final String[] WHITE_LIST_URL = {"/auth/**","/auth/login/facebook"};
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/auth/login/facebook").permitAll()
+                                .requestMatchers(WHITE_LIST_URL).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))

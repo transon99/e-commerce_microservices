@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ImageDto extends AbstractDto<String> {
     private String id;
-    private String thumbnailUrl;
+    private String imageUrl;
 }

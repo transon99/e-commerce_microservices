@@ -54,7 +54,7 @@ public class BrandServiceImpl implements BrandService {
             Map result = cloudinaryService.uploadFile(file);
             String imageUrl = (String) result.get("secure_url");
             String publicId = (String) result.get("public_id");
-            return Image.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
+            return Image.builder().publicId(publicId).imageUrl(imageUrl).build();
         }).toList();
         entity.setImageUrls(images);
 
@@ -143,7 +143,7 @@ public class BrandServiceImpl implements BrandService {
         Map result = cloudinaryService.uploadFile(file);
         String imageUrl = (String) result.get("secure_url");
         String publicId = (String) result.get("public_id");
-        return Image.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
+        return Image.builder().publicId(publicId).imageUrl(imageUrl).build();
     }
 
 }

@@ -6,6 +6,7 @@ import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.JwtUtils;
+import com.sondev.orderservice.dto.request.ManageOrderStatus;
 import com.sondev.orderservice.dto.request.OrderItemRequest;
 import com.sondev.orderservice.dto.request.OrderRequest;
 import com.sondev.orderservice.dto.request.UpdateOrderRequest;
@@ -105,19 +106,21 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderDto update(Map<String, Object> fields, String id) {
+    public OrderDto update(ManageOrderStatus manageOrderStatus, String id) {
         Order existingOrder = orderRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Can't find order with id" + id));
 
-        fields.forEach((key, value) -> {
-            // Tìm tên của trường dựa vào "key"
-            Field field = ReflectionUtils.findField(Order.class, key);
-            if (field == null) throw new NullPointerException("Can't find any field");
-            // Set quyền truy cập vào biến kể cả nó là private
-            field.setAccessible(true);
-            // đặt giá trị cho một field cụ thể trong một đối tượng dựa trên tên của field đó
-            ReflectionUtils.setField(field, existingOrder, value);
-        });
+//        fields.forEach((key, value) -> {
+//            // Tìm tên của trường dựa vào "key"
+//            Field field = ReflectionUtils.findField(Order.class, key);
+//            if (field == null) throw new NullPointerException("Can't find any field");
+//            // Set quyền truy cập vào biến kể cả nó là private
+//            field.setAccessible(true);
+//            // đặt giá trị cho một field cụ thể trong một đối tượng dựa trên tên của field đó
+//            ReflectionUtils.setField(field, existingOrder, value);
+//        });
+        existingOrder.setDeliveryStatus(DeliveryStatus.valueOf(manageOrderStatus.getDeliveryStatus()));
+        existingOrder.setStatus(Status.valueOf(manageOrderStatus.getStatus()));
         orderRepository.save(existingOrder);
         return orderMapper.toDto(existingOrder);
     }
@@ -149,6 +152,11 @@ public class OrderServiceImpl implements OrderService {
         Claims claims = JwtUtils.parseClaims(getTokenFromBearer(token));
         String userId = (String) claims.get("userId");
         return orderMapper.toDto(orderRepository.findByUserId(userId));
+    }
+
+    @Override
+    public List<OrderDto> getAllOrder() {
+        return orderMapper.toDto(orderRepository.findAll());
     }
 
     private double getTotalPrice(Set<OrderItemRequest> orderItemDtos, String token) {

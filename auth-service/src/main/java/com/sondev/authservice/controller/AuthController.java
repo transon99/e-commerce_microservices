@@ -1,6 +1,7 @@
 package com.sondev.authservice.controller;
 
 import com.sondev.authservice.dto.request.LoginRequest;
+import com.sondev.authservice.dto.request.RefreshTokenRequest;
 import com.sondev.authservice.dto.request.RegisterRequest;
 import com.sondev.authservice.dto.request.SocialLoginRequest;
 import com.sondev.authservice.service.AuthService;
@@ -52,11 +53,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        authService.refreshToken(request, response);
+    public ResponseEntity<ResponseMessage> refreshToken(@RequestBody @Validated RefreshTokenRequest refreshTokenRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(ResponseStatus.OK, "refresh token successful!!!",authService.refreshToken(refreshTokenRequest)));
     }
 
     @PostMapping("/active-user/{token}")

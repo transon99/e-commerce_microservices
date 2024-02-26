@@ -42,6 +42,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewDto create(ReviewRequest reviewRequest) {
         Review review = Review.builder()
+                .rate(reviewRequest.getRate())
                 .content(reviewRequest.getContent())
                 .product(productRepository.findById(reviewRequest.getProductId()).orElseThrow(
                         () -> new NotFoundException("Can't find product with id" + reviewRequest.getProductId())))

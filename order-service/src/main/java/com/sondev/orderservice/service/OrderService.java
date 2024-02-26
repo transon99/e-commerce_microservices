@@ -1,6 +1,7 @@
 package com.sondev.orderservice.service;
 
 import com.sondev.common.response.PagingData;
+import com.sondev.orderservice.dto.request.ManageOrderStatus;
 import com.sondev.orderservice.dto.request.OrderRequest;
 import com.sondev.orderservice.dto.request.UpdateOrderRequest;
 import com.sondev.orderservice.dto.response.CountOrderByStatusResponse;
@@ -21,11 +22,13 @@ public interface OrderService {
 
     OrderDto changeStatusEvent(UpdateOrderRequest updateOrderRequest);
 
-    OrderDto update(Map<String, Object> fields, String id);
+    OrderDto update(ManageOrderStatus manageOrderStatus, String id);
 
     String cancelOrder(String id);
 
     List<CountOrderByStatusResponse> getAllByStatus();
 
     List<OrderDto> getOrderOfCurrentUser(String token);
+
+    List<OrderDto> getAllOrder();
 }

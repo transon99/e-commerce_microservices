@@ -72,7 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
         Map result = cloudinaryService.uploadFile(file);
         String imageUrl = (String) result.get("secure_url");
         String publicId = (String) result.get("public_id");
-        return Image.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
+        return Image.builder().publicId(publicId).imageUrl(imageUrl).build();
     }
 
     public PagingData getCategories(String searchText, Integer offset, Integer pageSize, String sortStr) {

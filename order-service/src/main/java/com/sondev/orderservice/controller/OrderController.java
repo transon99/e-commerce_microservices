@@ -3,6 +3,7 @@ package com.sondev.orderservice.controller;
 import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.Utils;
+import com.sondev.orderservice.dto.request.ManageOrderStatus;
 import com.sondev.orderservice.dto.request.OrderRequest;
 import com.sondev.orderservice.dto.request.UpdateOrderRequest;
 import com.sondev.orderservice.service.OrderService;
@@ -57,6 +58,13 @@ public class OrderController {
     }
 
     @GetMapping()
+    public ResponseEntity<ResponseMessage> getAllOrder() {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                ResponseStatus.OK,
+                "get all order successful !!", orderService.getAllOrder()));
+    }
+
+    @GetMapping("/filter-paginate")
     public ResponseEntity<ResponseMessage> getOrders(
             @RequestParam Integer offset,
             @RequestParam Integer pageSize) {
@@ -81,10 +89,10 @@ public class OrderController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ResponseMessage> update(
-            @RequestBody Map<String, Object> fields , @PathVariable String id) {
+            @RequestBody ManageOrderStatus manageOrderStatus, @PathVariable String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 ResponseStatus.OK,
-                "Update order successful !!", orderService.update(fields,id)));
+                "Update order successful !!", orderService.update(manageOrderStatus,id)));
     }
 
     @PutMapping("/change-status")
