@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(WHITE_LIST_URL).permitAll()
                                 .requestMatchers(HttpMethod.GET,"/products/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/banners/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
