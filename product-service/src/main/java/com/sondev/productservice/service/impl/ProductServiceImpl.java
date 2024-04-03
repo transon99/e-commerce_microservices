@@ -108,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
         Sort sort = PaginationUtils.buildSort(sortStr);
         Pageable pageable = PageRequest.of(offset, pageSize, sort);
 
-        if (StringUtils.isNotEmpty(searchText)) {
+        if (StringUtils.isEmpty(searchText)) {
             productPage = productRepository.findAll(pageable);
         } else {
             productPage = productRepository.findByNameContainingIgnoreCase(searchText, pageable);
