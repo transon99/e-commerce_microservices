@@ -15,7 +15,7 @@ public interface BrandService {
 
     BrandDto findById(String id);
 
-    BrandDto update(Map<String, Object> fields, String id);
+    BrandDto update(BrandRequest brandRequest, String id);
 
     String deleteById(String id);
 

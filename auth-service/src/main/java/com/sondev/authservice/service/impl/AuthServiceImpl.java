@@ -1,12 +1,8 @@
 package com.sondev.authservice.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sondev.authservice.dto.request.*;
 import com.sondev.authservice.event.MailEvent;
 import com.sondev.authservice.dto.UserZalo;
-import com.sondev.authservice.dto.request.LoginRequest;
-import com.sondev.authservice.dto.request.RegisterRequest;
-import com.sondev.authservice.dto.request.SocialLoginRequest;
-import com.sondev.authservice.dto.request.UserRequest;
 import com.sondev.authservice.dto.response.AuthDto;
 import com.sondev.authservice.entity.Address;
 import com.sondev.authservice.entity.Role;
@@ -20,14 +16,15 @@ import com.sondev.authservice.mapper.AddressMapper;
 import com.sondev.authservice.mapper.UserMapper;
 import com.sondev.authservice.repository.AddressRepository;
 import com.sondev.authservice.repository.UserRepository;
+import com.sondev.authservice.repository.VerificationTokenRepository;
 import com.sondev.authservice.security.jwt.JwtService;
 import com.sondev.authservice.service.AuthService;
 import com.sondev.authservice.service.UserService;
 import com.sondev.authservice.service.VerificationService;
 import com.sondev.authservice.utils.TempEmailUtils;
 import com.sondev.common.constants.ResponseStatus;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.sondev.common.exceptions.APIException;
+import com.sondev.common.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +39,6 @@ import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -57,6 +53,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
     private final AddressMapper addressMapper;
     private final UserMapper userMapper;
     private final ZaloApi zaloApi;
@@ -85,9 +82,9 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtService.generateAccessToken(userDetail, extraClaims);
         String refreshToken = jwtService.generateRefreshToken(userDetail);
 
-        //        if (userDetail.getEnabled()) {
-        //            throw new APIException("User is not enable!!");
-        //        }
+        if (!userDetail.getEnabled()) {
+            throw new APIException("User is not enable!!");
+        }
         return AuthDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -120,17 +117,10 @@ public class AuthServiceImpl implements AuthService {
 
         }
         User user = userMapper.reqToEntity(registerRequest);
-        if (registerRequest.getAddressRequest() != null) {
-            address = addressRepository.save(addressMapper.reqToEntity(registerRequest.getAddressRequest()));
-            user.setAddress(address);
-        } else {
-            user.setAddress(new Address());
-        }
-        if (StringUtils.isEmpty(registerRequest.getRole())) {
-            user.setRole(Role.USER);
-        }
-        user.setEnabled(true);
-        user.setLocked(true);
+
+        user.setRole(Role.USER);
+        user.setEnabled(false);
+        user.setLocked(false);
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         savedUser = userRepository.save(user);
 
@@ -150,8 +140,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String token = jwtService.getTokenFromRequest(request);
+    public AuthDto refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        String token = refreshTokenRequest.getRefreshToken();
         if (token != null && jwtService.validateToken(token)) {
             String email = jwtService.getEmailFromToken(token);
             if (email != null) {
@@ -161,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
                     extraClaims.put("roles", user.getRole());
                     extraClaims.put("userId", user.getId());
                     String accessToken = jwtService.generateAccessToken(user, extraClaims);
-                    AuthDto authDto = AuthDto.builder()
+                    return AuthDto.builder()
                             .accessToken(accessToken)
                             .refreshToken(token)
                             .status(String.valueOf(ResponseStatus.OK))
@@ -169,10 +159,10 @@ public class AuthServiceImpl implements AuthService {
                             .type("Bearer")
                             .role(user.getRole())
                             .build();
-                    new ObjectMapper().writeValue(response.getOutputStream(), authDto);
                 }
             }
         }
+        return null;
     }
 
     @Override
@@ -214,6 +204,15 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthDto loginGoogle(SocialLoginRequest loginGoogleRequest) {
         return null;
+    }
+
+    @Override
+    public String activeUser(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token).orElseThrow(() -> new NotFoundException("Can't find Token " + token));
+        User currentUser = userRepository.findById(verificationToken.getUserId()).orElseThrow(() -> new NotFoundException("Can't find user with id " + verificationToken.getUserId()));
+        currentUser.setEnabled(true);
+
+        return userRepository.save(currentUser).getId();
     }
 
     private AuthDto loginSocial(User user) {

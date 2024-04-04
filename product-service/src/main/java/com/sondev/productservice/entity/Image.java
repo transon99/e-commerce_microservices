@@ -4,15 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
-@Data
+@Setter
+@Getter
 @Table(name = "images")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,8 +21,8 @@ public class Image extends AbstractMappedEntity<String> {
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
 
-    @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(name = "image_public_id")
     private String publicId;

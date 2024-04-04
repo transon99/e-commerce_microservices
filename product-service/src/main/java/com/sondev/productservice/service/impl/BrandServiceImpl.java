@@ -15,6 +15,7 @@ import com.sondev.productservice.entity.Image;
 import com.sondev.productservice.mapper.BrandMapper;
 import com.sondev.productservice.repository.BrandRepository;
 import com.sondev.productservice.service.BrandService;
+import com.sondev.productservice.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +38,8 @@ public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
     private final CloudinaryService cloudinaryService;
+    private final ImageService imageService;
+
 
     private final ObjectMapper objectMapper;
 
@@ -51,7 +54,7 @@ public class BrandServiceImpl implements BrandService {
             Map result = cloudinaryService.uploadFile(file);
             String imageUrl = (String) result.get("secure_url");
             String publicId = (String) result.get("public_id");
-            return Image.builder().publicId(publicId).thumbnailUrl(imageUrl).build();
+            return Image.builder().publicId(publicId).imageUrl(imageUrl).build();
         }).toList();
         entity.setImageUrls(images);
 
@@ -90,23 +93,27 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public BrandDto update(Map<String, Object> fields, String id) {
+    public BrandDto update(BrandRequest brandRequest, String id) {
         Brand currentBrand = brandRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find brand with id" + id));
 
-        fields.forEach((key, value) -> {
-            // Tìm tên của trường dựa vào "key"
-            Field field = ReflectionUtils.findField(Category.class, key);
-            if (field == null) {
-                throw new NullPointerException("Can't find any field");
-            }
-            // Set quyền truy cập vào biến kể cả nó là private
-            field.setAccessible(true);
-            // đặt giá trị cho một field cụ thể trong một đối tượng dựa trên tên của field đó
-            ReflectionUtils.setField(field, currentBrand, value);
-        });
+        List<Image> imageList;
+        if (brandRequest.getFiles() != null) {
+            List<Image> currentImageList = currentBrand.getImageUrls();
+            currentImageList.forEach(image -> imageService.deleteById(image.getId()));
+            imageList = brandRequest.getFiles().stream().map(this::saveImageToCloud).toList();
+        } else {
+            imageList = currentBrand.getImageUrls();
+        }
 
-        return brandMapper.toDto(brandRepository.save(currentBrand));
+        Brand newBrand = Brand.builder()
+                .id(currentBrand.getId())
+                .name(brandRequest.getName())
+                .imageUrls(imageList)
+                .build();
+
+
+        return brandMapper.toDto(brandRepository.save(newBrand));
     }
 
     @Override
@@ -114,19 +121,29 @@ public class BrandServiceImpl implements BrandService {
         if (id == null) {
             throw new MissingInputException("Missing input id");
         }
-        brandRepository.deleteById(id);
 
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find brand with id " + id));
         brand.getImageUrls().forEach(image ->
                 cloudinaryService.deleteFile(image.getPublicId())
         );
+        brandRepository.deleteById(id);
+
+
+
         return id;
     }
 
     @Override
     public List<BrandDto> getAll() {
         return brandMapper.toDto(brandRepository.findAll());
+    }
+
+    private Image saveImageToCloud(MultipartFile file) {
+        Map result = cloudinaryService.uploadFile(file);
+        String imageUrl = (String) result.get("secure_url");
+        String publicId = (String) result.get("public_id");
+        return Image.builder().publicId(publicId).imageUrl(imageUrl).build();
     }
 
 }

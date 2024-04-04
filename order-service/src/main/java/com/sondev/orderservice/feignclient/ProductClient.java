@@ -14,9 +14,9 @@ public interface ProductClient {
     @GetMapping(value = "/{id}")
     ResponseEntity<ResponseMessage> findById(@RequestHeader(name = "Authorization", required = true) String token, @PathVariable(name = "id") String id);
 
-    @PutMapping("/reduce-quantity/{id}")
+    @PutMapping("/reduce-quantity/{id}/")
     ResponseEntity<ResponseMessage> reduceQuantity(
             @PathVariable("id") String productId,
-            @RequestParam Integer quantity
+            @RequestParam("quantity") Integer quantity
     );
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface PaymentService {
 
-    String createPayment(PaymentRequest paymentRequest, String token)
+    String checkout(PaymentRequest paymentRequest, String token)
             throws UnsupportedEncodingException, StripeException;
 
     PaymentDto findById(String id);

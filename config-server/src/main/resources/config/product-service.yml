@@ -24,5 +24,18 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
+
+  #kafka server url
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      #      properties:
+      #        spring.json.type.mapping: event:com.sondev.orderservice.dto.request.UpdateOrderRequest
+      #        spring.json.trusted.packages: "*"
+#      group-id: paymentGroup
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      auto-offset-reset: earliest

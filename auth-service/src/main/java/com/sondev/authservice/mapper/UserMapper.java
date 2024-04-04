@@ -17,6 +17,7 @@ public interface UserMapper extends EntityMapper<UserDto, User>{
 
     @Named("mappingAddress")
     default AddressDto mappingAddress(Address address) {
+        if (address == null) return null;
         return AddressDto.builder()
                 .id(address.getId())
                 .fullAddress(address.getFullAddress())

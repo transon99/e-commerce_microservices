@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.productservice.dto.request.ProductRequest;
+import com.sondev.productservice.event.ReduceQtyEvent;
 import com.sondev.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseMessage> createProduct(@ModelAttribute ProductRequest productRequest) throws JsonProcessingException  {
         return ResponseEntity.ok().body(new ResponseMessage(
                 ResponseStatus.OK,
@@ -69,6 +70,14 @@ public class ProductController {
                 productService.getProducts(searchText, offset, pageSize, sortStr)));
     }
 
+    @GetMapping("/filter-by-cat")
+    public ResponseEntity<ResponseMessage> getProductByCategory(@RequestParam String category) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                ResponseStatus.OK,
+                "get product successful !!",
+                productService.getProductByCategory(category)));
+    }
+
     @GetMapping("/filter")
     public ResponseEntity<ResponseMessage> filterProduct(@RequestParam String categoryId,
                                                        @RequestParam Integer offset,
@@ -99,18 +108,16 @@ public class ProductController {
                 productService.updateProduct(files, data, id)));
     }
 
-    @PutMapping("/reduce-quantity/{id}")
+    @PutMapping("/reduce-quantity")
     public ResponseEntity<ResponseMessage> reduceQuantity(
-            @PathVariable("id") String productId,
-            @RequestParam Integer quantity
+            @RequestBody ReduceQtyEvent reduceQtyEvent
     ) {
 
         log.info("ProductController | reduceQuantity is called");
 
-        log.info("ProductController | reduceQuantity | productId : " + productId);
-        log.info("ProductController | reduceQuantity | quantity : " + quantity);
 
-        productService.reduceQuantity(productId,quantity);
+
+        productService.reduceQuantity(reduceQtyEvent);
         return ResponseEntity.ok().body(new ResponseMessage(
                 ResponseStatus.OK,
                 "Update product successful !!",

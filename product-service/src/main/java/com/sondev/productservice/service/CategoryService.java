@@ -18,8 +18,7 @@ public interface CategoryService {
 
     List<CategoryDto> getBaseCategories();
 
-    CategoryDto updateCategory(List<MultipartFile> file, MultipartFile iconFile, String data, String id)
-            throws JsonProcessingException, IllegalAccessException;
+    CategoryDto updateCategory(CategoryRequest categoryRequest, String id);
 
     String deleteCategoryById(String id);
 

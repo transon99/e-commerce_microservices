@@ -15,4 +15,6 @@ public class ProductDto extends AbstractDto<String> {
 
     private Integer quantity;
 
+    private Double priceUnit;
+
 }

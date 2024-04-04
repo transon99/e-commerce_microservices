@@ -1,25 +1,24 @@
 package com.sondev.orderservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sondev.common.constants.ResponseStatus;
-import com.sondev.common.exceptions.APIException;
+import com.sondev.common.exceptions.MissingInputException;
 import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.JwtUtils;
+import com.sondev.orderservice.dto.request.ManageOrderStatus;
+import com.sondev.orderservice.dto.request.OrderItemRequest;
 import com.sondev.orderservice.dto.request.OrderRequest;
-import com.sondev.orderservice.dto.request.PaymentRequest;
-import com.sondev.orderservice.dto.response.CartDto;
-import com.sondev.orderservice.dto.response.CartItemDto;
+import com.sondev.orderservice.dto.request.UpdateOrderRequest;
 import com.sondev.orderservice.dto.response.CountOrderByStatusResponse;
 import com.sondev.orderservice.dto.response.OrderDto;
+import com.sondev.orderservice.dto.response.ProductDto;
+import com.sondev.orderservice.entity.DeliveryStatus;
 import com.sondev.orderservice.entity.Order;
-import com.sondev.orderservice.entity.PaymentMethod;
-import com.sondev.orderservice.entity.PaymentStatus;
+import com.sondev.orderservice.entity.OrderItem;
 import com.sondev.orderservice.entity.Status;
-import com.sondev.orderservice.feignclient.CartClient;
-import com.sondev.orderservice.feignclient.PaymentClient;
 import com.sondev.orderservice.feignclient.ProductClient;
+import com.sondev.orderservice.mapper.OrderItemMapper;
 import com.sondev.orderservice.mapper.OrderMapper;
 import com.sondev.orderservice.repository.OrderRepository;
 import com.sondev.orderservice.service.OrderService;
@@ -29,12 +28,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.lang.reflect.Field;
+import java.util.*;
+
+import static com.sondev.common.utils.JwtUtils.getTokenFromBearer;
+
 
 @Slf4j
 @Service
@@ -42,69 +45,31 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderMapper orderMapper;
+    private final OrderItemMapper orderItemMapper;
     private final OrderRepository orderRepository;
-    private final CartClient cartClient;
     private final ProductClient productClient;
-    private final PaymentClient paymentClient;
     private final ObjectMapper objectMapper;
 
     @Override
     @Transactional
-    public String createOrder(OrderRequest orderRequest, String token) {
-        CartDto cartDto = new CartDto();
+    public String createOrder(OrderRequest orderRequest) {
+        Order orderEntity = orderMapper.reqToEntity(orderRequest);
 
-        ResponseMessage cartResponse = cartClient.getCartByUser(token).getBody();
-        assert cartResponse != null;
-        if (cartResponse.getData() != null) {
-            cartDto = objectMapper.convertValue(cartResponse.getData(), CartDto.class);
-        }
+        List<OrderItem> orderItem = orderItemMapper.toEntity(orderRequest.getOrderItemRequest());
 
-        Claims claims = JwtUtils.parseClaims(token);
-        String userId = (String) claims.get("userId");
-        Order order = null;
-        if (orderRequest.getPaymentMethod().equals(PaymentMethod.COD.name())) {
-            paymentClient.createPayment(PaymentRequest.builder().paymentStatus(PaymentStatus.NOT_STARTED).paymentMethod(
-                            PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(cartDto.getTotalPrice()).build(),
-                    token);
+        orderEntity.setOrderItems(orderItem);
+        orderEntity.setOrderDate(new Date());
+        orderEntity.setDeliveryStatus(DeliveryStatus.PENDING);
+        orderEntity.setStatus(Status.PENDING);
 
-            order = Order.builder()
-                    .orderDate(new Date())
-                    .cartId(cartDto.getId())
-                    .userId(userId)
-                    .status(Status.PENDING)
-                    .totalPrice(cartDto.getTotalPrice())
-                    .paymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod()))
-                    .build();
-        } else {
-            ResponseMessage cartItemResponse = paymentClient.createPayment(
-                    PaymentRequest.builder().paymentStatus(PaymentStatus.NOT_STARTED).paymentMethod(
-                                    PaymentMethod.valueOf(orderRequest.getPaymentMethod())).totalPrice(cartDto.getTotalPrice())
-                            .build(),
-                    token).getBody();
-
-            assert cartItemResponse != null;
-            if (cartItemResponse.getStatus().equals(ResponseStatus.OK)) {
-                order = Order.builder()
-                        .orderDate(new Date())
-                        .cartId(cartDto.getId())
-                        .userId(userId)
-                        .status(Status.COMPLETED)
-                        .totalPrice(cartDto.getTotalPrice())
-                        .paymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod()))
-                        .build();
-            } else {
-                throw new APIException("Something went wrong");
-            }
-
-        }
-
-        assert order != null;
-        return orderMapper.toDto(orderRepository.save(order)).getId();
+        return orderMapper.toDto(orderRepository.save(orderEntity)).getId();
     }
 
     @Override
     public OrderDto findOrderById(String id) {
-        return null;
+
+
+        return orderMapper.toDto(orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Can't find order with id" + id)));
     }
 
     @Override
@@ -126,24 +91,38 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @KafkaListener(id = "updateStatusGroup", topics = "update-orderStatus")
     @Transactional
-    public OrderDto acceptOrder(String id, String token) {
-        CartDto cartDto = new CartDto();
+    public OrderDto changeStatusEvent(UpdateOrderRequest updateOrderRequest) {
+        log.info("Got message <{}>", updateOrderRequest.toString());
+        Order order = orderRepository.findById(updateOrderRequest.getOrderId())
+                .orElseThrow(() -> new NotFoundException("Can't find order with id" + updateOrderRequest.getOrderId()));
 
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Can't find order with id" + id));
-
-        ResponseMessage cartResponse = cartClient.getCartById(token, order.getCartId()).getBody();
-        assert cartResponse != null;
-        if (cartResponse.getData() != null) {
-            cartDto = objectMapper.convertValue(cartResponse.getData(), CartDto.class);
-        }
-
-        cartDto.getCartItemDtoList().forEach(
-                cartItemDto -> productClient.reduceQuantity(cartItemDto.getProductId(), cartItemDto.getQuantity()));
-
-        order.setStatus(Status.CONFIRMED);
+        order.setDeliveryStatus(DeliveryStatus.valueOf(updateOrderRequest.getDeliveryStatus()));
+        order.setPaymentId(updateOrderRequest.getPaymentId());
         return orderMapper.toDto(orderRepository.save(order));
+//        return null;
+    }
+
+    @Override
+    @Transactional
+    public OrderDto update(ManageOrderStatus manageOrderStatus, String id) {
+        Order existingOrder = orderRepository.findById(id).orElseThrow(
+                () -> new NotFoundException("Can't find order with id" + id));
+
+//        fields.forEach((key, value) -> {
+//            // Tìm tên của trường dựa vào "key"
+//            Field field = ReflectionUtils.findField(Order.class, key);
+//            if (field == null) throw new NullPointerException("Can't find any field");
+//            // Set quyền truy cập vào biến kể cả nó là private
+//            field.setAccessible(true);
+//            // đặt giá trị cho một field cụ thể trong một đối tượng dựa trên tên của field đó
+//            ReflectionUtils.setField(field, existingOrder, value);
+//        });
+        existingOrder.setDeliveryStatus(DeliveryStatus.valueOf(manageOrderStatus.getDeliveryStatus()));
+        existingOrder.setStatus(Status.valueOf(manageOrderStatus.getStatus()));
+        orderRepository.save(existingOrder);
+        return orderMapper.toDto(existingOrder);
     }
 
     @Override
@@ -156,12 +135,45 @@ public class OrderServiceImpl implements OrderService {
     public List<CountOrderByStatusResponse> getAllByStatus() {
         List<CountOrderByStatusResponse> responses = new ArrayList<>();
         for (Status status : Status.values()) {
-            Integer countStatusOrder = orderRepository.countOrderByStatus(status.name());
+            Integer countStatusOrder = orderRepository.countOrderByStatus(Status.valueOf(status.name()));
             CountOrderByStatusResponse statusOrder = new CountOrderByStatusResponse(status, countStatusOrder);
             responses.add(statusOrder);
         }
 
         return responses;
+    }
+
+    @Override
+    public List<OrderDto> getOrderOfCurrentUser(String token) {
+        if (token == null) {
+            throw new MissingInputException("Missing input id");
+        }
+
+        Claims claims = JwtUtils.parseClaims(getTokenFromBearer(token));
+        String userId = (String) claims.get("userId");
+        return orderMapper.toDto(orderRepository.findByUserId(userId));
+    }
+
+    @Override
+    public List<OrderDto> getAllOrder() {
+        return orderMapper.toDto(orderRepository.findAll());
+    }
+
+    private double getTotalPrice(Set<OrderItemRequest> orderItemDtos, String token) {
+
+        double totalPrice = 0.0;
+        for (OrderItemRequest item : orderItemDtos) {
+
+            ResponseMessage productResponse = productClient.findById(token, item.getProductId()).getBody();
+            assert productResponse != null;
+            if (productResponse.getData() != null) {
+                ProductDto productDto = objectMapper.convertValue(productResponse.getData(), ProductDto.class);
+
+                totalPrice += productDto.getPriceUnit() * productDto.getQuantity();
+            }
+
+        }
+        return totalPrice;
     }
 
 }

@@ -1,10 +1,7 @@
 package com.sondev.productservice.dto.response;
 
 import com.sondev.productservice.dto.AbstractDto;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -12,6 +9,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ProductDto extends AbstractDto<String> {
 
     private String id;
@@ -20,9 +18,10 @@ public class ProductDto extends AbstractDto<String> {
     private List<ImageDto> imageUrls;
     private BrandDto brandDTO;
     private CategoryDto categoryDTO;
-    private String sku;
-    private Double priceUnit;
+    private Double price;
+    private Double salePrice;
     private Integer quantity;
-    private Integer discount;
+    private Double discount;
+    private List<ReviewDto> reviews;
 
 }

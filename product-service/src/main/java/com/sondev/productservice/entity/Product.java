@@ -1,5 +1,6 @@
 package com.sondev.productservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -8,7 +9,8 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true, exclude = {"category"})
 @Entity
-@Data
+@Setter
+@Getter
 @Table(name = "products")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,18 +24,17 @@ public class Product extends AbstractMappedEntity<String> {
     @Column(name = "product_name", nullable = false, columnDefinition = "char(255)")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description",columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "discount",columnDefinition = "decimal(10,2)")
+    private Double discount;
 
-    @Column(unique = true,columnDefinition = "char(20)")
-    private String sku;
+    @Column(name = "price", columnDefinition = "decimal(10,2)")
+    private Double price;
 
-    @Column(unique = true)
-    private Integer discount;
-
-    @Column(name = "price_unit", columnDefinition = "decimal")
-    private Double priceUnit;
+    @Column(name = "sale_price", columnDefinition = "decimal(10,2)")
+    private Double salePrice;
 
     @Column(name = "quantity")
     private Integer quantity;
@@ -48,8 +49,9 @@ public class Product extends AbstractMappedEntity<String> {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private List<Image> thumbnailUrls;
+    private List<Image> imageUrls;
 
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Rating> ratings;
+    @JsonIgnore
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Review> reviews;
 }

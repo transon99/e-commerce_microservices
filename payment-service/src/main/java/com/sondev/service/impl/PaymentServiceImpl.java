@@ -4,19 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sondev.common.exceptions.MissingInputException;
 import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
-import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.PaginationUtils;
 import com.sondev.config.VNPayConfig;
 import com.sondev.dto.request.PaymentRequest;
 import com.sondev.dto.request.StripeItemRequest;
-import com.sondev.dto.response.CartDto;
-import com.sondev.dto.response.CartItemDto;
+import com.sondev.dto.request.StripeRequest;
 import com.sondev.dto.response.PaymentDto;
-import com.sondev.dto.response.ProductDto;
 import com.sondev.entity.Payment;
+import com.sondev.entity.PaymentMethod;
 import com.sondev.entity.PaymentStatus;
-import com.sondev.feignclient.CartClient;
-import com.sondev.feignclient.OrderClient;
 import com.sondev.feignclient.ProductClient;
 import com.sondev.mapper.PaymentMapper;
 import com.sondev.repository.PaymentRepository;
@@ -59,11 +55,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
-    private final CartClient cartClient;
-    private final ProductClient productClient;
-    private final ObjectMapper objectMapper;
 
-    @Value("${STRIPE_SECRET_KEY}")
+    @Value("${stripe.secret.key}")
     private String secretKey;
 
     @Value("${CLIENT_BASE_URL}")
@@ -71,32 +64,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     private static final String SUCCESS_VNPAY_CODE = "00";
 
-    public String createPayment(PaymentRequest paymentRequest, String token)
+    public String checkout(PaymentRequest paymentRequest, String token)
             throws UnsupportedEncodingException, StripeException {
-
-        CartDto cartDto = new CartDto();
-
-        ResponseMessage cartResponse = cartClient.getCartByUser(token).getBody();
-        assert cartResponse != null;
-        if (cartResponse.getData() != null) {
-            cartDto = objectMapper.convertValue(cartResponse.getData(), CartDto.class);
-        }
-        List<StripeItemRequest> stripeItemRequestList = new ArrayList<>();
-        List<CartItemDto> cartItemDtoList = cartDto.getCartItemDtoList();
-        for(CartItemDto cartItemDto: cartItemDtoList){
-            ProductDto productDto = new ProductDto();
-            ResponseMessage productResponse = productClient.findById(cartItemDto.getProductId(),token).getBody();
-            assert productResponse != null;
-            if (productResponse.getData() != null) {
-                productDto = objectMapper.convertValue(productResponse.getData(), ProductDto.class);
-            }
-
-            stripeItemRequestList.add(StripeItemRequest.builder()
-                            .quantity(cartItemDto.getQuantity())
-                            .productName(productDto.getName())
-                    .build());
-        }
-
         switch (paymentRequest.getPaymentMethod()) {
             case VN_PAY:
                 String paymentUrl = payWithVN_Pay(paymentRequest.getTotalPrice());
@@ -105,13 +74,15 @@ public class PaymentServiceImpl implements PaymentService {
                     Payment payment = paymentMapper.reqToEntity(paymentRequest);
                     payment.setPaymentStatus(PaymentStatus.COMPLETED);
                     return paymentMapper.toDto(paymentRepository.save(payment)).getId();
-                }else {
+                } else {
 
                 }
                 break;
             case STRIPE:
-                Session session = payWithStripe(stripeItemRequestList);
-                break;
+                Session session = payWithStripe(paymentRequest.getStripeRequest());
+                return session.getUrl();
+            default:
+                log.warn("Payment type is not supported");
         }
         return null;
     }
@@ -249,26 +220,32 @@ public class PaymentServiceImpl implements PaymentService {
         return VNPayConfig.vnp_PayUrl + "?" + queryUrl;
     }
 
+    private Session payWithStripe(StripeRequest stripeRequest) throws StripeException {
+        String successURL = clientBaseURL + "/checkout-success";
 
-    private Session payWithStripe(List<StripeItemRequest> checkoutItemDtoList) throws StripeException {
-        String successURL = clientBaseURL + "payment/success";
-
-        String failureURL = clientBaseURL + "payment/failed";
+        String failureURL = clientBaseURL + "/checkout-failed";
 
         Stripe.apiKey = secretKey;
 
+        Payment paymentEntity = paymentRepository.save(Payment.builder()
+                .paymentMethod(PaymentMethod.STRIPE)
+                .paymentStatus(PaymentStatus.NOT_STARTED)
+                .build());
+
         List<SessionCreateParams.LineItem> sessionItemList = new ArrayList<>();
 
-
-        for (StripeItemRequest checkoutItemDto: checkoutItemDtoList) {
+        for (StripeItemRequest checkoutItemDto : stripeRequest.getStripeItemList()) {
             sessionItemList.add(createSessionLineItem(checkoutItemDto));
         }
 
         SessionCreateParams params = SessionCreateParams.builder()
+
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setCancelUrl(failureURL)
                 .addAllLineItem(sessionItemList)
+                .putMetadata("orderId", stripeRequest.getOrderId())
+                .putMetadata("paymentId", paymentEntity.getPaymentId())
                 .setSuccessUrl(successURL)
                 .build();
         return Session.create(params);
@@ -286,11 +263,14 @@ public class PaymentServiceImpl implements PaymentService {
     private SessionCreateParams.LineItem.PriceData createPriceData(StripeItemRequest checkoutItemDto) {
         return SessionCreateParams.LineItem.PriceData.builder()
                 .setCurrency("usd")
-                .setUnitAmount((long)(checkoutItemDto.getPrice()*100))
+                .setUnitAmount((long) (checkoutItemDto.getPrice() * 100))
                 .setProductData(
                         SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                .putMetadata("productId", checkoutItemDto.getProductId())
+                                .putMetadata("userId", checkoutItemDto.getUserId())
                                 .setName(checkoutItemDto.getProductName())
                                 .build()
                 ).build();
     }
+
 }

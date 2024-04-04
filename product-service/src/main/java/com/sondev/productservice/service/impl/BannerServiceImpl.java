@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -30,7 +31,6 @@ public class BannerServiceImpl implements BannerService {
 
     private final BannerRepository bannerRepository;
     private final CloudinaryService cloudinaryService;
-    private final ObjectMapper objectMapper;
     private final BannerMapper bannerMapper;
 
     private Banner saveImageToCloud(MultipartFile file) {
@@ -79,18 +79,16 @@ public class BannerServiceImpl implements BannerService {
     }
 
     @Override
-    public BannerDto update(MultipartFile file, String data, String id) throws JsonProcessingException {
+    public BannerDto update(BannerRequest bannerRequest, String id) {
         Banner currentBanner = bannerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find banner with id " + id));
 
-        BannerRequest bannerRequest = objectMapper.readValue(data, BannerRequest.class);
-
         String imageUrl;
         String publicId;
-        if (file != null) {
+        if (bannerRequest.getFile() != null) {
             String currentPublicId = currentBanner.getPublicId();
             cloudinaryService.deleteFile(currentPublicId);
-            Map result = cloudinaryService.uploadFile(file);
+            Map result = cloudinaryService.uploadFile(bannerRequest.getFile());
             imageUrl = (String) result.get("secure_url");
             publicId = (String) result.get("public_id");
         } else {
@@ -121,6 +119,11 @@ public class BannerServiceImpl implements BannerService {
         bannerRepository.deleteById(id);
 
         return id;
+    }
+
+    @Override
+    public List<BannerDto> findAll() {
+        return  bannerMapper.toDto(bannerRepository.findAll());
     }
 
 }

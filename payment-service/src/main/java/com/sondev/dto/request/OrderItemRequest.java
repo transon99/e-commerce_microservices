@@ -1,18 +1,21 @@
-package com.sondev.productservice.dto.request;
+package com.sondev.dto.request;
+
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class RatingRequest {
+@Builder
+public class OrderItemRequest {
 
-    private String content;
-
-    private String userId;
+    private Integer quantity;
 
     private String productId;
+
+    private String userId;
 
 }

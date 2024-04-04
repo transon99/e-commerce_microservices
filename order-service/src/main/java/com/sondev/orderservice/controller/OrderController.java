@@ -3,7 +3,9 @@ package com.sondev.orderservice.controller;
 import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.Utils;
+import com.sondev.orderservice.dto.request.ManageOrderStatus;
 import com.sondev.orderservice.dto.request.OrderRequest;
+import com.sondev.orderservice.dto.request.UpdateOrderRequest;
 import com.sondev.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-@RequestMapping("/api/v1/orders")
+@RequestMapping("/orders")
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -31,13 +33,12 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> createOrder(@RequestBody @Validated OrderRequest orderRequest,
-                                                       @RequestHeader("Authorization") String token) {
+    public ResponseEntity<ResponseMessage> createOrder(@RequestBody @Validated OrderRequest orderRequest) {
         log.info("*** OrderDto, controller; create order *");
         return ResponseEntity.ok().body(new ResponseMessage(
                 ResponseStatus.OK,
                 "Create order successful !!",
-                orderService.createOrder(orderRequest, token)));
+                orderService.createOrder(orderRequest)));
     }
 
     @GetMapping("/{id}")
@@ -48,7 +49,22 @@ public class OrderController {
                 orderService.findOrderById(id)));
     }
 
+    @GetMapping("/current")
+    public ResponseEntity<ResponseMessage> getOrderOfCurrentUser(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                ResponseStatus.OK,
+                "Find orders successful !!",
+                orderService.getOrderOfCurrentUser(token)));
+    }
+
     @GetMapping()
+    public ResponseEntity<ResponseMessage> getAllOrder() {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                ResponseStatus.OK,
+                "get all order successful !!", orderService.getAllOrder()));
+    }
+
+    @GetMapping("/filter-paginate")
     public ResponseEntity<ResponseMessage> getOrders(
             @RequestParam Integer offset,
             @RequestParam Integer pageSize) {
@@ -57,7 +73,7 @@ public class OrderController {
                 "get orders successful !!", orderService.getOrders(offset, pageSize)));
     }
 
-    @GetMapping()
+    @GetMapping("/status")
     public ResponseEntity<ResponseMessage> getAllByStatus() {
         return ResponseEntity.ok().body(new ResponseMessage(
                 ResponseStatus.OK,
@@ -72,12 +88,19 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMessage> acceptOrder(
-            @PathVariable(name = "id") String id,
-            @RequestHeader("Authorization") String token) {
+    public ResponseEntity<ResponseMessage> update(
+            @RequestBody ManageOrderStatus manageOrderStatus, @PathVariable String id) {
         return ResponseEntity.ok().body(new ResponseMessage(
                 ResponseStatus.OK,
-                "Accept order successful !!", orderService.acceptOrder(id, token)));
+                "Update order successful !!", orderService.update(manageOrderStatus,id)));
+    }
+
+    @PutMapping("/change-status")
+    public ResponseEntity<ResponseMessage> changeStatus(
+            @RequestBody UpdateOrderRequest status) {
+        return ResponseEntity.ok().body(new ResponseMessage(
+                ResponseStatus.OK,
+                "Update order successful !!", orderService.changeStatusEvent(status)));
     }
 
 }

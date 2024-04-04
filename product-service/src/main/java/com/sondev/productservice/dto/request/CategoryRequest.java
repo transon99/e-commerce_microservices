@@ -14,7 +14,7 @@ public class CategoryRequest {
 
     private String name;
     private String parentCatId;
-    private List<MultipartFile> imageFiles;
+    private MultipartFile imageFile;
     private MultipartFile iconFile;
 
 }

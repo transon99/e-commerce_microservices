@@ -6,6 +6,18 @@ spring:
   config:
     import: "optional:configserver:http://localhost:8888"
 
+CLIENT_BASE_URL: http://localhost:3010
+
+webhook:
+  webhook: whsec_e54361f57831a7e93736fda57408ded0a1b066b47c1f13665792d34bed7a2969
+
+stripe:
+  secret:
+    key: sk_test_51OgOCdLOmLphZ7kVM5nykoqiQWrHmGNr1l9sze8TKIEtNJnxogNdWR4gd3aIVPL4yLAODf0HKJK3SINaRC4t86C800K08LLmEO
+
+
+
+
 
 
 

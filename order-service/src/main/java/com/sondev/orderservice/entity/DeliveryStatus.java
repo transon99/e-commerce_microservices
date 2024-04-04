@@ -5,11 +5,12 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum PaymentStatus {
+public enum DeliveryStatus {
 
-    NOT_STARTED("not_started"),
-    IN_PROGRESS("in_progress"),
-    COMPLETED("completed");
+    PENDING("PENDING"),
+    DISPATCHED("DISPATCHED"),
+    DELIVERED("DELIVERED")
+    ;
 
     private final String status;
 

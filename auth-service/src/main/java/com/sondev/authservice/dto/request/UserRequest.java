@@ -1,5 +1,6 @@
 package com.sondev.authservice.dto.request;
 
+import com.sondev.authservice.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,8 +17,12 @@ public class UserRequest {
 
     private String email;
 
+    private String password;
+
     private String phone;
 
     private String zaloId;
+
+    private Role role;
 
 }

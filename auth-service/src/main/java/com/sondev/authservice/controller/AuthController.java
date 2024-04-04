@@ -1,6 +1,7 @@
 package com.sondev.authservice.controller;
 
 import com.sondev.authservice.dto.request.LoginRequest;
+import com.sondev.authservice.dto.request.RefreshTokenRequest;
 import com.sondev.authservice.dto.request.RegisterRequest;
 import com.sondev.authservice.dto.request.SocialLoginRequest;
 import com.sondev.authservice.service.AuthService;
@@ -13,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -55,10 +53,12 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        authService.refreshToken(request, response);
+    public ResponseEntity<ResponseMessage> refreshToken(@RequestBody @Validated RefreshTokenRequest refreshTokenRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(ResponseStatus.OK, "refresh token successful!!!",authService.refreshToken(refreshTokenRequest)));
+    }
+
+    @PostMapping("/active-user/{token}")
+    public ResponseEntity<ResponseMessage> activeUser( @PathVariable String token) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(ResponseStatus.OK, "active user successful !!!",authService.activeUser(token)));
     }
 }

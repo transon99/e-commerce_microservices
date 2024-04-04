@@ -4,6 +4,7 @@ import com.sondev.common.constants.ResponseStatus;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.dto.request.PaymentRequest;
 import com.sondev.service.PaymentService;
+import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-@RequestMapping("/api/v1/payment")
+@RequestMapping("")
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -31,21 +32,21 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping
-    public ResponseEntity<ResponseMessage> createPayment(@RequestBody @Validated PaymentRequest paymentRequest,
+    @PostMapping("/checkout")
+    public ResponseEntity<ResponseMessage> checkout(@RequestBody @Validated PaymentRequest paymentRequest,
                                                          @RequestHeader("Authorization") String token)
-            throws UnsupportedEncodingException {
+            throws UnsupportedEncodingException, StripeException {
 
-        if (paymentService.createPayment(paymentRequest,token) == null) {
+        if (paymentService.checkout(paymentRequest,token) == null) {
             return ResponseEntity.internalServerError().body(new ResponseMessage(
                     ResponseStatus.OK,
                     "Some error happened went create payment !!",
-                    paymentService.createPayment(paymentRequest, token)));
+                    paymentService.checkout(paymentRequest, token)));
         }
         return ResponseEntity.ok().body(new ResponseMessage(
                 ResponseStatus.OK,
                 "Create payment successful !!",
-                paymentService.createPayment(paymentRequest, token)));
+                paymentService.checkout(paymentRequest, token)));
     }
 
     @GetMapping("/{id}")

@@ -6,15 +6,15 @@ import com.sondev.common.exceptions.NotFoundException;
 import com.sondev.common.response.PagingData;
 import com.sondev.common.response.ResponseMessage;
 import com.sondev.common.utils.JwtUtils;
-import com.sondev.productservice.dto.request.RatingRequest;
-import com.sondev.productservice.dto.response.RatingDto;
+import com.sondev.productservice.dto.request.ReviewRequest;
+import com.sondev.productservice.dto.response.ReviewDto;
 import com.sondev.productservice.dto.response.UserDto;
-import com.sondev.productservice.entity.Rating;
+import com.sondev.productservice.entity.Review;
 import com.sondev.productservice.feignclient.UserClient;
-import com.sondev.productservice.mapper.RatingMapper;
-import com.sondev.productservice.repository.EvaluateRepository;
+import com.sondev.productservice.mapper.ReviewMapper;
+import com.sondev.productservice.repository.ReviewRepository;
 import com.sondev.productservice.repository.ProductRepository;
-import com.sondev.productservice.service.RatingService;
+import com.sondev.productservice.service.ReviewService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,36 +25,40 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RatingServiceImpl implements RatingService {
+public class ReviewServiceImpl implements ReviewService {
 
-    private final EvaluateRepository evaluateRepository;
+    private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
-    private final RatingMapper ratingMapper;
+    private final ReviewMapper reviewMapper;
     private final UserClient userClient;
     private final ObjectMapper objectMapper;
 
 
     @Override
-    public RatingDto create(RatingRequest ratingRequest) {
-        Rating rating = Rating.builder()
-                .content(ratingRequest.getContent())
-                .product(productRepository.findById(ratingRequest.getProductId()).orElseThrow(
-                        () -> new NotFoundException("Can't find product with id" + ratingRequest.getProductId())))
-                .userId(ratingRequest.getUserId())
+    public ReviewDto create(ReviewRequest reviewRequest) {
+        Review review = Review.builder()
+                .rate(reviewRequest.getRate())
+                .content(reviewRequest.getContent())
+                .product(productRepository.findById(reviewRequest.getProductId()).orElseThrow(
+                        () -> new NotFoundException("Can't find product with id" + reviewRequest.getProductId())))
+                .userId(reviewRequest.getUserId())
+                .createDate(new Date())
                 .build();
-        return ratingMapper.toDto(evaluateRepository.save(rating));
+        return reviewMapper.toDto(reviewRepository.save(review));
     }
 
     @Override
     public PagingData getByProductAndUser(Integer offset, Integer pageSize, String productId, String userId) {
         Pageable pageable = PageRequest.of(offset, pageSize);
 
-        Page<Rating> evaluatePage = evaluateRepository.findByProductIdAndUserId( pageable,productId,userId);
+        Page<Review> evaluatePage = reviewRepository.findByProductIdAndUserId( pageable,productId,userId);
 
-        Page<RatingDto> evaluateDtoPage = evaluatePage.map(ratingMapper::toDto);
+        Page<ReviewDto> evaluateDtoPage = evaluatePage.map(reviewMapper::toDto);
 
         return PagingData.builder()
                 .data(evaluateDtoPage)
@@ -68,10 +72,10 @@ public class RatingServiceImpl implements RatingService {
     public PagingData getByProduct(Integer offset, Integer pageSize, String productId) {
         Pageable pageable = PageRequest.of(offset, pageSize);
 
-        Page<Rating> evaluatePage = evaluateRepository.findByProductId( pageable,productId);
+        Page<Review> evaluatePage = reviewRepository.findByProductId( pageable,productId);
 //        UserDto user = getUserById(evaluatePage.getContent())
 
-        Page<RatingDto> evaluateDtoPage = evaluatePage.map(ratingMapper::toDto);
+        Page<ReviewDto> evaluateDtoPage = evaluatePage.map(reviewMapper::toDto);
 
         return PagingData.builder()
                 .data(evaluateDtoPage.getContent())
@@ -83,24 +87,24 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     @Transactional
-    public RatingDto update(String id, RatingRequest ratingRequest, String token) {
+    public ReviewDto update(String id, ReviewRequest reviewRequest, String token) {
         Claims claims = JwtUtils.parseClaims(token);
         String currentUserId = (String) claims.get("userId");
 
-        if (!StringUtils.equals(ratingRequest.getUserId(), currentUserId)) {
+        if (!StringUtils.equals(reviewRequest.getUserId(), currentUserId)) {
             throw new APIException("You cannot evaluate as another user");
         }
 
-        Rating rating = evaluateRepository.findById(id)
+        Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find evaluate with id" + id));
-        rating.setContent(ratingRequest.getContent());
+        review.setContent(reviewRequest.getContent());
 
-        return ratingMapper.toDto(evaluateRepository.save(rating));
+        return reviewMapper.toDto(reviewRepository.save(review));
     }
 
     @Override
     public String delete(String id) {
-        evaluateRepository.deleteById(id);
+        reviewRepository.deleteById(id);
         return id;
     }
 

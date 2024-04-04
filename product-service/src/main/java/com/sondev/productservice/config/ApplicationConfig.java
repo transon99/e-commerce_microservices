@@ -6,12 +6,13 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.support.converter.JsonMessageConverter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Configuration
-public class Config {
+public class ApplicationConfig {
 
     @Bean
     public ObjectMapper mapperObject() {
@@ -21,6 +22,11 @@ public class Config {
         module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ISO_DATE_TIME));
         objectMapper.registerModule(module);
         return objectMapper;
+    }
+
+    @Bean
+    JsonMessageConverter converter(){
+        return new JsonMessageConverter();
     }
 
 }

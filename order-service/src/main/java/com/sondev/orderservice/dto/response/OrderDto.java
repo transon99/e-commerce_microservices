@@ -1,6 +1,8 @@
 package com.sondev.orderservice.dto.response;
 
 import com.sondev.orderservice.dto.AbstractDto;
+import com.sondev.orderservice.entity.DeliveryStatus;
+import com.sondev.orderservice.entity.OrderItem;
 import com.sondev.orderservice.entity.PaymentMethod;
 import com.sondev.orderservice.entity.Status;
 import lombok.AllArgsConstructor;
@@ -9,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -22,16 +25,11 @@ public class OrderDto extends AbstractDto<String> {
 
     private double totalPrice;
 
-    private String paymentMethodId;
-
-    private boolean isAccept;
-
     private Status status;
 
-    private PaymentMethod paymentMethod;
+    private DeliveryStatus deliveryStatus;
 
     private String userId;
 
-    private String cartId;
-
+    private List<OrderItem> orderItems;
 }

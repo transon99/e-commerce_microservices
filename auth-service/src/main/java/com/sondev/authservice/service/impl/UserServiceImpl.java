@@ -55,9 +55,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(UserRequest userRequest) {
         User user = userMapper.reqUserToEntity(userRequest);
-        user.setRole(Role.USER);
+        if (StringUtils.isEmpty(userRequest.getRole().name())) {
+            user.setRole(Role.USER);
+        }
+        user.setRole(userRequest.getRole());
         user.setEnabled(Boolean.TRUE);
-        user.setPassword(passwordEncoder.encode(secretPsw));
+        user.setLocked(Boolean.FALSE);
+        if (StringUtils.isEmpty(userRequest.getPassword())) {
+            user.setPassword(passwordEncoder.encode(secretPsw));
+        }
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         return userRepository.save(user);
     }
 

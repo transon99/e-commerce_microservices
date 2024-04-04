@@ -14,8 +14,6 @@ public class AddressDto {
 
     private String fullAddress;
 
-    private String district;
-
     private String city;
 
 }

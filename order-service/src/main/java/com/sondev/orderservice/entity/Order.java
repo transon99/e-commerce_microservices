@@ -1,7 +1,7 @@
 package com.sondev.orderservice.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,12 +12,15 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "orders")
 public class Order extends AbstractMappedEntity {
     @Id
     @UuidGenerator
@@ -33,18 +36,21 @@ public class Order extends AbstractMappedEntity {
     @Column(name = "payment_id")
     private String paymentId;
 
-    @Column(name = "payment_method")
-    private PaymentMethod paymentMethod;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status;
 
     @Column(name = "user_id")
     private String userId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_status")
+    private DeliveryStatus deliveryStatus;
+
     @Column(name = "delivery_address")
     private String deliveryAddress;
 
-    @Column(name = "cart_id")
-    private String cartId;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private List<OrderItem> orderItems;
 }
